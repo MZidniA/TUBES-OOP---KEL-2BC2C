@@ -12,17 +12,17 @@ public class SeasonController {
         this.seasonManager = seasonManager;
     }
 
-    public void checkCropSurvival(List<Crop> allCrops, Season currentSeason) {
+    public void checkCropSurvival(List<Crop> allCrops, Season currSeason) {
         for (int i = 0; i < allCrops.size(); i++) {
             Crop crop = allCrops.get(i);
-            if (!crop.isCompatibleWith(currentSeason)) {
+            if (!crop.isCompatibleWith(currSeason)) {
                 allCrops.remove(i);
                 i--;
             }
         }
     }
 
-    public boolean validateFishAvailability(Fish fish, Season currentSeason) {
-        return seasonManager.getFishForSeason(currentSeason).contains(fish);
+    public boolean validateFishAvailability(Fish fish, Season currSeason) {
+        return seasonManager.getFishForSeason(currSeason).contains(fish);
     }
 }
