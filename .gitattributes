@@ -1,0 +1,14 @@
+# Normalize text files to use LF line endings
+* text=auto
+
+# Treat all Java files as text
+*.java text
+
+# Treat binary files (e.g., images) as binary
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+
+# Ignore changes in executable permissions
+*.sh -text
