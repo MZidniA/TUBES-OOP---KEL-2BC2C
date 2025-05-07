@@ -1,7 +1,6 @@
 package org.example.controller;
 
 import java.util.List;
-
 import org.example.model.Season;
 import org.example.model.SeasonManager;
 
@@ -17,10 +16,11 @@ public class SeasonController {
             Crop crop = allCrops.get(i);
             if (!crop.isCompatibleWith(currSeason)) {
                 allCrops.remove(i);
-                i--;
+                i--; 
             }
         }
     }
+    
 
     public boolean validateFishAvailability(Fish fish, Season currSeason) {
         return seasonManager.getFishForSeason(currSeason).contains(fish);
