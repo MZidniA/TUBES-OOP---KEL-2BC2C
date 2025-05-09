@@ -1,5 +1,6 @@
-package org.example.model;
+package org.example.model.Items;
 
+import org.example.model.Season;
 
 public class Seeds extends Items {
     private Season season;

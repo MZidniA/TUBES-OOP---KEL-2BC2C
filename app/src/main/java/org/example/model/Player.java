@@ -1,5 +1,6 @@
 package org.example.model;
 
+import org.example.model.NPC.NPC;
 
 public class Player {
     private int name; 
@@ -85,8 +86,5 @@ public class Player {
     public void setLocation(Location location) {
         this.location = location;
     }
-
-    
-    
 
 }

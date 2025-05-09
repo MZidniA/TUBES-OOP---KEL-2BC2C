@@ -1,4 +1,5 @@
-package org.example.model;
+package org.example.model.Items;
+
 
 public class Food  extends Items{
     private int Recoverenergy;
