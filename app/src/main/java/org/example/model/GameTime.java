@@ -1,6 +1,8 @@
 package org.example.model;
 
 import java.time.LocalTime;
+import org.example.model.enums.Season;
+import org.example.model.enums.Weather;
 
 public class GameTime {
     private LocalTime currTime = LocalTime.of(6, 0);

@@ -1,5 +1,8 @@
-package org.example.model;
+package org.example.model.NPC;
 import java.util.ArrayList;
+
+import org.example.model.Location;
+import org.example.model.enums.RelationshipStats;
 
 public class DascoNPC extends NPC {
     public DascoNPC(Location location, int heartPoints, RelationshipStats relationshipsStatus) {

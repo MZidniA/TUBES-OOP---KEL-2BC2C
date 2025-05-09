@@ -2,6 +2,8 @@ package org.example.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.example.model.Items.Items;
+
 
 public class Inventory {
     private Map<Items, Integer> items; 
