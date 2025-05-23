@@ -1,6 +1,6 @@
 package org.example.model.Items;
 
-import org.example.model.Season;
+import org.example.model.enums.Season;
 
 public class Seeds extends Items {
     private Season season;

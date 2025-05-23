@@ -30,4 +30,8 @@ public abstract class Items {
     public void setBuyprice(int buyprice) {
         this.buyprice = buyprice;
     }
+
+    public String toString() {
+        return getName();
+    }
 }

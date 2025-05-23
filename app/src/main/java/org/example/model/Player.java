@@ -1,6 +1,7 @@
 package org.example.model;
-
+import java.util.EnumSet;
 import org.example.model.NPC.NPC;
+import org.example.model.enums.LocationType;
 
 public class Player {
     private int name; 
@@ -10,9 +11,9 @@ public class Player {
     private NPC partner;
     private int gold;
     private Inventory inventory;
-    private Location location;
+    private LocationType locationtype;
 
-    public Player(int name, String gender, String farmname, NPC partner, Inventory inventory, Location location) {
+    public Player(int name, String gender, String farmname, NPC partner, Inventory inventory, LocationType location) {
         this.name = name;
         this.gender = gender;
         this.energy = 100; 
@@ -20,7 +21,7 @@ public class Player {
         this.partner = partner;
         this.gold = 0; 
         this.inventory = inventory;
-        this.location = location;
+        this.locationtype = LocationType.FARM; 
     }
 
     public int getName() {
@@ -79,12 +80,15 @@ public class Player {
         this.inventory = inventory;
     }
 
-    public Location getLocation() {
-        return location;
+    public LocationType getLocation() {
+        return locationtype;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
+    public void setLocation(LocationType locationtype) {
+        if (locationtype == null || !EnumSet.allOf(LocationType.class).contains(locationtype)) {
+            throw new IllegalArgumentException("Invalid LocationType");
+        }
+        this.locationtype = locationtype;
     }
 
 }

@@ -1,15 +1,14 @@
 package org.example.model.NPC;
-import java.util.ArrayList;
-import org.example.model.enums.RelationshipStats; // Ensure this is the correct package for RelationshipStats
-
-import org.example.model.Location;
+import org.example.model.enums.RelationshipStats;
+import org.example.model.Items.ItemDatabase;
+import org.example.model.enums.LocationType;
 
 public class CarolineNPC extends NPC{    
-    public CarolineNPC(Location location, int heartPoints, RelationshipStats relationshipsStatus) {
-        super("Caroline", location, 
-              new ArrayList<String>() {{ add("Firewoord"); add("Coal");}}, 
-              new ArrayList<String>() {{ add("Potato"); add("Wheat"); }}, 
-              new ArrayList<String>() {{ add("Hot Pepper"); }}, 
-              0, relationshipsStatus);
+    public CarolineNPC() {
+        super("Caroline", LocationType.RUMAH_CAROLINE, 
+              ItemDatabase.itemList(new String[] {"Firewood", "Coal"}), 
+              ItemDatabase.itemList(new String[] {"Potato", "Wheat"}), 
+              ItemDatabase.itemList(new String[] {"Hot Pepper"}), 
+              0, RelationshipStats.SINGLE);
     }
 }

@@ -1,15 +1,16 @@
 package org.example.model.NPC;
-import java.util.ArrayList;
 
-import org.example.model.Location;
+
+import org.example.model.enums.LocationType;
 import org.example.model.enums.RelationshipStats; 
+import org.example.model.Items.ItemDatabase;
 
 public class AbigailNPC extends NPC {
-    public AbigailNPC(Location location, int heartPoints, RelationshipStats relationshipsStatus) {
-        super("Abigail", location, 
-              new ArrayList<String>() {{ add("Pumpkin"); add("Chocolate Cake"); }}, 
-              new ArrayList<String>() {{ add("Pufferfish"); add("Spicy Eel"); }}, 
-              new ArrayList<String>() {{ add("Fish Taco"); }}, 
-              0, relationshipsStatus);
+    public AbigailNPC() {
+       super("Abigail", LocationType.RUMAH_ABIGAIL, 
+             ItemDatabase.itemList(new String[] {"Blueberry", "Melon", "Pumpkin", "Grape", "Cranberry"}), 
+             ItemDatabase.itemList(new String[] {"Baguette", "Pumpkin Pie", "Wine"}), 
+             ItemDatabase.itemList(new String[] {"Hot Pepper", "Cauliflower", "Parsnip", "Wheat"}), 
+             0, RelationshipStats.SINGLE);
     }
 }

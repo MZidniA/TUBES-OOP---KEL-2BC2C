@@ -2,18 +2,20 @@ package org.example.model.Items;
 
 
 public class Food  extends Items{
-    private int Recoverenergy;
+    private int recoverenergy;
 
-    public Food(String name, int sellprice, int buyprice, int Recoverenergy) {
+    public Food(String name, int sellprice, int buyprice, int recoverenergy) {
         super(name, sellprice, buyprice);
-        this.Recoverenergy = Recoverenergy;
+        this.recoverenergy = recoverenergy;
     }
-    public int getRecoverenergy() {
-        return Recoverenergy;
+    public int getrecoverenergy() {
+        return recoverenergy;
     }
-    public void setRecoverenergy(int recoverenergy) {
-        Recoverenergy = recoverenergy;
+    public void setrecoverenergy(int recoverenergy) {
+        this.recoverenergy = recoverenergy;
     }
 
-    
+    public void initialize() {
+        
+    }
 }

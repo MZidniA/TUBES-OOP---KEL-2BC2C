@@ -1,15 +1,14 @@
 package org.example.model.NPC;
-import java.util.ArrayList;
-
-import org.example.model.Location;
+import org.example.model.Items.ItemDatabase;
+import org.example.model.enums.LocationType;
 import org.example.model.enums.RelationshipStats;
 
 public class DascoNPC extends NPC {
-    public DascoNPC(Location location, int heartPoints, RelationshipStats relationshipsStatus) {
-        super("Dasco", location,
-              new ArrayList<String>() {{ add("The Legends of Spakbor"); add("Cooked Pig's Head"); add("Wine"); add("Fugu"); add("Spakbor Salad"); }}, 
-              new ArrayList<String>() {{ add("Fish Sandwich"); add("Fish Stew"); add("Baguette"); add("Fish n’ Chips"); }}, 
-              new ArrayList<String>() {{ add("Legend"); add("Grape"); add("Cauliflower"); add("Wheat"); add("Pufferfish"); add("Salmon"); }}, 
-              0, relationshipsStatus);
+    public DascoNPC() {
+        super("Dasco", LocationType.RUMAH_DASCO, 
+              ItemDatabase.itemList(new String[] {"The Legends of Spakbor", "Cooked Pig’s Head", "Wine", "Fugu", "Spakbor Salad"}), 
+              ItemDatabase.itemList(new String[] {"Fish Sandwich", "Fish Stew", "Baguette", "Fish n’ Chips"}), 
+              ItemDatabase.itemList(new String[] {"Legend","Grape", "Cauliflower", "Wheat", "Pufferfish", "Salmon" }), 
+              0, RelationshipStats.SINGLE);
     }
 }
