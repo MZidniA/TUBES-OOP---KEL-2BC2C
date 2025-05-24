@@ -18,9 +18,16 @@ public class GameTime {
         }
     }
 
-    public boolean isWithin(LocalTime currentTime) {
-        if (isAnyTime) return true;
-        return !currentTime.isBefore(startTime) && !currentTime.isAfter(endTime);
+    public boolean isWithin(LocalTime currentTimeFromGameClock) {
+        if (isAnyTime) {
+            return true;
+        }
+
+        if (endTime.isBefore(startTime)) { 
+            return !currentTimeFromGameClock.isBefore(startTime) || !currentTimeFromGameClock.isAfter(endTime);
+        } else { 
+            return !currentTimeFromGameClock.isBefore(startTime) && !currentTimeFromGameClock.isAfter(endTime);
+        }
     }
 
     public boolean isAnyTime() {

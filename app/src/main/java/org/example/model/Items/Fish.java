@@ -14,15 +14,15 @@ public class Fish extends Items {
     private EnumSet<Season> season;
     private EnumSet<FishType> fishType;
     private EnumSet<Weather> weather;
-    private EnumSet<LocationType> LocationType;
+    private EnumSet<LocationType> locationType;
     private GameTime time;
 
-    public Fish(String name, int sellprice, int buyprice, EnumSet<Season> season, EnumSet<FishType> fishType, EnumSet<Weather> weather, EnumSet<LocationType> LocationType, GameTime time) {
+    public Fish(String name, int sellprice, int buyprice, EnumSet<Season> season, EnumSet<FishType> fishType, EnumSet<Weather> weather, EnumSet<LocationType> locationType, GameTime time) {
         super(name, sellprice, buyprice);
         this.season = season;
         this.fishType = fishType;
         this.weather = weather;
-        this.LocationType = LocationType;
+        this.locationType = locationType;
         this.time = time;
     }
 
@@ -46,10 +46,10 @@ public class Fish extends Items {
         this.weather = weather;
     }
     public EnumSet<LocationType> getLocationType() {
-        return LocationType;
+        return locationType;
     }
-    public void setLocationType(EnumSet<LocationType> LocationType) {
-        this.LocationType = LocationType;
+    public void setLocationType(EnumSet<LocationType> locationType) {
+        this.locationType = locationType;
     }
     public GameTime getTime() {
         return time;

@@ -1,4 +1,7 @@
 package org.example.model.Map;
+import java.util.List;
+import org.example.model.Player;
+import org.example.controller.action.Action;
 
 public abstract class Tile {
     private int x; 
@@ -32,5 +35,7 @@ public abstract class Tile {
     public void setSymbol(char symbol) {
         this.symbol = symbol;
     }
+
+    public abstract List<Action> getActions(Player player);
 
 }

@@ -79,7 +79,7 @@ public class FarmMap {
         int startX = houseX + 4;
         int startY = houseY + 6;     
 
-        // Validasi area kosong
+
         if (isAreaFree(startX, startY, 2, 3)) {
             placeObject(startX, startY, 2, 3, ShippingBin.class);
         } else {

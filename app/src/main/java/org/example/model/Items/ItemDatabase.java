@@ -56,25 +56,25 @@ public class ItemDatabase {
     }
 
     public static List<Items> getItemsByCategory(String category) {
-        List<Items> filteredItems = new ArrayList<>();
+        List<Items> itemcategory = new ArrayList<>();
         for (Items item : items.values()) {
             if (category.equals("Seeds") && item instanceof Seeds) {
-                filteredItems.add(item);
+                itemcategory.add(item);
             } else if (category.equals("Food") && item instanceof Food) {
-                filteredItems.add(item);
+                itemcategory.add(item);
             } else if (category.equals("Crops") && item instanceof Crops) {
-                filteredItems.add(item);
+                itemcategory.add(item);
             } else if (category.equals("Equipment") && item instanceof Equipment) {
-                filteredItems.add(item);
+                itemcategory.add(item);
             } else if (category.equals("Misc") && item instanceof Misc) {
-                filteredItems.add(item);
+                itemcategory.add(item);
             } else if (category.equals("Furniture") && item instanceof Furniture) {
-                filteredItems.add(item);
+                itemcategory.add(item);
             } else if (category.equals("Fish") && item instanceof Fish) {
-                filteredItems.add(item);
+                itemcategory.add(item);
             } 
         }
-        return filteredItems;
+        return itemcategory;
     }
 
     public static Map<String, Items> getAllItems() {

@@ -14,8 +14,4 @@ public class Food  extends Items{
     public void setrecoverenergy(int recoverenergy) {
         this.recoverenergy = recoverenergy;
     }
-
-    public void initialize() {
-        
-    }
 }
