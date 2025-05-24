@@ -1,9 +1,8 @@
 package org.example.model;
-import org.example.model.enums.Season;
-import org.example.model.enums.Weather;
+import java.util.List;
+
 import org.example.model.Map.FarmMap;
 import org.example.model.NPC.NPC;
-import java.util.List;
 
 public class Farm {
     private String farmName;
@@ -27,9 +26,6 @@ public class Farm {
         this.gameClock = new GameClock(); 
         this.playerStats = new PlayerStats(); 
         this.npcList = initialNpcList; 
-        if (this.player != null) {
-            this.player.setCurrentLocation(this.getFarmMapAsWorldLocation());
-        }
     }
 
     public String getFarmName() { 

@@ -4,8 +4,7 @@ import org.example.model.GameTime;
 
 public class TimeView {
     public void displayAll(GameTime g) {
-        System.out.printf("Waktu: %s | Hari: %d | Musim: %s | Cuaca: %s\n",
-            g.getCurrTime(), g.getCurrDay(), g.getCurrSeason(), g.getCurrWeather());
+        System.out.printf("Waktu: %s | Hari: %d | Musim: %s | Cuaca: %s\n");
     }
 
     public void showWeatherAlert() {
