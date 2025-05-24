@@ -7,8 +7,12 @@ import java.util.Map;
 
 public class ItemDatabase {
     private static Map<String, Items> items = new HashMap<>();
+    private static boolean initialized = false;
 
     public static void initialize() {
+        if(initialized) {
+            return;
+        }
         items.putAll(FoodFactory.createFood());
         items.putAll(SeedFactory.createSeeds());
         items.putAll(FishFactory.createFish());
@@ -16,6 +20,12 @@ public class ItemDatabase {
         items.putAll(EquipmentFactory.createEquipment());
         items.putAll(MiscFactory.createMisc());
         items.putAll(FurnitureFactory.createFurniture());
+
+        initialized = true;
+    }
+
+    public static boolean isInitialized() {
+        return initialized;
     }
 
 

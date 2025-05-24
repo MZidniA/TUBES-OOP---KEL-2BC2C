@@ -1,6 +1,7 @@
 package org.example.model.Map;
 
 import java.util.Random;
+import org.example.model.enums.LocationType;
 
 public class FarmMap {
     private static final int SIZE = 32; 
@@ -13,6 +14,10 @@ public class FarmMap {
 
     public Tile[][] getMap() {
         return map;
+    }
+
+    public LocationType getFarmLocation() {
+        return LocationType.FARM; 
     }
 
     public Tile getTile(int x, int y) {
@@ -55,7 +60,7 @@ public class FarmMap {
 
         placeShippingBin(houseX, houseY);
 
-        // Randomize posisi Pond
+
         int pondX = random.nextInt(SIZE - 5) + 1;
         int pondY = random.nextInt(SIZE - 4) + 1;
         placeObject(pondX, pondY, 4, 3, Pond.class);

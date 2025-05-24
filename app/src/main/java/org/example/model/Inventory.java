@@ -36,4 +36,28 @@ public class Inventory {
             }
         } 
     }
+
+    public boolean hasItem(String itemName) {
+        if (itemName == null || itemName.trim().isEmpty()) {
+            return false;
+        }
+        for (Items item : inventory.keySet()) {
+            if (item.getName().equalsIgnoreCase(itemName)) {
+                return inventory.get(item) > 0; 
+            }
+        }
+        return false;
+    }
+
+    public int getItemQuantity(String itemName) {
+        if (itemName == null || itemName.trim().isEmpty()) {
+            return 0;
+        }
+        for (Items item : inventory.keySet()) {
+            if (item.getName().equalsIgnoreCase(itemName)) {
+                return inventory.getOrDefault(item, 0);
+            }
+        }
+        return 0;
+    }
 }
