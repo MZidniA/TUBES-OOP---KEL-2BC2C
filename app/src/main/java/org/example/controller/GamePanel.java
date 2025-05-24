@@ -8,6 +8,7 @@ import java.nio.file.spi.FileSystemProvider;
 
 import javax.swing.JPanel;
 
+import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
 import org.example.controller.CollisionChecker;
 import org.example.controller.TileManager;
@@ -19,8 +20,8 @@ public class GamePanel extends JPanel implements Runnable {
     final int originalTileSize = 16;
     final int scale = 2;
     public final int tileSize = originalTileSize * scale; // = 32px
-    public final int maxScreenCol = 16;
-    public final int maxScreenRow = 16;
+    public final int maxScreenCol = 20;
+    public final int maxScreenRow = 18;
     public final int screenWidth = tileSize * maxScreenCol; // 1024 px
     public final int screenHeight = tileSize * maxScreenRow; // 1024 px
 
@@ -31,10 +32,14 @@ public class GamePanel extends JPanel implements Runnable {
     public final int worldHeight = tileSize * maxWorldRow;
     int FPS = 60;
     public TileManager tileM = new TileManager(this);
-    KeyHandler keyH = new KeyHandler();
+    public KeyHandler keyH = new KeyHandler();
     Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
+    public AssetSetter aSetter = new AssetSetter(this);
     public PlayerView player = new PlayerView(this, keyH);
+    public InteractableObject obj[] = new InteractableObject[20];
+
+
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -42,6 +47,10 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+    }
+
+    public void setupGame() {
+        aSetter.setInteractableObject();
     }
 
     public void startGameThread() {
@@ -111,7 +120,25 @@ public class GamePanel extends JPanel implements Runnable {
 
         tileM.draw(g2);
 
+        for (InteractableObject obj : obj) {
+            if (obj != null) {
+                obj.draw(g2, this); // Gambar objek interaktif
+            }
+        }
+
         player.draw(g2); // Tetap gambar player
+
+        int objIndex = cChecker.checkObject(player, obj);
+        if (objIndex != 999) {
+        // Gambar UI "F Interact"
+            g2.setColor(Color.WHITE);
+            g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
+            String text = "[F] Interact with " + obj[objIndex].name;
+            int x = getWidth() / 2 - g2.getFontMetrics().stringWidth(text) / 2;
+            int y = getHeight() - 50;
+            g2.drawString(text, x, y);
+        }
+
         g2.dispose();
     }
 }

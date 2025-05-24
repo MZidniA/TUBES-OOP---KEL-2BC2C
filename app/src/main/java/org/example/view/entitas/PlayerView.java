@@ -29,6 +29,8 @@ public class PlayerView extends Entity {
         solidArea = new Rectangle();
         solidArea.x = 8;
         solidArea.y = 16;
+        solidAreaDefaultX = solidArea.x;
+        solidAreaDefaultY = solidArea.y;
         solidArea.width = 24;
         solidArea.height = 24;
 
@@ -77,6 +79,12 @@ public class PlayerView extends Entity {
             // check tile collision
             collisionOn = false;
             gp.cChecker.checkTile(this);
+
+            int objIndex = gp.cChecker.checkObject(this, gp.obj);
+
+            if (objIndex != 999 && gp.keyH.interactPressed) {
+                gp.obj[objIndex].interact();
+            }
 
             // if collision is false, player can move
             if (collisionOn == false) {
