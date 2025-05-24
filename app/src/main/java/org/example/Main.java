@@ -1,6 +1,7 @@
 package org.example;
 
 import javax.swing.JFrame;
+
 import org.example.controller.GamePanel; // Ensure GamePanel is defined or imported
 
 public class Main {
