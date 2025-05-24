@@ -1,4 +1,4 @@
-package org.example.view;
+package org.example.controller;
 
 import java.awt.image.BufferedImage;
 

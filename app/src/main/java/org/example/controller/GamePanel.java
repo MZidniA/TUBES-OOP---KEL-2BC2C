@@ -4,34 +4,37 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.nio.file.spi.FileSystemProvider;
 
 import javax.swing.JPanel;
 
-import org.example.view.Entity;
-import org.example.view.TileManager;
-import org.example.view.Player;
-
+import org.example.view.entitas.PlayerView;
+import org.example.controller.CollisionChecker;
+import org.example.controller.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
+    // FPS
 
-    // ========== SCREEN SETTINGS ==========
+    // SCREEN SETTINGS
     final int originalTileSize = 16;
     final int scale = 2;
-    public final int tileSize = originalTileSize * scale; // 32px
-
-    public final int maxScreenCol = 32;
-    public final int maxScreenRow = 32;
+    public final int tileSize = originalTileSize * scale; // = 32px
+    public final int maxScreenCol = 16;
+    public final int maxScreenRow = 16;
     public final int screenWidth = tileSize * maxScreenCol; // 1024 px
     public final int screenHeight = tileSize * maxScreenRow; // 1024 px
 
-    // ========== SYSTEM ==========
+    // WORLD SETTINGS
+    public final int maxWorldCol = 32;
+    public final int maxWorldRow = 32;
+    public final int worldWidth = tileSize * maxWorldCol;
+    public final int worldHeight = tileSize * maxWorldRow;
     int FPS = 60;
-    Thread gameThread;
+    public TileManager tileM = new TileManager(this);
     KeyHandler keyH = new KeyHandler();
-
-    // ========== ENTITY & TILE ==========
-    TileManager tileM = new TileManager(this);
-    Player player = new Player(this, keyH);
+    Thread gameThread;
+    public CollisionChecker cChecker = new CollisionChecker(this);
+    public PlayerView player = new PlayerView(this, keyH);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -48,14 +51,18 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        double drawInterval = 1000000000 / FPS; // 60 FPS
+
+        double drawInterval = 1000000000 / 60; // FPS
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
         long timer = 0;
         int drawCount = 0;
 
+        // double nextDrawTime = System.nanoTime() + drawInterval;
+
         while (gameThread != null) {
+
             currentTime = System.nanoTime();
 
             delta += (currentTime - lastTime) / drawInterval;
@@ -63,22 +70,37 @@ public class GamePanel extends JPanel implements Runnable {
             lastTime = currentTime;
 
             if (delta >= 1) {
-                update();   // logic game
-                repaint();  // render ulang
+                update(); // Perbarui posisi player
+                repaint(); // Gambar ulang layar
                 delta--;
                 drawCount++;
             }
-
             if (timer >= 1000000000) {
-                System.out.println("FPS: " + drawCount);
+                System.out.println("FPS:" + drawCount);
                 drawCount = 0;
                 timer = 0;
             }
+
+            // try{
+            // double remainingTime = nextDrawTime - System.nanoTime();
+            // remainingTime = remainingTime/1000000;
+            // if (remainingTime<0){
+            // remainingTime = 0;
+            // }
+
+            // Thread.sleep((long) remainingTime);
+
+            // nextDrawTime += drawInterval;
+            // }
+            // catch (InterruptedException e){
+            // e.printStackTrace();
+
+            // }
         }
     }
 
     public void update() {
-        player.update(); // gerak berdasarkan input
+        player.update();
     }
 
     @Override
@@ -87,29 +109,10 @@ public class GamePanel extends JPanel implements Runnable {
 
         Graphics2D g2 = (Graphics2D) g;
 
-        // DRAW ORDER:
-        // 1. Tile Background
-        tileM.draw(g2); // atau: drawBackground(g2);
+        tileM.draw(g2);
 
-        // 2. Player
-        player.draw(g2);
-
+        player.draw(g2); // Tetap gambar player
         g2.dispose();
     }
-
-    // Optional: jika kamu tidak pakai TileManager
-    public void drawBackground(Graphics2D g2) {
-        for (int row = 0; row < maxScreenRow; row++) {
-            for (int col = 0; col < maxScreenCol; col++) {
-                int x = col * tileSize;
-                int y = row * tileSize;
-
-                g2.setColor(new Color(30, 120, 40)); // hijau
-                g2.fillRect(x, y, tileSize, tileSize);
-
-                g2.setColor(Color.BLACK);
-                g2.drawRect(x, y, tileSize, tileSize);
-            }
-        }
-    }
 }
+
