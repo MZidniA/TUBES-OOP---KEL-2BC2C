@@ -2,39 +2,44 @@ package org.example.model;
 
 import java.time.LocalTime;
 
+
 public class GameTime {
-    private LocalTime currTime = LocalTime.of(6, 0);
-    private int currDay = 1;
-    private Season currSeason = Season.SPRING;
-    private Weather currWeather = Weather.SUNNY;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private boolean isAnyTime;
 
-    public LocalTime getCurrTime() { 
-        return currTime; 
-    }
-
-    public void setCurrTime(LocalTime time) { 
-        this.currTime = time; 
-    }
-
-    public int getCurrDay() { 
-        return currDay; 
+    public GameTime(String start, String end) {
+        if (start.equalsIgnoreCase("Any") || end.equalsIgnoreCase("Any")) {
+            this.isAnyTime = true;
+        } else {
+            this.startTime = LocalTime.parse(start);
+            this.endTime = LocalTime.parse(end);
+            this.isAnyTime = false;
+        }
     }
 
-    public void setCurrDay(int day) { 
-        this.currDay = day; 
+    public boolean isWithin(LocalTime currentTimeFromGameClock) {
+        if (isAnyTime) {
+            return true;
+        }
+
+        if (endTime.isBefore(startTime)) { 
+            return !currentTimeFromGameClock.isBefore(startTime) || !currentTimeFromGameClock.isAfter(endTime);
+        } else { 
+            return !currentTimeFromGameClock.isBefore(startTime) && !currentTimeFromGameClock.isAfter(endTime);
+        }
     }
 
-    public Season getCurrSeason() { 
-        return currSeason; 
-    }
-    public void setCurrSeason(Season season) { 
-        this.currSeason = season; 
+    public boolean isAnyTime() {
+        return isAnyTime;
     }
 
-    public Weather getCurrWeather() { 
-        return currWeather; 
+    public LocalTime getStartTime() {
+        return startTime;
     }
-    public void setCurrWeather(Weather weather) { 
-        this.currWeather = weather; 
+
+    public LocalTime getEndTime() {
+        return endTime;
     }
 }
+
