@@ -21,6 +21,7 @@ public class AssetSetter {
         gp.obj[1] = new PlantedTileObject();
         gp.obj[1].worldX = 15 * gp.tileSize;
         gp.obj[1].worldY = 18 * gp.tileSize;
+        
         gp.obj[2] = new PlantedTileObject();
         gp.obj[2].worldX = 16 * gp.tileSize;
         gp.obj[2].worldY = 18 * gp.tileSize;
