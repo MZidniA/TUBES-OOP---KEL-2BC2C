@@ -4,7 +4,7 @@ import org.example.model.NPC.NPC;
 import org.example.model.enums.LocationType;
 
 public class Player {
-    private int name; 
+    private String name; 
     private String gender;
     private int energy;
     private String farmname;
@@ -13,7 +13,7 @@ public class Player {
     private Inventory inventory;
     private LocationType locationtype;
 
-    public Player(int name, String gender, String farmname, NPC partner, Inventory inventory, LocationType location) {
+    public Player(String name, String gender, String farmname, NPC partner, Inventory inventory, LocationType location) {
         this.name = name;
         this.gender = gender;
         this.energy = 100; 
@@ -89,6 +89,10 @@ public class Player {
             throw new IllegalArgumentException("Invalid LocationType");
         }
         this.locationtype = locationtype;
+    }
+
+    public void decreaseEnergy(int amount) {
+        this.energy = Math.max(0, this.energy - amount);
     }
 
 }
