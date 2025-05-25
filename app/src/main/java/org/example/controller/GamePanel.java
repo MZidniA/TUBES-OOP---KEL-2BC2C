@@ -4,19 +4,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-
-
 import java.nio.file.spi.FileSystemProvider;
+
 import javax.swing.JPanel;
 
 import org.example.view.GameStateUI;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
-import org.example.model.Sound;
-import org.example.controller.GameState;
 import org.example.controller.CollisionChecker;
 import org.example.controller.TileManager;
-
 
 public class GamePanel extends JPanel implements Runnable {
     // SCREEN SETTINGS
@@ -35,7 +31,6 @@ public class GamePanel extends JPanel implements Runnable {
     public final int worldHeight = tileSize * maxWorldRow;
 
     int FPS = 60;
-    Thread gameThread;
     
     // GAME SETTINGS
     public TileManager tileM = new TileManager(this);
@@ -57,6 +52,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        this.requestFocus();
     }
 
     public void setupGame() {
@@ -79,6 +75,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
+
         double drawInterval = 1000000000 / 60; // FPS
         double delta = 0;
         long lastTime = System.nanoTime();
@@ -86,24 +83,43 @@ public class GamePanel extends JPanel implements Runnable {
         long timer = 0;
         int drawCount = 0;
 
+        // double nextDrawTime = System.nanoTime() + drawInterval;
+
         while (gameThread != null) {
+
             currentTime = System.nanoTime();
+
             delta += (currentTime - lastTime) / drawInterval;
             timer += (currentTime - lastTime);
             lastTime = currentTime;
 
             if (delta >= 1) {
-                update(); 
-                repaint(); 
+                update(); // Perbarui posisi player
+                repaint(); // Gambar ulang layar
                 delta--;
                 drawCount++;
             }
-
             if (timer >= 1000000000) {
                 System.out.println("FPS:" + drawCount);
                 drawCount = 0;
                 timer = 0;
             }
+
+            // try{
+            // double remainingTime = nextDrawTime - System.nanoTime();
+            // remainingTime = remainingTime/1000000;
+            // if (remainingTime<0){
+            // remainingTime = 0;
+            // }
+
+            // Thread.sleep((long) remainingTime);
+
+            // nextDrawTime += drawInterval;
+            // }
+            // catch (InterruptedException e){
+            // e.printStackTrace();
+
+            // }
         }
     }
 
