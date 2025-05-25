@@ -3,9 +3,9 @@ package org.example.controller.action;
 
 import org.example.model.Farm;
 import org.example.model.Player;
-import org.example.model.item.EdibleItem; // Asumsi ada kelas/interface EdibleItem
 import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
+import org.example.model.Items.EdibleItem;
 import java.util.List;
 
 public class EatingAction implements Action {
@@ -13,9 +13,9 @@ public class EatingAction implements Action {
     // Time cost mungkin ada sedikit
     private static final int TIME_COST_MINUTES = 5;
 
-    private EdibleItem itemToEat; // Item yang akan dimakan
+    private Items itemToEat; // Ganti EdibleItem menjadi Items
 
-    public EatingAction(EdibleItem itemToEat) {
+    public EatingAction(Items itemToEat) {
         this.itemToEat = itemToEat;
     }
      public EatingAction() {
@@ -27,7 +27,7 @@ public class EatingAction implements Action {
         return "Makan " + (itemToEat != null ? itemToEat.getName() : "Item");
     }
     
-    public void setItemToEat(EdibleItem item) {
+    public void setItemToEat(Items item) {
         this.itemToEat = item;
     }
 
@@ -61,10 +61,15 @@ public class EatingAction implements Action {
             return;
         }
         Player player = farm.getPlayer();
-        player.increaseEnergy(itemToEat.getEnergyRestored());
-        farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
-        player.getInventory().removeItem(itemToEat, 1);
-
-        System.out.println("LOG: " + player.getName() + " memakan " + itemToEat.getName() + ". Energi pulih " + itemToEat.getEnergyRestored() + ".");
+        // Pastikan itemToEat adalah EdibleItem sebelum casting
+        if (itemToEat instanceof EdibleItem) {
+            int restored = ((EdibleItem) itemToEat).getEnergyRestored();
+            player.setEnergy(player.getEnergy() + restored);
+            player.getInventory().removeItem(itemToEat, 1);
+            farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
+            System.out.println("LOG: " + player.getName() + " memakan " + itemToEat.getName() + ". Energi pulih " + restored + ".");
+        } else {
+            System.out.println("LOG: Item tidak bisa dimakan.");
+        }
     }
 }

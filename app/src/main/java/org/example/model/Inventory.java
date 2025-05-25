@@ -2,6 +2,7 @@ package org.example.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.example.model.Items.EdibleItem;
 import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
 
@@ -37,7 +38,7 @@ public class Inventory {
         }
     }
 
-    public boolean hasItem(Items item, int quantity) {
-        return inventory.getOrDefault(item, 0) >= quantity;
+    public boolean hasItem(Items itemToEat, int quantity) {
+        return inventory.getOrDefault(itemToEat, 0) >= quantity;
     }
 }

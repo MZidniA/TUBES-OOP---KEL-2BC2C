@@ -2,8 +2,9 @@ package org.example.controller.action;
 
 import org.example.model.Farm;
 import org.example.model.Player;
+import org.example.model.Items.ItemDatabase;
 
-public class CookingAction {
+public class CookingAction implements Action {
     private static final int ENERGY_COST = 5;
 
     @Override
@@ -14,7 +15,8 @@ public class CookingAction {
     @Override
     public boolean canExecute(Farm farm) {
         Player player = farm.getPlayer();
-        return player.getEnergy() > (ENERGY_COST - 21) && player.getInventory().hasItem("Fishing Rod");
+        return player.getEnergy() > (ENERGY_COST - 21)
+            && player.getInventory().hasItem(ItemDatabase.getItem("Fishing Rod"), 1);
     }
 
     @Override

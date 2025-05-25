@@ -5,7 +5,6 @@ public class Tillableland extends Tile {
         super(x, y, true, '.'); 
     }
 
-    @Override
     public void interact() {
         System.out.println("Interacting with Tillableland at coordinates (" + getX() + ", " + getY() + ")");
     }

@@ -2,6 +2,8 @@ package org.example.model.Map;
 
 import java.util.Random;
 
+import org.example.model.enums.LocationType;
+
 public class FarmMap {
     private static final int SIZE = 32; 
     private Tile[][] map; 
@@ -13,6 +15,10 @@ public class FarmMap {
 
     public Tile[][] getMap() {
         return map;
+    }
+    
+    public LocationType getFarmLocation() {
+        return LocationType.FARM; 
     }
 
     public Tile getTile(int x, int y) {
