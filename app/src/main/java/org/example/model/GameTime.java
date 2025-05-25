@@ -24,11 +24,12 @@ public class GameTime {
         }
 
         if (endTime.isBefore(startTime)) { 
-            return !currentTimeFromGameClock.isBefore(startTime) || !currentTimeFromGameClock.isAfter(endTime);
+            return currentTimeFromGameClock.isAfter(startTime) || currentTimeFromGameClock.equals(startTime) || currentTimeFromGameClock.isBefore(endTime) || currentTimeFromGameClock.equals(endTime);
         } else { 
-            return !currentTimeFromGameClock.isBefore(startTime) && !currentTimeFromGameClock.isAfter(endTime);
+            return (currentTimeFromGameClock.isAfter(startTime) || currentTimeFromGameClock.equals(startTime)) && (currentTimeFromGameClock.isBefore(endTime) || currentTimeFromGameClock.equals(endTime));
         }
     }
+    
 
     public boolean isAnyTime() {
         return isAnyTime;

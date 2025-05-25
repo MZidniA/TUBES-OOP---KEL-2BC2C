@@ -4,9 +4,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
-
-    public boolean upPressed, downPressed, leftPressed, rightPressed, interactPressed;
-
+    GamePanel gp;
+    public boolean upPressed, downPressed, leftPressed, rightPressed, interactPressed, escapePressed, enterPressed;
+    public KeyHandler(GamePanel gp) {
+        this.gp = gp;
+    }
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -30,6 +32,26 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_F) {
             interactPressed = true; 
         }
+        if (code == KeyEvent.VK_ESCAPE) {
+            escapePressed = true;
+        }
+        if (code == KeyEvent.VK_ENTER) {
+            enterPressed = true;
+        }
+        if (gp.gameState.getGameState() == gp.gameState.pause) { 
+            if (code == KeyEvent.VK_W ) {
+                gp.gameStateUI.commandNum--;
+                if (gp.gameStateUI.commandNum < 0) {
+                    gp.gameStateUI.commandNum = 1; 
+                }
+            }
+            if (code == KeyEvent.VK_S ) {
+                gp.gameStateUI.commandNum++;
+                if (gp.gameStateUI.commandNum > 1) {
+                    gp.gameStateUI.commandNum = 0;
+                }
+            }
+        }
     }
 
     @Override
@@ -49,6 +71,9 @@ public class KeyHandler implements KeyListener {
         }
         if (code == KeyEvent.VK_F) {
             interactPressed = false; 
+        }
+        if (code == KeyEvent.VK_ESCAPE) {
+            escapePressed = false;
         }
     }
 }

@@ -5,11 +5,18 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
+
+import java.nio.file.spi.FileSystemProvider;
 import javax.swing.JPanel;
 
-import org.example.model.Sound;
+import org.example.view.GameStateUI;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
+import org.example.model.Sound;
+import org.example.controller.GameState;
+import org.example.controller.CollisionChecker;
+import org.example.controller.TileManager;
+
 
 public class GamePanel extends JPanel implements Runnable {
     // SCREEN SETTINGS
@@ -32,7 +39,11 @@ public class GamePanel extends JPanel implements Runnable {
     
     // GAME SETTINGS
     public TileManager tileM = new TileManager(this);
-    public KeyHandler keyH = new KeyHandler();
+
+    public KeyHandler keyH = new KeyHandler(this);
+    public GameState gameState = new GameState();
+    public GameStateUI gameStateUI = new GameStateUI(this);
+    Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
     public PlayerView player = new PlayerView(this, keyH);
@@ -50,16 +61,20 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void setupGame() {
         aSetter.setInteractableObject();
+        gameState.setGameState(1);
+        
     }
 
     public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
 
+
         // PLAY SOUND
         music.setFile();
         music.play();
         music.loop();
+]
     }
 
     @Override
@@ -93,7 +108,40 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        player.update();
+        if (keyH.escapePressed) {
+            if (gameState.getGameState() == gameState.play) {
+                gameState.setGameState(gameState.pause);
+            } else if (gameState.getGameState() == gameState.pause) {
+                gameState.setGameState(gameState.play);
+            }
+            keyH.escapePressed = false; // Reset flag agar tidak toggle terus menerus
+        }
+
+        // Hanya update game jika state adalah PLAY
+        if (gameState.getGameState() == gameState.play) { // DIUBAH: Menggunakan konstanta
+            player.update(); 
+            
+            // Logika interaksi dengan objek
+            int objIndex = cChecker.checkObject(player, obj);
+            if (objIndex != 999 && keyH.interactPressed) {
+                 if (obj[objIndex] != null) { // Pastikan objek tidak null
+                    obj[objIndex].interact();
+                 }
+                 keyH.interactPressed = false; // Reset setelah interaksi
+            }
+
+        } else if (gameState.getGameState() == gameState.pause) { // DIUBAH: Menggunakan konstanta
+            // Logika saat game di-pause (pemilihan menu)
+            if (keyH.enterPressed) {
+                if (gameStateUI.commandNum == 0) { // Opsi "Continue"
+                    gameState.setGameState(gameState.play);
+                } else if (gameStateUI.commandNum == 1) { // Opsi "Exit"
+                    System.exit(0);
+                }
+                keyH.enterPressed = false; // Reset flag setelah aksi
+            }
+        }
+     
     }
 
     @Override
@@ -122,6 +170,8 @@ public class GamePanel extends JPanel implements Runnable {
             int y = getHeight() - 50;
             g2.drawString(text, x, y);
         }
+
+        gameStateUI.draw(g2); // Gambar UI game state
 
         g2.dispose();
     }

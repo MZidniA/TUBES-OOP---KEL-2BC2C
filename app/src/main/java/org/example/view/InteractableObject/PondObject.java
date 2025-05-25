@@ -1,12 +1,16 @@
 package org.example.view.InteractableObject;
 import javax.imageio.ImageIO;
 
-public class PondObject extends InteractableObject {
+import org.example.controller.GamePanel;
 
-    public PondObject() {
+public class PondObject extends InteractableObject {
+    GamePanel gp;
+    public PondObject(GamePanel gp) {
+        this.gp = gp;
         this.name = "Pond";
         try {
             this.image = ImageIO.read(getClass().getResourceAsStream("/InteractableObject/Pond.png"));
+            uTool.scaleImage(image, gp.tileSize, gp.tileSize); 
         } catch (Exception e) {
             e.printStackTrace();
         }
