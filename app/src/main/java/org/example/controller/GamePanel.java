@@ -4,18 +4,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.nio.file.spi.FileSystemProvider;
 
 import javax.swing.JPanel;
 
+import org.example.model.Sound;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
-import org.example.controller.CollisionChecker;
-import org.example.controller.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
-    // FPS
-
     // SCREEN SETTINGS
     final int originalTileSize = 16;
     final int scale = 2;
@@ -30,16 +26,19 @@ public class GamePanel extends JPanel implements Runnable {
     public final int maxWorldRow = 32;
     public final int worldWidth = tileSize * maxWorldCol;
     public final int worldHeight = tileSize * maxWorldRow;
+
     int FPS = 60;
+    Thread gameThread;
+    
+    // GAME SETTINGS
     public TileManager tileM = new TileManager(this);
     public KeyHandler keyH = new KeyHandler();
-    Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
     public PlayerView player = new PlayerView(this, keyH);
     public InteractableObject obj[] = new InteractableObject[20];
 
-
+    Sound music = new Sound();
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -56,11 +55,15 @@ public class GamePanel extends JPanel implements Runnable {
     public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
+
+        // PLAY SOUND
+        music.setFile();
+        music.play();
+        music.loop();
     }
 
     @Override
     public void run() {
-
         double drawInterval = 1000000000 / 60; // FPS
         double delta = 0;
         long lastTime = System.nanoTime();
@@ -68,43 +71,24 @@ public class GamePanel extends JPanel implements Runnable {
         long timer = 0;
         int drawCount = 0;
 
-        // double nextDrawTime = System.nanoTime() + drawInterval;
-
         while (gameThread != null) {
-
             currentTime = System.nanoTime();
-
             delta += (currentTime - lastTime) / drawInterval;
             timer += (currentTime - lastTime);
             lastTime = currentTime;
 
             if (delta >= 1) {
-                update(); // Perbarui posisi player
-                repaint(); // Gambar ulang layar
+                update(); 
+                repaint(); 
                 delta--;
                 drawCount++;
             }
+
             if (timer >= 1000000000) {
                 System.out.println("FPS:" + drawCount);
                 drawCount = 0;
                 timer = 0;
             }
-
-            // try{
-            // double remainingTime = nextDrawTime - System.nanoTime();
-            // remainingTime = remainingTime/1000000;
-            // if (remainingTime<0){
-            // remainingTime = 0;
-            // }
-
-            // Thread.sleep((long) remainingTime);
-
-            // nextDrawTime += drawInterval;
-            // }
-            // catch (InterruptedException e){
-            // e.printStackTrace();
-
-            // }
         }
     }
 
@@ -122,15 +106,15 @@ public class GamePanel extends JPanel implements Runnable {
 
         for (InteractableObject obj : obj) {
             if (obj != null) {
-                obj.draw(g2, this); // Gambar objek interaktif
+                obj.draw(g2, this); 
             }
         }
 
-        player.draw(g2); // Tetap gambar player
+        player.draw(g2); 
 
         int objIndex = cChecker.checkObject(player, obj);
         if (objIndex != 999) {
-        // Gambar UI "F Interact"
+            // INTERACT
             g2.setColor(Color.WHITE);
             g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
             String text = "[F] Interact with " + obj[objIndex].name;

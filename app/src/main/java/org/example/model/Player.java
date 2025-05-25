@@ -1,5 +1,6 @@
 package org.example.model;
 import java.util.EnumSet;
+
 import org.example.model.NPC.NPC;
 import org.example.model.enums.LocationType;
 

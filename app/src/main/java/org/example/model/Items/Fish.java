@@ -1,12 +1,11 @@
 package org.example.model.Items;
 
-import org.example.model.enums.Season; // Ensure the Season class exists in this package or update the package path
-
 import java.util.EnumSet;
 
 import org.example.model.GameTime;
-import org.example.model.enums.LocationType; // Update the package path to the correct one
 import org.example.model.enums.FishType;
+import org.example.model.enums.LocationType;
+import org.example.model.enums.Season;
 import org.example.model.enums.Weather;
 
 

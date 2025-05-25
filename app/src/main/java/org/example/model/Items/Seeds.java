@@ -15,13 +15,15 @@ public class Seeds extends Items {
     public Season getSeason() {
         return season;
     }
-    public void setSeason(Season season) {
 
+    public void setSeason(Season season) {
         this.season = season;
     }
+
     public int getDaystoHarvest() {
         return DaystoHarvest;
     }
+    
     public void setDaystoHarvest(int DaystoHarvest) {
         this.DaystoHarvest = DaystoHarvest;
     }

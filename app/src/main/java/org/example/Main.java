@@ -1,7 +1,8 @@
 package org.example;
 
 import javax.swing.JFrame;
-import org.example.controller.GamePanel; // Ensure GamePanel is defined or imported
+
+import org.example.controller.GamePanel; 
 
 public class Main {
     public static void main(String[] args) {
