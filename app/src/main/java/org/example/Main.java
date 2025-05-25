@@ -1,6 +1,7 @@
 package org.example;
 
 import javax.swing.JFrame;
+
 import org.example.controller.MenuPanel; 
 
 public class Main {
@@ -11,7 +12,6 @@ public class Main {
         window.setTitle("Spakbor Hill");
 
         MenuPanel menuPanel = new MenuPanel(window);
-        
 
         window.setContentPane(menuPanel);
 

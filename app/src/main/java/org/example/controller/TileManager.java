@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
 import javax.imageio.ImageIO;
 
 public class TileManager {
@@ -112,6 +113,7 @@ public class TileManager {
         setup(89, "Rumput89", false);
         setup(88, "Path", true); 
         setup(90, "Path", true);
+        setup(99, "99", false);
     }
     
 
