@@ -52,6 +52,16 @@ public class KeyHandler implements KeyListener {
                 }
             }
         }
+        if (code == KeyEvent.VK_C) {
+            switch(gp.currentMap) {
+                case 0:
+                    gp.tileM.loadMap("/maps/map.txt", 0);
+                    break;
+                case 1:
+                    gp.tileM.loadMap("/maps/beachmap.txt", 1);
+                    break;
+            }
+        }
     }
 
     @Override

@@ -33,6 +33,8 @@ public class GamePanel extends JPanel implements Runnable {
     // WORLD SETTINGS
     public final int maxWorldCol = 32;
     public final int maxWorldRow = 32;
+    public final int maxMap = 6;
+    public int currentMap = 0; // Indeks p
     public final int worldWidth = tileSize * maxWorldCol;
     public final int worldHeight = tileSize * maxWorldRow;
 
@@ -48,7 +50,7 @@ public class GamePanel extends JPanel implements Runnable {
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
     public PlayerView player = new PlayerView(this, keyH);
-    public InteractableObject obj[] = new InteractableObject[20];
+    public InteractableObject obj[][] = new InteractableObject[maxMap][20];
     private JFrame frame;
 
     Sound music = new Sound();
@@ -144,10 +146,10 @@ public class GamePanel extends JPanel implements Runnable {
             player.update(); 
             
             // Logika interaksi dengan objek
-            int objIndex = cChecker.checkObject(player, obj);
+            int objIndex = cChecker.checkObject(player, obj, currentMap);
             if (objIndex != 999 && keyH.interactPressed) {
-                 if (obj[objIndex] != null) { // Pastikan objek tidak null
-                    obj[objIndex].interact();
+                 if (obj[currentMap][objIndex] != null) { // Pastikan objek tidak null
+                    obj[currentMap][objIndex].interact();
                  }
                  keyH.interactPressed = false; // Reset setelah interaksi
             }
@@ -164,6 +166,45 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
      
+    }
+
+    public void teleportPlayer(int mapIndex, int newWorldX, int newWorldY) {
+        music.stop(); // Hentikan musik saat teleportasi
+        currentMap = mapIndex;
+        player.worldX = newWorldX;
+        player.worldY = newWorldY;
+    
+        // Kosongkan objek dari map sebelumnya
+        for (int i = 0; i < obj[currentMap].length; i++) {
+            obj[currentMap][i] = null;
+        }
+    
+        // Muat tile untuk peta baru. 
+        // Jika TileManager.loadMap() Anda memicu AssetSetter berdasarkan penanda di file peta,
+        // maka objek untuk map baru juga akan dimuat.
+        String mapPath = "";
+        if (currentMap == 0) {
+            mapPath = "/maps/map.txt";
+        } else if (currentMap == 1) {
+            mapPath = "/maps/beachmap.txt";
+            // Anda mungkin perlu menyesuaikan posisi default pemain jika peta baru ini tidak ada pintu keluar spesifik
+            // player.worldX = gp.tileSize * defaultColMap1; 
+            // player.worldY = gp.tileSize * defaultRowMap1;
+        }
+        // Tambahkan else if untuk peta lainnya
+    
+        if (!mapPath.isEmpty()) {
+            tileM.loadMap(mapPath, currentMap); // Memuat tile dan juga objek jika sistem penanda aktif
+        } else {
+            System.err.println("Path peta tidak valid untuk mapIndex: " + currentMap);
+        }
+        
+        // Jika AssetSetter Anda hardcode dan perlu dipanggil manual per map:
+        // aSetter.setObjectsForMap(currentMap); // Anda perlu membuat metode ini
+    
+        music.play(); // Mainkan musik untuk map baru (jika ada metode ini)
+        
+        System.out.println("Player diteleportasi ke map " + currentMap + " di tile (" + player.worldX/tileSize + "," + player.worldY/tileSize + ")");
     }
 
     private void exitToMenu() {
@@ -187,7 +228,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (gameState.getGameState() == gameState.play || gameState.getGameState() == gameState.pause) {
             tileM.draw(g2);
-            for (InteractableObject interactableObjItem : obj) {
+            for (InteractableObject interactableObjItem : obj[currentMap]) {
                 if (interactableObjItem != null) {
                     interactableObjItem.draw(g2, this);
                 }
@@ -196,12 +237,12 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         if (gameState.getGameState() == gameState.play) {
-            int objIndex = cChecker.checkObject(player, obj);
+            int objIndex = cChecker.checkObject(player, obj, currentMap);
             if (objIndex != 999) {
                 // INTERACT
                 g2.setColor(Color.WHITE);
                 g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
-                String text = "[F] Interact with " + obj[objIndex].name;
+                String text = "[F] Interact with " + obj[currentMap] [objIndex].name;
                 int x = getWidth() / 2 - g2.getFontMetrics().stringWidth(text) / 2;
                 int y = getHeight() - 50;
                 g2.drawString(text, x, y);

@@ -90,11 +90,50 @@ public class PlayerView extends Entity {
             collisionOn = false;
             gp.cChecker.checkTile(this);
 
-            int objIndex = gp.cChecker.checkObject(this, gp.obj);
+            int objIndex = gp.cChecker.checkObject(this, gp.obj, gp.currentMap);
 
             if (objIndex != 999 && gp.keyH.interactPressed) {
-                gp.obj[objIndex].interact();
+                gp.obj[gp.currentMap][objIndex].interact();
             }
+
+            if (keyH.interactPressed) {
+                boolean interactionHandled = false; // Flag untuk menandai apakah interaksi sudah ditangani
+
+                if (objIndex != 999) { // Jika ada objek interaktif di depan
+                    if (gp.obj[gp.currentMap][objIndex] != null) {
+                        gp.obj[gp.currentMap][objIndex].interact(); 
+                        interactionHandled = true;
+                    }
+                } else {
+                    // Jika TIDAK ada objek interaktif, cek TILE TELEPORT
+                    int playerCol = (worldX + solidArea.x + solidArea.width / 2) / gp.tileSize; // Tengah solidArea pemain
+                    int playerRow = (worldY + solidArea.y + solidArea.height / 2) / gp.tileSize; // Tengah solidArea pemain
+
+                    // Pastikan tidak keluar batas peta
+                    if (playerCol >= 0 && playerCol < gp.maxWorldCol && playerRow >= 0 && playerRow < gp.maxWorldRow) {
+                        int tileNumUnderPlayer = gp.tileM.mapTileNum[gp.currentMap][playerCol][playerRow];
+
+                        // ---- LOGIKA TELEPORTASI DARI TILE 69 ----
+                        if (gp.currentMap == 0 && tileNumUnderPlayer == 69) {
+                            System.out.println("Berdiri di tile 69 pada map 0, teleportasi!");
+                            // Tentukan koordinat tujuan di map 1 (misalnya kolom 5, baris 5)
+                            int destinationMapIndex = 1;
+                            int destinationCol = 5; // Kolom tujuan di map baru
+                            int destinationRow = 5; // Baris tujuan di map baru
+                            gp.teleportPlayer(destinationMapIndex, destinationCol * gp.tileSize, destinationRow * gp.tileSize);
+                            interactionHandled = true; // Interaksi sudah ditangani
+                        }
+                        // Anda bisa menambahkan 'else if' untuk tile teleport lain di sini
+                        // Misalnya:
+                        // else if (gp.currentMap == 1 && tileNumUnderPlayer == XX) { // XX adalah ID tile teleport kembali
+                        //     gp.teleportPlayer(0, kolomTujuanDiMap0 * gp.tileSize, barisTujuanDiMap0 * gp.tileSize);
+                        //     interactionHandled = true;
+                        // }
+                    }
+                }
+                keyH.interactPressed = false; // Reset flag interaksi setelah diproses
+            }
+
 
             // if collision is false, player can move
             if (collisionOn == false) {
