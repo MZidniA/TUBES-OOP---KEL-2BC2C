@@ -8,6 +8,8 @@ import java.awt.Graphics2D;
 
 import java.nio.file.spi.FileSystemProvider;
 import javax.swing.JPanel;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import org.example.view.GameStateUI;
 import org.example.view.InteractableObject.InteractableObject;
@@ -43,15 +45,18 @@ public class GamePanel extends JPanel implements Runnable {
     public KeyHandler keyH = new KeyHandler(this);
     public GameState gameState = new GameState();
     public GameStateUI gameStateUI = new GameStateUI(this);
-    Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
     public PlayerView player = new PlayerView(this, keyH);
     public InteractableObject obj[] = new InteractableObject[20];
+    private JFrame frame;
 
     Sound music = new Sound();
 
-    public GamePanel() {
+    public GamePanel(JFrame frame) {
+        this.frame = frame;
+        this.keyH = new KeyHandler(this);
+        this.player = new PlayerView(this, keyH);
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
@@ -61,11 +66,20 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void setupGame() {
         aSetter.setInteractableObject();
-        gameState.setGameState(1);
+        gameState.setGameState(gameState.play); // Set initial game state to PLAY
         
     }
 
     public void startGameThread() {
+        if (gameThread != null && gameThread.isAlive()) {
+            gameThread.interrupt(); 
+            try {
+                gameThread.join(1000); 
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); 
+                System.err.println("Gagal menghentikan game thread sebelumnya.");
+            }
+        }
         gameThread = new Thread(this);
         gameThread.start();
 
@@ -74,8 +88,16 @@ public class GamePanel extends JPanel implements Runnable {
         music.setFile();
         music.play();
         music.loop();
-]
+
     }
+
+    public void stopGameThread() {
+        if (gameThread != null) {
+            gameThread.interrupt();
+            gameThread = null;
+        }
+    }
+
 
     @Override
     public void run() {
@@ -136,7 +158,7 @@ public class GamePanel extends JPanel implements Runnable {
                 if (gameStateUI.commandNum == 0) { // Opsi "Continue"
                     gameState.setGameState(gameState.play);
                 } else if (gameStateUI.commandNum == 1) { // Opsi "Exit"
-                    System.exit(0);
+                    exitToMenu(); 
                 }
                 keyH.enterPressed = false; // Reset flag setelah aksi
             }
@@ -144,31 +166,46 @@ public class GamePanel extends JPanel implements Runnable {
      
     }
 
+    private void exitToMenu() {
+        stopGameThread(); // Hentikan game loop saat ini
+
+        frame.getContentPane().removeAll();
+        MenuPanel menuPanel = new MenuPanel(frame); // Buat MenuPanel baru
+        frame.setContentPane(menuPanel);
+        frame.revalidate();
+        frame.repaint();
+
+        SwingUtilities.invokeLater(menuPanel::requestFocusInWindow);
+    }
+
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
 
-        tileM.draw(g2);
-
-        for (InteractableObject obj : obj) {
-            if (obj != null) {
-                obj.draw(g2, this); 
+        if (gameState.getGameState() == gameState.play || gameState.getGameState() == gameState.pause) {
+            tileM.draw(g2);
+            for (InteractableObject interactableObjItem : obj) {
+                if (interactableObjItem != null) {
+                    interactableObjItem.draw(g2, this);
+                }
             }
+            player.draw(g2);
         }
 
-        player.draw(g2); 
-
-        int objIndex = cChecker.checkObject(player, obj);
-        if (objIndex != 999) {
-            // INTERACT
-            g2.setColor(Color.WHITE);
-            g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
-            String text = "[F] Interact with " + obj[objIndex].name;
-            int x = getWidth() / 2 - g2.getFontMetrics().stringWidth(text) / 2;
-            int y = getHeight() - 50;
-            g2.drawString(text, x, y);
+        if (gameState.getGameState() == gameState.play) {
+            int objIndex = cChecker.checkObject(player, obj);
+            if (objIndex != 999) {
+                // INTERACT
+                g2.setColor(Color.WHITE);
+                g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
+                String text = "[F] Interact with " + obj[objIndex].name;
+                int x = getWidth() / 2 - g2.getFontMetrics().stringWidth(text) / 2;
+                int y = getHeight() - 50;
+                g2.drawString(text, x, y);
+            }
         }
 
         gameStateUI.draw(g2); // Gambar UI game state
