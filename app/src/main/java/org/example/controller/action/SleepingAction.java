@@ -15,8 +15,8 @@ public class SleepingAction implements Action {
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player p
-        sPlayerNearBed(player)) {
+        Player p;
+        sPlayerNearBed(p) {
         //     System.out.println("LOG: Hanya bisa tidur di tempat tidur.");
         //     return false;
         // }
