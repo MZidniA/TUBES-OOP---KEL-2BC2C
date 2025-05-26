@@ -32,15 +32,15 @@ public class TillingAction implements Action {
             // System.out.println("LOG: Tidak punya Hoe untuk membajak.");
             return false;
         }
-        // Cek apakah tile di depan/di bawah pemain adalah Tillable Land
-        // Ini memerlukan logika untuk mendapatkan tile target
-        // Tile targetTile = farm.getTileAt(player.getFacingX(), player.getFacingY());
-        // if (targetTile == null || targetTile.getType() != TileType.TILLABLE_LAND) {
-        //     System.out.println("LOG: Tidak bisa membajak tile ini.");
-        //     return false;
-        // }
-        return true; // Placeholder, logika tile target perlu implementasi
-    }
+            // Cek apakah tile di depan/di bawah pemain adalah Tillable Land
+            // Ini memerlukan logika untuk mendapatkan tile target
+            // Tile targetTile = farm.getTileAt(player.getFacingX(), player.getFacingY());
+            // if (targetTile == null || targetTile.getType() != TileType.TILLABLE_LAND) {
+            //     System.out.println("LOG: Tidak bisa membajak tile ini.");
+            //     return false;
+            // }
+            return true; // Placeholder, logika tile target perlu implementasi
+        }
 
     @Override
     public void execute(Farm farm) {
