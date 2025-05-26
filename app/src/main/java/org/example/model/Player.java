@@ -84,18 +84,17 @@ public class Player {
     public Inventory getInventory() { return inventory; }
     public void setInventory(Inventory inventory) { this.inventory = inventory; }
 
-    public LocationType getCurrentLocationType() { // Ganti nama getter
+    public LocationType getCurrentLocationType() { 
         return currentLocationType;
     }
 
-    public void setCurrentLocationType(LocationType locationType) { // Ganti nama setter
+    public void setCurrentLocationType(LocationType locationType) { 
         if (locationType == null || !EnumSet.allOf(LocationType.class).contains(locationType)) {
             throw new IllegalArgumentException("Invalid LocationType: " + locationType);
         }
         this.currentLocationType = locationType;
     }
 
-    // Tambahkan method setLocation agar sesuai dengan pemanggilan di Farm.java
     public void setLocation(LocationType locationType) {
         if (locationType == null || !EnumSet.allOf(LocationType.class).contains(locationType)) {
             throw new IllegalArgumentException("Invalid LocationType: " + locationType);
@@ -104,18 +103,15 @@ public class Player {
     }
 
     public void decreaseEnergy(int amount) {
-        if (amount < 0) return; // Tidak bisa mengurangi dengan nilai negatif
-        setEnergy(this.energy - amount); // Gunakan setEnergy agar ada validasi batas
-        // System.out.println("LOG: Energi " + this.name + " berkurang " + amount + ", sisa: " + this.energy);
+        if (amount < 0) return; 
+        setEnergy(this.energy - amount); 
     }
 
     public void increaseEnergy(int amount) {
         if (amount < 0) return;
         setEnergy(this.energy + amount);
-        // System.out.println("LOG: Energi " + this.name + " bertambah " + amount + ", menjadi: " + this.energy);
     }
 
-    // Getter dan Setter untuk posisi tile
     public int getTileX() {
         return tileX;
     }

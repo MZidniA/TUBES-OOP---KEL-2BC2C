@@ -2,13 +2,10 @@
 package org.example.controller.action;
 
 import org.example.model.Farm;
-import org.example.model.Player;
 import org.example.model.Map.FarmMap;
-import org.example.model.Map.Tile;
 import org.example.model.Map.Plantedland;
-import org.example.model.Map.Tilledland;
-import org.example.model.Items.Crops;
-import org.example.model.Items.ItemDatabase;
+import org.example.model.Map.Tile;
+import org.example.model.Player;
 
 public class HarvestingAction implements Action {
     private static final int ENERGY_COST = 3;
@@ -21,15 +18,13 @@ public class HarvestingAction implements Action {
         return "Panen Tanaman (Harvest)";
     }
 
-    // Ambil tile Plantedland di posisi player (atau sesuaikan dengan logika tile target)
     private Plantedland getTargetPlantedLand(Farm farm) {
         Player player = farm.getPlayer();
         FarmMap farmMap = farm.getFarmMap();
         if (farmMap == null || player == null) {
             return null;
         }
-        // Misal: player berdiri di tile tertentu (butuh getter posisi tile di Player)
-        int tileX = player.getTileX(); // Pastikan ada getter ini di Player
+        int tileX = player.getTileX();
         int tileY = player.getTileY();
         Tile currentTile = farmMap.getTile(tileX, tileY);
         if (currentTile instanceof Plantedland) {
@@ -69,17 +64,5 @@ public class HarvestingAction implements Action {
         }
         player.decreaseEnergy(ENERGY_COST);
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
-
-        // Ambil hasil panen
-        // Crops harvestedCrop = targetPlant.harvest(ItemDatabase.getInstance());
-        // if (harvestedCrop != null) {
-        //     player.getInventory().addInventory(harvestedCrop, harvestedCrop.getJumlahcropperpanen());
-        //     System.out.println("LOG: " + player.getName() + " memanen " + harvestedCrop.getJumlahcropperpanen() +
-        //                        " " + harvestedCrop.getName() + " dari (" + targetPlant.getX() + "," + targetPlant.getY() + ").");
-        //     // Reset tile setelah panen
-        //     farmMap.setTile(targetPlant.getX(), targetPlant.getY(), new Tilledland(targetPlant.getX(), targetPlant.getY()));
-        // } else {
-        //     System.out.println("LOG: Gagal memanen dari (" + targetPlant.getX() + "," + targetPlant.getY() + ") (tanaman tidak valid atau error).");
-        // }
     }
 }

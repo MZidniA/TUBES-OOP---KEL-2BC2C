@@ -84,15 +84,19 @@ public class GameClock {
     public LocalTime getCurrentTime() { 
         return currentTime; 
     }
+
     public int getDay() {
         return day; 
     }
+
     public Season getCurrentSeason() {
         return currentSeason; 
     }
+
     public Weather getTodayWeather() {
         return todayWeather; 
     }
+    
     public int getDaysIntoSeason() { 
         return daysIntoSeason; 
     }

@@ -1,14 +1,26 @@
 package org.example.controller;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
-
-import java.awt.event.ActionEvent;
-import java.awt.*;
-import java.io.IOException;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 
 public class TransitionPanel extends JPanel {
@@ -25,18 +37,18 @@ public class TransitionPanel extends JPanel {
         setLayout(null);
         setPreferredSize(new Dimension(640, 576));
         try {
-            InputStream is = getClass().getResourceAsStream("/font/PressStart2P.ttf"); // pastikan path-nya benar
+            InputStream is = getClass().getResourceAsStream("/font/PressStart2P.ttf");
             pixelFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(10f);
             GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
         } catch (Exception e) {
-            pixelFont = new Font("Arial", Font.PLAIN, 12); // fallback font
+            pixelFont = new Font("Arial", Font.PLAIN, 12);
             System.err.println("Font gagal dimuat, pakai Arial sementara.");
 }
 
         setBackground(Color.BLACK);
 
         try {
-            backgroundImage = ImageIO.read(getClass().getResource("/menu/transition_background.png")); // ganti nama sesuai file bear town
+            backgroundImage = ImageIO.read(getClass().getResource("/menu/transition_background.png")); 
             fieldBg = ImageIO.read(getClass().getResource("/button/button.png"));
         } catch (IOException e) {
             e.printStackTrace();
@@ -57,7 +69,7 @@ public class TransitionPanel extends JPanel {
         JButton startButton = new JButton("Start Game");
         startButton.setBounds(250, 380, 180, 40);
         startButton.setFont(pixelFont.deriveFont(10f));
-        startButton.setBackground(new Color(204, 153, 102)); // soft brown
+        startButton.setBackground(new Color(204, 153, 102));
         startButton.setFocusPainted(false);
         startButton.addActionListener(this::startGame);
         add(startButton);
@@ -131,7 +143,7 @@ public class TransitionPanel extends JPanel {
                 try {
                     woodBg = ImageIO.read(getClass().getResource("/button/button.png"));
                 } catch (IOException e) {
-                    g.setColor(new Color(204, 153, 102)); // fallback
+                    g.setColor(new Color(204, 153, 102));
                     g.fillRect(0, 0, getWidth(), getHeight());
                     return;
                 }

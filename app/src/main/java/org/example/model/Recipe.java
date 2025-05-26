@@ -1,28 +1,21 @@
 // Lokasi: src/main/java/org/example/model/Recipe.java
 package org.example.model; // Sesuaikan package jika perlu
 
-import org.example.model.Items.Items;
-import org.example.model.Items.Food;
-import org.example.model.PlayerStats;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-public class Recipe {
-    private String id; // e.g., "recipe_1"
-    private String displayName; // e.g., "Fish n' Chips"
-    private Food resultingDish; // Objek Food yang dihasilkan
-    private Map<Items, Integer> ingredients; // Bahan utama dan jumlahnya
-    // Untuk "Any Fish", kita bisa menggunakan placeholder atau kategori.
-    // Untuk saat ini, kita akan biarkan value Items bisa berupa kategori jika diperlukan.
-    // Atau, jika Items adalah bahan spesifik, maka kita perlu Items placeholder "AnyFish"
-    // Untuk bahan bakar, kita akan handle secara terpisah di CookingAction
-    // karena spesifikasinya 1 firewood = 1 makanan, 1 coal = 2 makanan.
+import org.example.model.Items.Food;
+import org.example.model.Items.Items;
 
-    private String unlockMechanism; // "default", "store", "achievement" (sesuai spek)
-    private String unlockDetail; // Deskripsi tambahan untuk unlock, misal nama item yang harus didapat
-    private transient Predicate<PlayerStats> unlockConditionChecker; // transient agar tidak ikut serialisasi jika ada
+public class Recipe {
+    private String id;
+    private String displayName; 
+    private Food resultingDish;
+    private Map<Items, Integer> ingredients; 
+    private String unlockMechanism; 
+    private String unlockDetail;
+    private transient Predicate<PlayerStats> unlockConditionChecker; 
 
     public Recipe(String id, String displayName, Food resultingDish, Map<Items, Integer> ingredients,
                   String unlockMechanism, String unlockDetail, Predicate<PlayerStats> unlockConditionChecker) {
@@ -69,13 +62,12 @@ public class Recipe {
      */
     public boolean isUnlocked(PlayerStats stats) {
         if ("default".equalsIgnoreCase(unlockMechanism) || "Beli di store".equalsIgnoreCase(unlockMechanism)) {
-            return true; // Resep bawaan atau yang dari store dianggap unlocked by default di sini
-                         // Logika "apakah pemain sudah membeli" mungkin ada di tempat lain jika perlu
+            return true; 
         }
         if ("achievement".equalsIgnoreCase(unlockMechanism) && unlockConditionChecker != null && stats != null) {
             return unlockConditionChecker.test(stats);
         }
-        return false; // Defaultnya tidak unlocked jika tidak ada kondisi lain atau stats null
+        return false; 
     }
 
     @Override
