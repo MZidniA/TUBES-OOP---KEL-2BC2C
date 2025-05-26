@@ -195,34 +195,23 @@ public class GamePanel extends JPanel implements Runnable {
     
                     if (playerCol >= 0 && playerCol < maxWorldCol && playerRow >= 0 && playerRow < maxWorldRow) {
     
-                        // Contoh logika teleport dari map 0 ke 1
-                        if (currentMap == 0 && playerCol == 31 && playerRow == 31) { // Ganti 69 dengan ID tile teleport Anda
-                            teleportPlayer(1, 5 * tileSize, 5 * tileSize); 
-                        }
-                        else if (currentMap == 1 && playerCol == 0 && playerRow == 0 ) { 
-                            teleportPlayer(0, 4 * tileSize, 9 * tileSize); 
-                        } else if (currentMap == 1 && playerCol == 31 && playerRow == 31) { 
-                            teleportPlayer(2, 4 * tileSize, 9 * tileSize); 
-                        } else if (currentMap == 2 && playerCol == 31 && playerRow == 0) { 
-                            teleportPlayer(1, 5 * tileSize, 5 * tileSize); 
-                        } else if (currentMap == 2 && playerCol == 31 && playerRow == 31) { 
-                            teleportPlayer(3, 4 * tileSize, 9 * tileSize); 
-                        } else if (currentMap == 3 && playerCol == 31 && playerRow == 29) { 
-                            teleportPlayer(2, 5 * tileSize, 5 * tileSize);
-                        } else if (currentMap == 1 && playerCol == 31 && playerRow == 0) {
-                            teleportPlayer(2, 4 * tileSize, 9 * tileSize); 
-                        } else if (currentMap == 2 && playerCol == 0 && playerRow == 0) { 
-                            teleportPlayer(1, 5 * tileSize, 5 * tileSize); 
-                        } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) { 
-                            teleportPlayer(3, 4 * tileSize, 9 * tileSize); 
-                        } else if (currentMap == 3 && playerCol == 0 && playerRow == 29) { 
-                            teleportPlayer(2, 5 * tileSize, 5 * tileSize); 
-                        } 
-                            
+                                if (currentMap == 0 && playerCol == 31 && playerRow == 31) {
+                                    teleportPlayer(1, 1 * tileSize, 1 * tileSize); 
+                                } else if (currentMap == 1 && playerCol == 0 && playerRow == 0) { 
+                                    teleportPlayer(0, 31 * tileSize, 31 * tileSize); 
+                                } else if (currentMap == 1 && playerCol == 31 && playerRow == 0) { 
+                                    teleportPlayer(2, 29 * tileSize, 0 * tileSize); 
+                                } else if (currentMap == 2 && playerCol == 29 && playerRow == 0) { 
+                                    teleportPlayer(1, 31 * tileSize, 0* tileSize); 
+                                } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) { 
+                                    teleportPlayer(3, 15 * tileSize, 31* tileSize); 
+                                } else if (currentMap == 3 && playerCol == 15 && playerRow == 31) { 
+                                    teleportPlayer(2, 0 * tileSize, 31 * tileSize);
+                                } 
                             }
                         }
                     }
-                    
+                            
                     keyH.interactPressed = false;
                         
                 } else if (gameState.getGameState() == gameState.pause) { 
