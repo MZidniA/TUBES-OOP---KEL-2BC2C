@@ -5,7 +5,7 @@ import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
     GamePanel gp;
-    public boolean upPressed, downPressed, leftPressed, rightPressed, interactPressed, escapePressed, enterPressed;
+    public boolean upPressed, downPressed, leftPressed, rightPressed, interactPressed, escapePressed, enterPressed, inventoryPressed;
     public KeyHandler(GamePanel gp) {
         this.gp = gp;
     }
@@ -38,6 +38,10 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_ENTER) {
             enterPressed = true;
         }
+        if (code == KeyEvent.VK_I) {
+            inventoryPressed = true;
+
+        }
         if (gp.gameState.getGameState() == gp.gameState.pause) { 
             if (code == KeyEvent.VK_W ) {
                 gp.gameStateUI.commandNum--;
@@ -51,17 +55,33 @@ public class KeyHandler implements KeyListener {
                     gp.gameStateUI.commandNum = 0;
                 }
             }
-        }
-        if (code == KeyEvent.VK_C) {
-            switch(gp.currentMap) {
-                case 0:
-                    gp.tileM.loadMap("/maps/map.txt", 0);
-                    break;
-                case 1:
-                    gp.tileM.loadMap("/maps/beachmap.txt", 1);
-                    break;
+        } else if (gp.gameState.getGameState() == gp.gameState.inventory) {
+            if (code == KeyEvent.VK_W) {
+                gp.gameStateUI.slotRow--;
+                if (gp.gameStateUI.slotRow < 0) {
+                    gp.gameStateUI.slotRow = 3; // Pindah ke baris paling bawah (karena ada 4 baris, 0-3)
+                }
+            }
+            if (code == KeyEvent.VK_A) {
+                gp.gameStateUI.slotCol--;
+                if (gp.gameStateUI.slotCol < 0) {
+                    gp.gameStateUI.slotCol = 4; // Pindah ke kolom paling kanan (karena ada 5 kolom, 0-4)
+                }
+            }
+            if (code == KeyEvent.VK_S) {
+                gp.gameStateUI.slotRow++;
+                if (gp.gameStateUI.slotRow > 3) {
+                    gp.gameStateUI.slotRow = 0; // Pindah ke baris paling atas
+                }
+            }
+            if (code == KeyEvent.VK_D) {
+                gp.gameStateUI.slotCol++;
+                if (gp.gameStateUI.slotCol > 4) {
+                    gp.gameStateUI.slotCol = 0; // Pindah ke kolom paling kiri
+                }
             }
         }
+
     }
 
     @Override

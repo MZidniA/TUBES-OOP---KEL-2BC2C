@@ -86,29 +86,25 @@ public class CollisionChecker {
         }
     }
 
+
     public int checkObject(Entity entity, InteractableObject[][] target, int currenMap) {
         int index = 999;
 
-        for (int i = 0; i < target[1].length; i++) {
+        for (int i = 0; i < target[gp.currentMap].length; i++) {
             if (target[gp.currentMap][i] != null) {
-                if (entity.solidArea == null || target[gp.currentMap][i].solidArea == null) {
-                    continue;
-                }
 
-                int originalEntitySolidX = entity.solidArea.x;
-                int originalEntitySolidY = entity.solidArea.y;
 
-                entity.solidArea.x = entity.worldX + entity.solidAreaDefaultX;
-                entity.solidArea.y = entity.worldY + entity.solidAreaDefaultY;
-
-                target[gp.currentMap][i].solidArea.x = target[gp.currentMap][i].worldX + target[gp.currentMap][i].solidArea.x; // Gunakan offset target
+                entity.solidArea.x = entity.worldX + entity.solidArea.x;
+                entity.solidArea.y = entity.worldY + entity.solidArea.y;
+                target[gp.currentMap][i].solidArea.x = target[gp.currentMap][i].worldX + target[gp.currentMap][i].solidArea.x;
                 target[gp.currentMap][i].solidArea.y = target[gp.currentMap][i].worldY + target[gp.currentMap][i].solidArea.y;
 
+
                 switch (entity.direction) {
-                    case "up": entity.solidArea.y -= entity.speed; break;
-                    case "down": entity.solidArea.y += entity.speed; break;
-                    case "left": entity.solidArea.x -= entity.speed; break;
-                    case "right": entity.solidArea.x += entity.speed; break;
+                    case "up": entity.solidArea.y -= (entity.speed + 1); break;
+                    case "down": entity.solidArea.y += (entity.speed + 1); break;
+                    case "left": entity.solidArea.x -= (entity.speed + 1); break;
+                    case "right": entity.solidArea.x += (entity.speed + 1); break;
                 }
 
                 if (entity.solidArea.intersects(target[gp.currentMap][i].solidArea)) {
@@ -118,11 +114,11 @@ public class CollisionChecker {
                     index = i;
                 }
 
-                entity.solidArea.x = originalEntitySolidX;
-                entity.solidArea.y = originalEntitySolidY;
-
-                target[gp.currentMap][i].solidArea.x = target[gp.currentMap][i].solidArea.x - target[gp.currentMap][i].worldX; // Kembali ke offset
-                target[gp.currentMap][i].solidArea.y = target[gp.currentMap][i].solidArea.y - target[gp.currentMap][i].worldY;
+                // Reset posisi solidArea kembali ke offset default
+                entity.solidArea.x = entity.solidAreaDefaultX;
+                entity.solidArea.y = entity.solidAreaDefaultY;
+                target[gp.currentMap][i].solidArea.x = target[gp.currentMap][i].solidAreaDefaultX;
+                target[gp.currentMap][i].solidArea.y = target[gp.currentMap][i].solidAreaDefaultY;
             }
         }
         return index;

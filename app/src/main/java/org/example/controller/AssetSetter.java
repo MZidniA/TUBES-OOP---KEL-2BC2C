@@ -66,5 +66,9 @@ public class AssetSetter {
         gp.obj[mapIndex][12] = new ShippingBinObject(gp);
         gp.obj[mapIndex][12].worldX = 11 * gp.tileSize;
         gp.obj[mapIndex][12].worldY = 8 * gp.tileSize;
+
+
+        mapIndex = 1; 
+        
     }
 }

@@ -125,7 +125,7 @@ public class TileManager {
         setup(96, "SandMix2", false);
         setup(97, "Beach4", false);
         setup(98, "Beach2", false);
-        setup(99, "99", false);
+        setup(99, "99", true);
         setup(100, "Beach5", false);
         setup(101, "SandMix4", false);
 

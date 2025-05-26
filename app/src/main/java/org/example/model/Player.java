@@ -14,7 +14,7 @@ public class Player {
     private Inventory inventory;
     private LocationType locationtype;
 
-    public Player(String name, String gender, String farmname, NPC partner, Inventory inventory, LocationType location) {
+    public Player(String name, String gender, String farmname, NPC partner, Inventory inventory) {
         this.name = name;
         this.gender = gender;
         this.energy = 100; 

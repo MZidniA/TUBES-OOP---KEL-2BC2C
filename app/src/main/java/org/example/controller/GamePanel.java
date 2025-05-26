@@ -16,6 +16,14 @@ import org.example.model.Sound;
 import org.example.view.GameStateUI;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
+import org.example.model.Sound;
+import org.example.controller.GameState;
+import org.example.controller.CollisionChecker;
+import org.example.controller.TileManager;
+import org.example.model.Player;
+import org.example.model.NPC.NPC;
+import org.example.model.Inventory;
+
 
 public class GamePanel extends JPanel implements Runnable {
     // SCREEN SETTINGS
@@ -44,7 +52,11 @@ public class GamePanel extends JPanel implements Runnable {
     public GameStateUI gameStateUI = new GameStateUI(this);
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
-    public PlayerView player = new PlayerView(this, keyH);
+    NPC partner = null;
+    public Inventory inventory = new Inventory();
+    Player p = new Player("John", "Male", "Sunny Farm", partner, inventory);
+    public PlayerView player = new PlayerView(this, keyH, p);
+ // Player kedua jika diperlukan
     public InteractableObject obj[][] = new InteractableObject[maxMap][20];
     private JFrame frame;
     Sound music = new Sound();
@@ -54,6 +66,8 @@ public class GamePanel extends JPanel implements Runnable {
 
     public GamePanel(JFrame frame) {
         this.frame = frame;
+        this.keyH = new KeyHandler(this);
+        this.player = new PlayerView(this, keyH, p);
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
@@ -77,7 +91,8 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void setupGame() {
         aSetter.setInteractableObject();
-        gameState.setGameState(gameState.play);
+        gameState.setGameState(gameState.play); 
+        
     }
 
     public void startGameThread() {
@@ -142,30 +157,68 @@ public class GamePanel extends JPanel implements Runnable {
             } else if (gameState.getGameState() == gameState.pause) {
                 gameState.setGameState(gameState.play);
             }
-            keyH.escapePressed = false;
+            keyH.escapePressed = false; 
         }
+
+        if (keyH.inventoryPressed) {
+            if (gameState.getGameState() == gameState.play) {
+                gameState.setGameState(gameState.inventory);
+            } else if (gameState.getGameState() == gameState.inventory) {
+                gameState.setGameState(gameState.play);
+            }
+            keyH.inventoryPressed = false; 
+        }
+
 
         if (gameState.getGameState() == gameState.play) {
             player.update();
+    
 
-            int objIndex = cChecker.checkObject(player, obj, currentMap);
-            if (objIndex != 999 && keyH.interactPressed) {
-                if (obj[currentMap][objIndex] != null) {
-                    obj[currentMap][objIndex].interact();
+            if (keyH.interactPressed) {
+                boolean interactionHandled = false;
+    
+
+                int objIndex = cChecker.checkObject(player, obj, currentMap);
+                if (objIndex != 999) {
+                    if (obj[currentMap][objIndex] != null) {
+                        obj[currentMap][objIndex].interact();
+                        interactionHandled = true;
+                    }
                 }
+
+                keyH.interactPressed = false; // Reset flag setelah interaksi
+                
+                // Jika TIDAK ada interaksi dengan objek, cek interaksi dengan TILE (misal: teleport)
+                if (!interactionHandled) {
+                    int playerCol = (player.worldX + player.solidArea.x + player.solidArea.width / 2) / tileSize;
+                    int playerRow = (player.worldY + player.solidArea.y + player.solidArea.height / 2) / tileSize;
+    
+                    if (playerCol >= 0 && playerCol < maxWorldCol && playerRow >= 0 && playerRow < maxWorldRow) {
+    
+                        // Contoh logika teleport dari map 0 ke 1
+                        if (currentMap == 0 && playerCol == 31 && playerRow == 31) { // Ganti 69 dengan ID tile teleport Anda
+                            teleportPlayer(1, 5 * tileSize, 5 * tileSize); 
+                        }
+                        // Contoh logika teleport dari map 1 ke 0
+                        else if (currentMap == 1 && playerCol == 0 && playerRow == 0 ) { // Ganti 70 dengan ID tile kembali
+                            teleportPlayer(0, 4 * tileSize, 9 * tileSize); // Pindah ke map 0, di tile (4,9)
+                        }
+                    }
+                }
+                
                 keyH.interactPressed = false;
-            }
-
-        } else if (gameState.getGameState() == gameState.pause) {
-            if (keyH.enterPressed) {
-                if (gameStateUI.commandNum == 0) {
-                    gameState.setGameState(gameState.play);
-                } else if (gameStateUI.commandNum == 1) {
-                    exitToMenu();
-                }
-                keyH.enterPressed = false;
-            }
-        }
+                    
+                } else if (gameState.getGameState() == gameState.pause) { 
+                    if (keyH.enterPressed) {
+                        if (gameStateUI.commandNum == 0) { 
+                            gameState.setGameState(gameState.play);
+                        } else if (gameStateUI.commandNum == 1) { 
+                            exitToMenu(); 
+                        }
+                        keyH.enterPressed = false; 
+                    }
+                } 
+            }    
     }
 
     public void teleportPlayer(int mapIndex, int newWorldX, int newWorldY) {
@@ -173,16 +226,14 @@ public class GamePanel extends JPanel implements Runnable {
         currentMap = mapIndex;
         player.worldX = newWorldX;
         player.worldY = newWorldY;
-
-        for (int i = 0; i < obj[currentMap].length; i++) {
-            obj[currentMap][i] = null;
-        }
-
+    
+    
         String mapPath = "";
         if (currentMap == 0) {
             mapPath = "/maps/map.txt";
         } else if (currentMap == 1) {
             mapPath = "/maps/beachmap.txt";
+
         }
 
         if (!mapPath.isEmpty()) {
@@ -214,6 +265,17 @@ public class GamePanel extends JPanel implements Runnable {
         if (gameState.getGameState() == gameState.play || gameState.getGameState() == gameState.pause) {
             tileM.draw(g2);
             for (InteractableObject interactableObjItem : obj[currentMap]) {
+                if (interactableObjItem != null) {
+                    interactableObjItem.draw(g2, this);
+                }
+            }
+            player.draw(g2);
+        } else if (gameState.getGameState() == gameState.inventory) {
+            // Saat di inventory, Anda mungkin tetap ingin menggambar game di belakangnya
+            // dengan efek blur atau gelap, atau hanya menggambar background inventory.
+            // Untuk saat ini, kita gambar juga game world agar ada latar.
+            tileM.draw(g2);
+             for (InteractableObject interactableObjItem : obj[currentMap]) {
                 if (interactableObjItem != null) {
                     interactableObjItem.draw(g2, this);
                 }
