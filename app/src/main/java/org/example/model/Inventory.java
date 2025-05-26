@@ -2,7 +2,6 @@ package org.example.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.example.model.Items.EdibleItem;
 import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
 
