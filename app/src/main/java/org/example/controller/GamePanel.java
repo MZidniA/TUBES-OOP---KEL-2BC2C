@@ -199,15 +199,32 @@ public class GamePanel extends JPanel implements Runnable {
                         if (currentMap == 0 && playerCol == 31 && playerRow == 31) { // Ganti 69 dengan ID tile teleport Anda
                             teleportPlayer(1, 5 * tileSize, 5 * tileSize); 
                         }
-                        // Contoh logika teleport dari map 1 ke 0
-                        else if (currentMap == 1 && playerCol == 0 && playerRow == 0 ) { // Ganti 70 dengan ID tile kembali
-                            teleportPlayer(0, 4 * tileSize, 9 * tileSize); // Pindah ke map 0, di tile (4,9)
+                        else if (currentMap == 1 && playerCol == 0 && playerRow == 0 ) { 
+                            teleportPlayer(0, 4 * tileSize, 9 * tileSize); 
+                        } else if (currentMap == 1 && playerCol == 31 && playerRow == 31) { 
+                            teleportPlayer(2, 4 * tileSize, 9 * tileSize); 
+                        } else if (currentMap == 2 && playerCol == 31 && playerRow == 0) { 
+                            teleportPlayer(1, 5 * tileSize, 5 * tileSize); 
+                        } else if (currentMap == 2 && playerCol == 31 && playerRow == 31) { 
+                            teleportPlayer(3, 4 * tileSize, 9 * tileSize); 
+                        } else if (currentMap == 3 && playerCol == 31 && playerRow == 29) { 
+                            teleportPlayer(2, 5 * tileSize, 5 * tileSize);
+                        } else if (currentMap == 1 && playerCol == 31 && playerRow == 0) {
+                            teleportPlayer(2, 4 * tileSize, 9 * tileSize); 
+                        } else if (currentMap == 2 && playerCol == 0 && playerRow == 0) { 
+                            teleportPlayer(1, 5 * tileSize, 5 * tileSize); 
+                        } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) { 
+                            teleportPlayer(3, 4 * tileSize, 9 * tileSize); 
+                        } else if (currentMap == 3 && playerCol == 0 && playerRow == 29) { 
+                            teleportPlayer(2, 5 * tileSize, 5 * tileSize); 
+                        } 
+                            
+                            }
                         }
                     }
-                }
-                
-                keyH.interactPressed = false;
                     
+                    keyH.interactPressed = false;
+                        
                 } else if (gameState.getGameState() == gameState.pause) { 
                     if (keyH.enterPressed) {
                         if (gameStateUI.commandNum == 0) { 
@@ -219,8 +236,8 @@ public class GamePanel extends JPanel implements Runnable {
                     }
                 } 
             }    
-    }
-
+        
+    
     public void teleportPlayer(int mapIndex, int newWorldX, int newWorldY) {
         music.stop();
         currentMap = mapIndex;

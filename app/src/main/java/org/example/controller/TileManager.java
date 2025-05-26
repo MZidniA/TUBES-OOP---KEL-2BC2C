@@ -20,6 +20,8 @@ public class TileManager {
         getTileImage();
         loadMap("/maps/map.txt", 0);
         loadMap("/maps/beachmap.txt", 1);
+        loadMap("/maps/rivermap.txt", 2);
+        loadMap("/maps/townmap.txt", 3);
     }
 
     public void getTileImage() {
