@@ -1,46 +1,41 @@
-// Lokasi: src/main/java/org/example/controller/action/WatchingAction.java
-package org.example.controller.action;
+    package org.example.controller.action;
 
 import org.example.model.Farm;
 import org.example.model.Player;
-import org.example.model.GameClock;
-import org.example.model.enums.LocationType; // Pastikan ini diimport
-import org.example.model.enums.Weather;
+import org.example.model.Items.ItemDatabase;
+import org.example.model.enums.LocationType;
 
-public class WatchingAction implements Action {
+public class WatchingAction implements Action{
 
     private static final int ENERGY_COST = 5;
     private static final int TIME_COST_MINUTES = 15;
 
-    public WatchingAction() {
-        // Konstruktor bisa kosong
-    }
-
     @Override
     public String getActionName() {
-        return "Watch TV";
+        return "Watching";
     }
 
     @Override
     public boolean canExecute(Farm farm) {
         Player player = farm.getPlayer();
 
-        if (player == null) {
-            System.out.println("LOG: Player not found.");
+        // Cek lokasi harus di rumah (FARM)
+        if (player.getCurrentLocationType() != LocationType.FARM) {
+            System.out.println("Menonton TV hanya bisa dilakukan di rumah.");
             return false;
         }
 
-        // 1. Cek Lokasi: Pemain harus berada di dalam rumahnya
-        // Menggunakan LocationType.RUMAH_PLAYER yang baru Anda tambahkan
-        if (player.getCurrentLocationType() != LocationType.RUMAH_PLAYER) {
-            System.out.println("LOG: You can only watch TV inside your house (current location: " + player.getCurrentLocationType() + ").");
+        // Cek punya TV
+        boolean hasTV = player.getInventory().hasItem(ItemDatabase.getItem("TV"), 1);
+
+        if (!hasTV) {
+            System.out.println("Kamu membutuhkan TV untuk menonton.");
             return false;
         }
 
-        // 2. Cek Energi Pemain
+        // Cek energi cukup
         if (player.getEnergy() < ENERGY_COST) {
-            System.out.println("LOG: Not enough energy to watch TV. Need " + ENERGY_COST +
-                               ", has " + player.getEnergy() + ".");
+            System.out.println("Energi tidak cukup untuk menonton TV.");
             return false;
         }
 
@@ -49,23 +44,20 @@ public class WatchingAction implements Action {
 
     @Override
     public void execute(Farm farm) {
-        // Asumsi canExecute() sudah dipanggil dan true
         Player player = farm.getPlayer();
-        GameClock gameClock = farm.getGameClock();
 
-        // 1. Kurangi Energi Pemain
+        if (!canExecute(farm)) return;
+
+        // Kurangi energi
         player.decreaseEnergy(ENERGY_COST);
 
-        // 2. Majukan Waktu Game
-        if (gameClock != null) {
-            gameClock.advanceTimeMinutes(TIME_COST_MINUTES);
-        }
+        // Tambah waktu
+        farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
 
-        // 3. Tampilkan informasi cuaca
-        Weather currentWeather = gameClock.getTodayWeather(); // Asumsi getTodayWeather() ada di GameClock
-        System.out.println(player.getName() + " watched TV for " + TIME_COST_MINUTES + " minutes.");
-        System.out.println("The weather forecast for today is: " + currentWeather.toString().substring(0,1).toUpperCase() + currentWeather.toString().substring(1).toLowerCase()); // Format output cuaca
-        System.out.println("- Energy consumed: " + ENERGY_COST);
-        System.out.println("- Time advanced by " + TIME_COST_MINUTES + " minutes.");
+        // Tampilkan pesan
+        System.out.println("Kamu menonton acara favoritmu di TV.");
+        System.out.println("Energi berkurang 5 poin. Waktu maju 15 menit.");
     }
 }
+    
+

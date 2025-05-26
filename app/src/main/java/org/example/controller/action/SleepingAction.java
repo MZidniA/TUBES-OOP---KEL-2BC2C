@@ -1,13 +1,31 @@
 // Lokasi: src/main/java/org/example/controller/action/SleepingAction.java
 package org.example.controller.action;
 
+import java.time.LocalTime;
+
 import org.example.model.Farm;
 import org.example.model.Player;
+import org.example.model.Items.ItemDatabase;
 
 public class SleepingAction implements Action {
     // Tidak ada energy cost, malah memulihkan energi
     // Time cost adalah signifikan (skip ke pagi berikutnya)
 
+    private void skipToMorning(Farm farm) {
+        LocalTime now = farm.getGameClock().getCurrentTime();
+        int nowMinutes = now.getHour() * 60 + now.getMinute();
+        int morningMinutes = 6 * 60;
+
+        int minutesToSkip;
+        if (nowMinutes >= morningMinutes) {
+            minutesToSkip = (24 * 60 - nowMinutes) + morningMinutes;
+        } else {
+            minutesToSkip = morningMinutes - nowMinutes;
+        }
+
+        farm.getGameClock().advanceTimeMinutes(minutesToSkip);
+    }
+    
     @Override
     public String getActionName() {
         return "Tidur (Sleep)";
@@ -15,52 +33,53 @@ public class SleepingAction implements Action {
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player p;
-        sPlayerNearBed(p) {
-        //     System.out.println("LOG: Hanya bisa tidur di tempat tidur.");
-        //     return false;
-        // }
-        // Pemain selalu bisa tidur jika di tempat yang benar
-        return true; // Placeholder, logika lokasi tidur perlu implementasi
+        Player player = farm.getPlayer();
+
+        boolean hasQueenBed = player.getInventory().hasItem(ItemDatabase.getItem("Queen Bed"), 1);
+        boolean hasKingBed = player.getInventory().hasItem(ItemDatabase.getItem("King Bed"), 1);
+        if (!hasQueenBed && !hasKingBed) {
+            System.out.println("Butuh Bed untuk tidur");
+            return false;
+        }
+
+        return true;
     }
 
     @Override
     public void execute(Farm farm) {
         Player player = farm.getPlayer();
+
+        if (!canExecute(farm)) return;
+
+        int maxEnergy = player.getMaxEnergy();
+        int currentEnergy = player.getEnergy();
+
+        // Cek tipe kasur untuk efek bonus
+        boolean hasKingBed = player.getInventory().hasItem(ItemDatabase.getItem("King Bed"), 1);
+
+        System.out.println("Kamu memutuskan untuk tidur...");
+
         // Logika pemulihan energi
-        int energyBeforeSleep = player.getEnergy();
-        // Sesuai spesifikasi:
-        // - Isi ulang energi penuh.
-        // - Namun, jika tidur di saat energi sudah menipis (misal < 0 atau kondisi tertentu),
-        //   maka akan dikenai penalti di mana energi yang terisi ulang hanya setengah penuh.
-        // - Jika waktu telah mencapai pukul 02.00 dan Player belum tidur, maka akan segera otomatis pergi tidur.
-
-        // Penalti jika energi habis saat bekerja (energi < -20)
-        // (Ini lebih ke kondisi game over atau auto-sleep, bukan pilihan tidur biasa)
-        // Jika waktu >= 02:00 AM, otomatis tidur (ini juga auto-sleep)
-
-        // Untuk aksi tidur manual:
-        boolean receivedPenalty = false;
-        // Asumsikan ada threshold energi "menipis", misal Player.LOW_ENERGY_THRESHOLD = 10
-        // Atau jika energi player.getEnergy() < (0.10 * Player.MAX_ENERGY)
-        if (player.getEnergy() < (player.getMaxEnergy() * 0.10) && player.getEnergy() < 0) { // Contoh threshold energi menipis
-             // atau kondisi dari spesifikasi "jika tidur di saat energi sudah menipis"
-            receivedPenalty = true;
-        }
-
-        if (receivedPenalty) {
-            player.setEnergy(player.getMaxEnergy() / 2);
-            System.out.println("LOG: " + player.getName() + " tidur dengan energi menipis, energi pulih setengah.");
+        if (currentEnergy == 0) {
+            player.setEnergy(10);
+            System.out.println("Energi habis total. Tidur hanya memulihkan 10 poin.");
+        } else if (currentEnergy < (0.1 * maxEnergy)) {
+            player.setEnergy(maxEnergy / 2);
+            System.out.println("Energi terlalu rendah. Hanya terisi setengah.");
+        } else if (hasKingBed) {
+            player.setEnergy((int) (maxEnergy * 1.1));
+            System.out.println("idur super nyenyak di King Bed. Energi jadi 110%!");
         } else {
-            player.setEnergy(player.getMaxEnergy()); // Pulih penuh
-             System.out.println("LOG: " + player.getName() + " tidur nyenyak, energi pulih penuh.");
+            player.setEnergy(maxEnergy);
+            System.out.println("Tidur nyenyak. Energi pulih sepenuhnya.");
         }
 
+        // Time skip ke jam 06.00
+        skipToMorning(farm);
 
-        // Logika untuk skip waktu ke pagi berikutnya
-        farm.getGameClock().advanceToNextMorning(); // Method ini perlu diimplementasikan di GameClock
-        // Ini juga akan memicu event akhir hari (penjualan dari shipping bin, save game, dll.)
-
-        System.out.println("LOG: Hari baru telah dimulai.");
+        // Lanjut ke hari berikutnya
+        farm.getGameClock().nextDay(null);
+        System.out.println("Selamat pagi! Hari ke-" + farm.getGameClock().getDay()
+                + ", pukul " + farm.getGameClock().getCurrentTime());
     }
 }
