@@ -23,6 +23,7 @@ public class TileManager {
     }
 
     public void getTileImage() {
+        // Farm Map
         setup(0, "RumputSummer", false);
         setup(1, "Tree1", true);
         setup(2, "Tree2", true);
@@ -114,6 +115,8 @@ public class TileManager {
         setup(89, "Rumput89", false);
         setup(88, "Path", true); 
         setup(90, "Path", true);
+
+        // Beach and Ocean Map
         setup(91, "LightSandPatch", false);
         setup(92, "DarkSandPatch", false);
         setup(93, "Sea", true);
@@ -125,6 +128,8 @@ public class TileManager {
         setup(99, "99", false);
         setup(100, "Beach5", false);
         setup(101, "SandMix4", false);
+
+        // River Map
         setup(102, "102", false);
         setup(103, "103", false);
         setup(104, "104", false);
@@ -157,6 +162,8 @@ public class TileManager {
         setup(131, "131", false);
         setup(132, "132", false);
         setup(133, "133", false);
+
+        // Town Map
         setup(134, "Tile134", false);
         setup(135, "Tile135", true);
         setup(136, "Tile136", true);
