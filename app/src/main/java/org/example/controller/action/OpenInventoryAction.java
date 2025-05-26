@@ -52,4 +52,4 @@ public class OpenInventoryAction implements Action {
     public String getActionName() {
         return "Open Inventory";
     }
-}
+}   
