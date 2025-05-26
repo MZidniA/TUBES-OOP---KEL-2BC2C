@@ -7,7 +7,6 @@ public class FoodFactory {
     public static Map<String, Food> createFood() {
         Map<String, Food> food = new HashMap<>();
 
-        
         food.put("Fish n’ Chips", new Food("Fish n’ Chips", 135, 150, 50));
         food.put("Baguette", new Food("Baguette", 80, 100, 25));
         food.put("Sashimi", new Food("Sashimi", 275, 300, 70));

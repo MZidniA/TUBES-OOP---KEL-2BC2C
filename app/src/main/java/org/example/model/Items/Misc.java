@@ -7,9 +7,11 @@ public class Misc extends Items {
         super(name, sellprice, buyprice);
         this.isOutsideCategory = true;
     }
+
     public boolean isOutsideCategory() {
         return isOutsideCategory;
     }
+    
     public void setOutsideCategory(boolean isOutsideCategory) {
         this.isOutsideCategory = isOutsideCategory;
     }

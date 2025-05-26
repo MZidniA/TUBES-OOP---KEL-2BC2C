@@ -5,19 +5,14 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-
-import java.nio.file.spi.FileSystemProvider;
-import javax.swing.JPanel;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import org.example.model.Sound;
 import org.example.view.GameStateUI;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
-import org.example.model.Sound;
-import org.example.controller.GameState;
-import org.example.controller.CollisionChecker;
-import org.example.controller.TileManager;
 
 
 public class GamePanel extends JPanel implements Runnable {
@@ -68,7 +63,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void setupGame() {
         aSetter.setInteractableObject();
-        gameState.setGameState(gameState.play); // Set initial game state to PLAY
+        gameState.setGameState(gameState.play); 
         
     }
 
@@ -85,7 +80,6 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread = new Thread(this);
         gameThread.start();
 
-
         // PLAY SOUND
         music.setFile();
         music.play();
@@ -99,7 +93,6 @@ public class GamePanel extends JPanel implements Runnable {
             gameThread = null;
         }
     }
-
 
     @Override
     public void run() {
@@ -138,87 +131,72 @@ public class GamePanel extends JPanel implements Runnable {
             } else if (gameState.getGameState() == gameState.pause) {
                 gameState.setGameState(gameState.play);
             }
-            keyH.escapePressed = false; // Reset flag agar tidak toggle terus menerus
+            keyH.escapePressed = false; 
         }
 
-        // Hanya update game jika state adalah PLAY
-        if (gameState.getGameState() == gameState.play) { // DIUBAH: Menggunakan konstanta
+        if (gameState.getGameState() == gameState.play) { 
             player.update(); 
             
-            // Logika interaksi dengan objek
             int objIndex = cChecker.checkObject(player, obj, currentMap);
             if (objIndex != 999 && keyH.interactPressed) {
-                 if (obj[currentMap][objIndex] != null) { // Pastikan objek tidak null
+                 if (obj[currentMap][objIndex] != null) { 
                     obj[currentMap][objIndex].interact();
                  }
-                 keyH.interactPressed = false; // Reset setelah interaksi
+                 keyH.interactPressed = false; 
             }
 
-        } else if (gameState.getGameState() == gameState.pause) { // DIUBAH: Menggunakan konstanta
-            // Logika saat game di-pause (pemilihan menu)
+        } else if (gameState.getGameState() == gameState.pause) { 
             if (keyH.enterPressed) {
-                if (gameStateUI.commandNum == 0) { // Opsi "Continue"
+                if (gameStateUI.commandNum == 0) { 
                     gameState.setGameState(gameState.play);
-                } else if (gameStateUI.commandNum == 1) { // Opsi "Exit"
+                } else if (gameStateUI.commandNum == 1) { 
                     exitToMenu(); 
                 }
-                keyH.enterPressed = false; // Reset flag setelah aksi
+                keyH.enterPressed = false; 
             }
         }
      
     }
 
     public void teleportPlayer(int mapIndex, int newWorldX, int newWorldY) {
-        music.stop(); // Hentikan musik saat teleportasi
+        music.stop(); 
         currentMap = mapIndex;
         player.worldX = newWorldX;
         player.worldY = newWorldY;
     
-        // Kosongkan objek dari map sebelumnya
         for (int i = 0; i < obj[currentMap].length; i++) {
             obj[currentMap][i] = null;
         }
     
-        // Muat tile untuk peta baru. 
-        // Jika TileManager.loadMap() Anda memicu AssetSetter berdasarkan penanda di file peta,
-        // maka objek untuk map baru juga akan dimuat.
         String mapPath = "";
         if (currentMap == 0) {
             mapPath = "/maps/map.txt";
         } else if (currentMap == 1) {
             mapPath = "/maps/beachmap.txt";
-            // Anda mungkin perlu menyesuaikan posisi default pemain jika peta baru ini tidak ada pintu keluar spesifik
-            // player.worldX = gp.tileSize * defaultColMap1; 
-            // player.worldY = gp.tileSize * defaultRowMap1;
         }
-        // Tambahkan else if untuk peta lainnya
     
         if (!mapPath.isEmpty()) {
-            tileM.loadMap(mapPath, currentMap); // Memuat tile dan juga objek jika sistem penanda aktif
+            tileM.loadMap(mapPath, currentMap); 
         } else {
             System.err.println("Path peta tidak valid untuk mapIndex: " + currentMap);
         }
         
-        // Jika AssetSetter Anda hardcode dan perlu dipanggil manual per map:
-        // aSetter.setObjectsForMap(currentMap); // Anda perlu membuat metode ini
-    
-        music.play(); // Mainkan musik untuk map baru (jika ada metode ini)
+        music.play();
         
         System.out.println("Player diteleportasi ke map " + currentMap + " di tile (" + player.worldX/tileSize + "," + player.worldY/tileSize + ")");
     }
 
     private void exitToMenu() {
-        stopGameThread(); // Hentikan game loop saat ini
+        stopGameThread(); 
 
         frame.getContentPane().removeAll();
-        MenuPanel menuPanel = new MenuPanel(frame); // Buat MenuPanel baru
+        MenuPanel menuPanel = new MenuPanel(frame); 
         frame.setContentPane(menuPanel);
         frame.revalidate();
         frame.repaint();
 
         SwingUtilities.invokeLater(menuPanel::requestFocusInWindow);
     }
-
 
     @Override
     protected void paintComponent(Graphics g) {

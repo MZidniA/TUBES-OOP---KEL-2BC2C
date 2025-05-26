@@ -11,4 +11,5 @@ public enum LocationType {
         MOUNTAIN_LAKE,
         FOREST_RIVER,
         STORE,
-        POND;}
+        POND;
+}
