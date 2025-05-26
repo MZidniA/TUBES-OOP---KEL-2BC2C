@@ -116,4 +116,8 @@ public class ItemDatabase {
         if (!isInitialized) initialize();
         return new HashMap<>(items); // Kembalikan copy agar map internal tidak termodifikasi dari luar
     }
+
+    public static boolean isInitialized() {
+    return isInitialized;
+    }
 }

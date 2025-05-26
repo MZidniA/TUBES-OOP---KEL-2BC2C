@@ -12,7 +12,7 @@ public class SeedFactory {
         Map<String, Items> seeds = new HashMap<>();
 
 
-        seeds.put("Parsnip Seeds", new Seeds("Parsnip Seeds", 10, 20, Season.SPRING, 1));
+        seeds.put("Parsnip Seeds", new Seeds("Parsnip Seeds", 10, 20, Season.SPRING, 1));   
         seeds.put("Cauliflower Seeds", new Seeds("Cauliflower Seeds", 40, 80, Season.SPRING, 5));
         seeds.put("Potato Seeds", new Seeds("Potato Seeds", 25, 50, Season.SPRING, 3));
         seeds.put("Wheat Seeds", new Seeds("Wheat Seeds", 30, 60, Season.SPRING, 1));
