@@ -9,20 +9,22 @@ import org.example.model.enums.Season;
 import org.example.model.enums.Weather;
 
 
-public class Fish extends Items {
+public class Fish extends Items implements EdibleItem {
     private EnumSet<Season> season;
     private EnumSet<FishType> fishType;
     private EnumSet<Weather> weather;
     private EnumSet<LocationType> locationType;
     private GameTime time;
+    private int energyRestored; // Tambahkan field ini
 
-    public Fish(String name, int sellprice, int buyprice, EnumSet<Season> season, EnumSet<FishType> fishType, EnumSet<Weather> weather, EnumSet<LocationType> locationType, GameTime time) {
+    public Fish(String name, int sellprice, int buyprice, EnumSet<Season> season, EnumSet<FishType> fishType, EnumSet<Weather> weather, EnumSet<LocationType> LocationType, GameTime time, int energyRestored) {
         super(name, sellprice, buyprice);
         this.season = season;
         this.fishType = fishType;
         this.weather = weather;
         this.locationType = locationType;
         this.time = time;
+        this.energyRestored = energyRestored; // Set nilai energi
     }
 
    
@@ -55,5 +57,10 @@ public class Fish extends Items {
     }
     public void setTime(GameTime time) { 
         this.time = time;
+    }
+
+    @Override
+    public int getEnergyRestored() {
+        return energyRestored;
     }
 }

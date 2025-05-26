@@ -80,23 +80,21 @@ public class GameClock {
         return !currentTime.isBefore(LocalTime.of(18, 0)) || currentTime.isBefore(LocalTime.of(6, 0));
     }
 
+
     public LocalTime getCurrentTime() { 
         return currentTime; 
     }
-
     public int getDay() {
         return day; 
     }
-
     public Season getCurrentSeason() {
         return currentSeason; 
     }
-
     public Weather getTodayWeather() {
         return todayWeather; 
     }
-
     public int getDaysIntoSeason() { 
         return daysIntoSeason; 
     }
+
 }

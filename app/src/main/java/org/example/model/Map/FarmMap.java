@@ -16,6 +16,10 @@ public class FarmMap {
     public Tile[][] getMap() {
         return map;
     }
+    
+    public LocationType getFarmLocation() {
+        return LocationType.FARM; 
+    }
 
     public LocationType getFarmLocation() {
         return LocationType.FARM; 

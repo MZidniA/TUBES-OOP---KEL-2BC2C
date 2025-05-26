@@ -25,6 +25,7 @@ import org.example.model.NPC.NPC;
 import org.example.model.Inventory;
 
 
+
 public class GamePanel extends JPanel implements Runnable {
     // SCREEN SETTINGS
     final int originalTileSize = 16;
