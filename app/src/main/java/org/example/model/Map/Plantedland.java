@@ -1,6 +1,11 @@
 // Lokasi: src/main/java/org/example/model/Map/Plantedland.java
 package org.example.model.Map; // Pastikan package ini benar
 
+import java.util.List;
+
+import java.util.ArrayList;
+import org.example.controller.action.Action;
+import org.example.model.Player;
 import org.example.model.Items.Crops;
 import org.example.model.Items.ItemDatabase; // Diperlukan untuk generateYield
 import org.example.model.Items.Seeds;    // Kelas Seeds yang sudah kita diskusikan
@@ -53,12 +58,7 @@ public class Plantedland extends Tile { // Nama kelas Anda Plantedland (huruf ke
         }
 
         boolean canGrowToday = true;
-        if (plantedSeed.requiresDailyWatering() && !wateredToday) {
-            canGrowToday = false;
-            // Implementasi tanaman mati jika tidak disiram beberapa hari bisa ditambahkan di sini
-            // (misalnya, dengan counter `daysWithoutWater`)
-            // System.out.println(plantedSeed.getName() + " at (" + getX() + "," + getY() + ") was not watered.");
-        }
+        
 
         if (canGrowToday && !isHarvestable()) {
             daysSincePlanted++;
@@ -111,14 +111,15 @@ public class Plantedland extends Tile { // Nama kelas Anda Plantedland (huruf ke
      * @param itemDb Referensi ke ItemDatabase untuk membuat objek Crops yang benar.
      * @return Objek Crops hasil panen, atau null jika tidak ada yang bisa dipanen/error.
      */
-    public Crops harvest(ItemDatabase itemDb) {
-        if (isHarvestable() && plantedSeed != null) {
-            Crops cropYield = plantedSeed.generateYield(itemDb); // Menggunakan ItemDatabase
-            // Reset state tanaman di tile ini tidak dilakukan di sini, tapi oleh FarmMap
-            return cropYield;
-        }
-        return null;
-    }
+    // public Crops harvest(ItemDatabase itemDb) {
+    //     if (isHarvestable() && plantedSeed != null) {
+    //         // Menggunakan ItemDatabase untuk mendapatkan Crops berdasarkan nama hasil panen dari seed
+    //         Crops cropYield = itemDb.createCropFromSeed(plantedSeed);
+    //         // Reset state tanaman di tile ini tidak dilakukan di sini, tapi oleh FarmMap
+    //         return cropYield;
+    //     }
+    //     return null;
+    // }
 
     // Override getSymbol untuk merepresentasikan tahap pertumbuhan secara visual
     @Override

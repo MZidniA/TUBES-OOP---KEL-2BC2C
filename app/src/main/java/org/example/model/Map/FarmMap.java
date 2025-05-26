@@ -21,10 +21,6 @@ public class FarmMap {
         return LocationType.FARM; 
     }
 
-    public LocationType getFarmLocation() {
-        return LocationType.FARM; 
-    }
-
     public Tile getTile(int x, int y) {
         if (x >= 0 && x < SIZE && y >= 0 && y < SIZE) {
             return map[x][y];

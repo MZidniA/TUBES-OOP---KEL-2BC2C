@@ -71,15 +71,15 @@ public class HarvestingAction implements Action {
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
 
         // Ambil hasil panen
-        Crops harvestedCrop = targetPlant.harvest(ItemDatabase.getInstance());
-        if (harvestedCrop != null) {
-            player.getInventory().addInventory(harvestedCrop, harvestedCrop.getJumlahcropperpanen());
-            System.out.println("LOG: " + player.getName() + " memanen " + harvestedCrop.getJumlahcropperpanen() +
-                               " " + harvestedCrop.getName() + " dari (" + targetPlant.getX() + "," + targetPlant.getY() + ").");
-            // Reset tile setelah panen
-            farmMap.setTile(targetPlant.getX(), targetPlant.getY(), new Tilledland(targetPlant.getX(), targetPlant.getY()));
-        } else {
-            System.out.println("LOG: Gagal memanen dari (" + targetPlant.getX() + "," + targetPlant.getY() + ") (tanaman tidak valid atau error).");
-        }
+        // Crops harvestedCrop = targetPlant.harvest(ItemDatabase.getInstance());
+        // if (harvestedCrop != null) {
+        //     player.getInventory().addInventory(harvestedCrop, harvestedCrop.getJumlahcropperpanen());
+        //     System.out.println("LOG: " + player.getName() + " memanen " + harvestedCrop.getJumlahcropperpanen() +
+        //                        " " + harvestedCrop.getName() + " dari (" + targetPlant.getX() + "," + targetPlant.getY() + ").");
+        //     // Reset tile setelah panen
+        //     farmMap.setTile(targetPlant.getX(), targetPlant.getY(), new Tilledland(targetPlant.getX(), targetPlant.getY()));
+        // } else {
+        //     System.out.println("LOG: Gagal memanen dari (" + targetPlant.getX() + "," + targetPlant.getY() + ") (tanaman tidak valid atau error).");
+        // }
     }
 }
