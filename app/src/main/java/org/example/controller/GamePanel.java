@@ -7,7 +7,7 @@ import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
-import org.example.view.TileManager;
+import org.example.view.TileManager;    
 import org.example.view.Player;
 
 
