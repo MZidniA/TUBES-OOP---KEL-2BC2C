@@ -101,20 +101,13 @@ public class MenuPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == startButton) {
+            // ⬇️ GANTI ke TransitionPanel dulu
             frame.getContentPane().removeAll();
-
-            GamePanel gamePanel = new GamePanel(frame);
-            frame.setContentPane(gamePanel);
-
-            gamePanel.setupGame();
-
+            TransitionPanel transitionPanel = new TransitionPanel(frame);
+            frame.setContentPane(transitionPanel);
             frame.revalidate();
             frame.repaint();
-
-            SwingUtilities.invokeLater(() -> {
-                gamePanel.requestFocus();
-                gamePanel.startGameThread();
-            });
+            SwingUtilities.invokeLater(transitionPanel::requestFocusInWindow);
         } else if (e.getSource() == quitButton) {
             System.exit(0);
         }

@@ -12,17 +12,14 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import org.example.model.Inventory;
+import org.example.model.NPC.NPC;
+import org.example.model.Player;
 import org.example.model.Sound;
+import org.example.model.enums.LocationType;
 import org.example.view.GameStateUI;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
-import org.example.model.Sound;
-import org.example.controller.GameState;
-import org.example.controller.CollisionChecker;
-import org.example.controller.TileManager;
-import org.example.model.Player;
-import org.example.model.NPC.NPC;
-import org.example.model.Inventory;
 
 
 public class GamePanel extends JPanel implements Runnable {
@@ -52,16 +49,15 @@ public class GamePanel extends JPanel implements Runnable {
     public GameStateUI gameStateUI = new GameStateUI(this);
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
+
     NPC partner = null;
-    public Inventory inventory = new Inventory();
-    Player p = new Player("John", "Male", "Sunny Farm", partner, inventory);
+    Player p = new Player("John", "Male", "Sunny Farm");
     public PlayerView player = new PlayerView(this, keyH, p);
- // Player kedua jika diperlukan
+
     public InteractableObject obj[][] = new InteractableObject[maxMap][20];
     private JFrame frame;
     Sound music = new Sound();
 
-    // FONT KUSTOM
     public Font customFont;
 
     public GamePanel(JFrame frame) {
@@ -92,7 +88,6 @@ public class GamePanel extends JPanel implements Runnable {
     public void setupGame() {
         aSetter.setInteractableObject();
         gameState.setGameState(gameState.play); 
-        
     }
 
     public void startGameThread() {
@@ -169,14 +164,11 @@ public class GamePanel extends JPanel implements Runnable {
             keyH.inventoryPressed = false; 
         }
 
-
         if (gameState.getGameState() == gameState.play) {
             player.update();
-    
 
             if (keyH.interactPressed) {
                 boolean interactionHandled = false;
-    
 
                 int objIndex = cChecker.checkObject(player, obj, currentMap);
                 if (objIndex != 999) {
@@ -186,13 +178,12 @@ public class GamePanel extends JPanel implements Runnable {
                     }
                 }
 
-                keyH.interactPressed = false; // Reset flag setelah interaksi
-                
-                // Jika TIDAK ada interaksi dengan objek, cek interaksi dengan TILE (misal: teleport)
+                keyH.interactPressed = false;
+
                 if (!interactionHandled) {
                     int playerCol = (player.worldX + player.solidArea.x + player.solidArea.width / 2) / tileSize;
                     int playerRow = (player.worldY + player.solidArea.y + player.solidArea.height / 2) / tileSize;
-    
+
                     if (playerCol >= 0 && playerCol < maxWorldCol && playerRow >= 0 && playerRow < maxWorldRow) {
     
                                 if (currentMap == 0 && playerCol == 31 && playerRow == 31) {
@@ -232,14 +223,20 @@ public class GamePanel extends JPanel implements Runnable {
         currentMap = mapIndex;
         player.worldX = newWorldX;
         player.worldY = newWorldY;
-    
-    
+
+        for (int i = 0; i < obj[currentMap].length; i++) {
+            obj[currentMap][i] = null;
+        }
+
         String mapPath = "";
         if (currentMap == 0) {
             mapPath = "/maps/map.txt";
         } else if (currentMap == 1) {
             mapPath = "/maps/beachmap.txt";
-
+        } else if (currentMap == 2) {
+            mapPath = "/maps/forest.txt";
+        } else if (currentMap == 3) {
+            mapPath = "/maps/lake.txt";
         }
 
         if (!mapPath.isEmpty()) {
@@ -277,11 +274,8 @@ public class GamePanel extends JPanel implements Runnable {
             }
             player.draw(g2);
         } else if (gameState.getGameState() == gameState.inventory) {
-            // Saat di inventory, Anda mungkin tetap ingin menggambar game di belakangnya
-            // dengan efek blur atau gelap, atau hanya menggambar background inventory.
-            // Untuk saat ini, kita gambar juga game world agar ada latar.
             tileM.draw(g2);
-             for (InteractableObject interactableObjItem : obj[currentMap]) {
+            for (InteractableObject interactableObjItem : obj[currentMap]) {
                 if (interactableObjItem != null) {
                     interactableObjItem.draw(g2, this);
                 }

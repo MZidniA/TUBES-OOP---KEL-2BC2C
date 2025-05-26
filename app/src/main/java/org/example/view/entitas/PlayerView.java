@@ -1,19 +1,17 @@
 package org.example.view.entitas;
 
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import org.example.view.entitas.Entity; // Ensure Entity is imported
+
+import javax.imageio.ImageIO;
 
 import org.example.controller.GamePanel;
 import org.example.controller.KeyHandler;
 import org.example.controller.UtilityTool;
 import org.example.model.Inventory;
-import org.example.model.Player; // Ensure Player is imported
-
-import java.awt.image.BufferedImage;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-
-import javax.imageio.ImageIO;
+import org.example.model.Player;
 
 public class PlayerView extends Entity {
     GamePanel gp;
@@ -24,9 +22,9 @@ public class PlayerView extends Entity {
     public final int screenY;
 
     public PlayerView(GamePanel gp, KeyHandler keyH, Player player) {
-        this.player = player;
         this.gp = gp;
         this.keyH = keyH;
+        this.player = player;
 
         screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
         screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
@@ -44,7 +42,11 @@ public class PlayerView extends Entity {
     }
 
     public Inventory getInventory() {
-        return player.getInventory(); // Assuming Player has a method to get Inventory
+        return player.getInventory();
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
     public void setDefaultValues() {
@@ -79,97 +81,76 @@ public class PlayerView extends Entity {
     }
 
     public void update() {
-        if (keyH.upPressed == true || keyH.downPressed == true || keyH.leftPressed == true
-                || keyH.rightPressed == true) {
-            if (keyH.upPressed) {
-                direction = "up";
-            }
-            if (keyH.downPressed) {
-                direction = "down";
-            }
-            if (keyH.leftPressed) {
-                direction = "left";
-            }
-            if (keyH.rightPressed) {
-                direction = "right";
-            }
+        if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
+            if (keyH.upPressed) direction = "up";
+            if (keyH.downPressed) direction = "down";
+            if (keyH.leftPressed) direction = "left";
+            if (keyH.rightPressed) direction = "right";
 
-            // check tile collision
+            // check collision
             collisionOn = false;
             gp.cChecker.checkTile(this);
-            gp.cChecker.checkObject(this, gp.obj, gp.currentMap);
 
+            int objIndex = gp.cChecker.checkObject(this, gp.obj, gp.currentMap);
 
-            if (collisionOn == false) {
+            if (objIndex != 999 && gp.keyH.interactPressed) {
+                gp.obj[gp.currentMap][objIndex].interact();
+            }
+
+            if (keyH.interactPressed) {
+                boolean interactionHandled = false;
+
+                if (objIndex != 999) {
+                    if (gp.obj[gp.currentMap][objIndex] != null) {
+                        gp.obj[gp.currentMap][objIndex].interact(); 
+                        interactionHandled = true;
+                    }
+                } else {
+                    int playerCol = (worldX + solidArea.x + solidArea.width / 2) / gp.tileSize;
+                    int playerRow = (worldY + solidArea.y + solidArea.height / 2) / gp.tileSize;
+
+                    if (playerCol >= 0 && playerCol < gp.maxWorldCol && playerRow >= 0 && playerRow < gp.maxWorldRow) {
+                        int tileNum = gp.tileM.mapTileNum[gp.currentMap][playerCol][playerRow];
+
+                        // Contoh: teleport jika berada di tile ID 69
+                        if (gp.currentMap == 0 && tileNum == 69) {
+                            System.out.println("Berdiri di tile 69 pada map 0, teleportasi!");
+                            gp.teleportPlayer(1, 5 * gp.tileSize, 5 * gp.tileSize);
+                            interactionHandled = true;
+                        }
+
+                        // Tambahan: bisa bikin else if teleport lain di sini
+                    }
+                }
+                keyH.interactPressed = false;
+            }
+
+            if (!collisionOn) {
                 switch (direction) {
-                    case "up":
-                        worldY -= speed;
-                        break;
-                    case "down":
-                        worldY += speed;
-                        break;
-                    case "left":
-                        worldX -= speed;
-                        break;
-                    case "right":
-                        worldX += speed;
-                        break;
+                    case "up" -> worldY -= speed;
+                    case "down" -> worldY += speed;
+                    case "left" -> worldX -= speed;
+                    case "right" -> worldX += speed;
                 }
             }
+
             spriteCounter++;
             if (spriteCounter > 12) {
-                if (spriteNum == 1) {
-                    spriteNum = 2;
-                } else if (spriteNum == 2) {
-                    spriteNum = 1;
-                }
+                spriteNum = (spriteNum == 1) ? 2 : 1;
                 spriteCounter = 0;
             }
         }
-
     }
 
     public void draw(Graphics2D g2) {
-        // g2.setColor(Color.white);
-        // g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+        BufferedImage image = switch (direction) {
+            case "up" -> (spriteNum == 1) ? up1 : up2;
+            case "down" -> (spriteNum == 1) ? down1 : down2;
+            case "left" -> (spriteNum == 1) ? left1 : left2;
+            case "right" -> (spriteNum == 1) ? right1 : right2;
+            default -> null;
+        };
 
-        BufferedImage image = null;
-
-        switch (direction) {
-            case "up":
-                if (spriteNum == 1) {
-                    image = up1;
-                }
-                if (spriteNum == 2) {
-                    image = up2;
-                }
-                break;
-            case "down":
-                if (spriteNum == 1) {
-                    image = down1;
-                }
-                if (spriteNum == 2) {
-                    image = down2;
-                }
-                break;
-            case "left":
-                if (spriteNum == 1) {
-                    image = left1;
-                }
-                if (spriteNum == 2) {
-                    image = left2;
-                }
-                break;
-            case "right":
-                if (spriteNum == 1) {
-                    image = right1;
-                }
-                if (spriteNum == 2) {
-                    image = right2;
-                }
-                break;
-        }
-        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null); // Ensure gp.tileSize is properly defined in GamePanel
+        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
     }
 }
-

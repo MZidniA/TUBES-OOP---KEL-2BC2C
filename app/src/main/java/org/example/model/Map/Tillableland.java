@@ -13,4 +13,7 @@ public class Tillableland extends Tile {
     public List<Action> getActions(Player player) {
         return new ArrayList<>();
     }
+    public void interact() {
+        System.out.println("Interacting with Tillableland at coordinates (" + getX() + ", " + getY() + ")");
+    }
 }
