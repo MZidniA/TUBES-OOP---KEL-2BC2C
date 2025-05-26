@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -10,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,23 +22,22 @@ public class MenuPanel extends JPanel implements ActionListener {
     private JButton startButton, quitButton;
     private JFrame frame;
     private Font customFont;
+    private ImageIcon buttonIcon;
 
     public MenuPanel(JFrame frame) {
         this.frame = frame;
         setLayout(null);
         loadImage();
         loadCustomFont();
+        loadButtonImage();
 
         setPreferredSize(new Dimension(640, 576));
 
-        startButton = new JButton("New Game");
-        quitButton = new JButton("Quit");
+        startButton = createPixelButton("New Game");
+        quitButton = createPixelButton("Quit");
 
-        startButton.setBounds(240, 300, 160, 40);
-        quitButton.setBounds(240, 360, 160, 40);
-
-        startButton.setFont(customFont);
-        quitButton.setFont(customFont);
+        startButton.setBounds(240, 300, buttonIcon.getIconWidth(), buttonIcon.getIconHeight());
+        quitButton.setBounds(240, 360, buttonIcon.getIconWidth(), buttonIcon.getIconHeight());
 
         startButton.addActionListener(this);
         quitButton.addActionListener(this);
@@ -68,6 +69,28 @@ public class MenuPanel extends JPanel implements ActionListener {
         }
     }
 
+    private void loadButtonImage() {
+        try {
+            buttonIcon = new ImageIcon(getClass().getResource("/button/button.png"));
+        } catch (Exception e) {
+            System.out.println("Gagal memuat gambar tombol /button/button.png");
+            buttonIcon = null;
+        }
+    }
+
+    private JButton createPixelButton(String text) {
+        JButton button = new JButton(text, buttonIcon);
+        button.setFont(customFont);
+        button.setForeground(Color.BLACK);
+        button.setHorizontalTextPosition(JButton.CENTER);
+        button.setVerticalTextPosition(JButton.CENTER);
+        button.setContentAreaFilled(false); 
+        button.setBorderPainted(false);   
+        button.setFocusPainted(false); 
+        button.setOpaque(false);
+        return button;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -89,7 +112,7 @@ public class MenuPanel extends JPanel implements ActionListener {
             frame.repaint();
 
             SwingUtilities.invokeLater(() -> {
-                gamePanel.requestFocus(); 
+                gamePanel.requestFocus();
                 gamePanel.startGameThread();
             });
         } else if (e.getSource() == quitButton) {
