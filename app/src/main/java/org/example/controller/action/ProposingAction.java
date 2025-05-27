@@ -2,12 +2,12 @@
 package org.example.controller.action;
 
 import org.example.model.Farm;
-import org.example.model.Player;
-import org.example.model.Inventory;
-import org.example.model.NPC.NPC;
 import org.example.model.GameClock;
-import org.example.model.Items.Items;
+import org.example.model.Inventory;
 import org.example.model.Items.ItemDatabase;
+import org.example.model.Items.Items;
+import org.example.model.NPC.NPC;
+import org.example.model.Player;
 import org.example.model.enums.RelationshipStats;
 
 public class ProposingAction implements Action {

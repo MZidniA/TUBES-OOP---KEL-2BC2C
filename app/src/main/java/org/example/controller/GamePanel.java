@@ -12,27 +12,22 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.example.model.Inventory;
 import org.example.model.NPC.NPC;
 import org.example.model.Player;
 import org.example.model.Sound;
-import org.example.model.enums.LocationType;
 import org.example.view.GameStateUI;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
 
-
 public class GamePanel extends JPanel implements Runnable {
-    // SCREEN SETTINGS
     final int originalTileSize = 16;
     final int scale = 2;
-    public final int tileSize = originalTileSize * scale; // = 32px
+    public final int tileSize = originalTileSize * scale;
     public final int maxScreenCol = 20;
     public final int maxScreenRow = 18;
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
 
-    // WORLD SETTINGS
     public final int maxWorldCol = 32;
     public final int maxWorldRow = 32;
     public final int maxMap = 6;
@@ -69,25 +64,28 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
-
         loadCustomFont();
     }
 
     public void loadCustomFont() {
         try {
-            InputStream is = getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf");
-            customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 18f);
+            InputStream is = getClass().getResourceAsStream("/font/PressStart2P.ttf");
+            if (is == null) {
+                throw new Exception("Font file tidak ditemukan.");
+            }
+            customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 12f);
             GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(customFont);
-            System.out.println("Font kustom berhasil dimuat.");
+            System.out.println("Font kustom berhasil dimuat: " + customFont.getFontName());
         } catch (Exception e) {
             System.out.println("Font kustom tidak ditemukan, menggunakan Arial.");
+            e.printStackTrace();
             customFont = new Font("Arial", Font.PLAIN, 18);
         }
     }
 
     public void setupGame() {
         aSetter.setInteractableObject();
-        gameState.setGameState(gameState.play); 
+        gameState.setGameState(gameState.play);
     }
 
     public void startGameThread() {
@@ -152,7 +150,7 @@ public class GamePanel extends JPanel implements Runnable {
             } else if (gameState.getGameState() == gameState.pause) {
                 gameState.setGameState(gameState.play);
             }
-            keyH.escapePressed = false; 
+            keyH.escapePressed = false;
         }
 
         if (keyH.inventoryPressed) {
@@ -161,7 +159,7 @@ public class GamePanel extends JPanel implements Runnable {
             } else if (gameState.getGameState() == gameState.inventory) {
                 gameState.setGameState(gameState.play);
             }
-            keyH.inventoryPressed = false; 
+            keyH.inventoryPressed = false;
         }
 
         if (gameState.getGameState() == gameState.play) {
@@ -186,26 +184,26 @@ public class GamePanel extends JPanel implements Runnable {
 
                     if (playerCol >= 0 && playerCol < maxWorldCol && playerRow >= 0 && playerRow < maxWorldRow) {
                         if (currentMap == 0 && playerCol == 31 && playerRow == 31) {
-                            teleportPlayer(1, 5 * tileSize, 5 * tileSize); 
-                        } else if (currentMap == 1 && playerCol == 0 && playerRow == 0 ) { 
-                            teleportPlayer(0, 4 * tileSize, 9 * tileSize); 
-                        } else if (currentMap == 1 && playerCol == 31 && playerRow == 31) { 
-                            teleportPlayer(2, 4 * tileSize, 9 * tileSize); 
-                        } else if (currentMap == 2 && playerCol == 31 && playerRow == 0) { 
-                            teleportPlayer(1, 5 * tileSize, 5 * tileSize); 
-                        } else if (currentMap == 2 && playerCol == 31 && playerRow == 31) { 
-                            teleportPlayer(3, 4 * tileSize, 9 * tileSize); 
-                        } else if (currentMap == 3 && playerCol == 31 && playerRow == 29) { 
+                            teleportPlayer(1, 5 * tileSize, 5 * tileSize);
+                        } else if (currentMap == 1 && playerCol == 0 && playerRow == 0) {
+                            teleportPlayer(0, 4 * tileSize, 9 * tileSize);
+                        } else if (currentMap == 1 && playerCol == 31 && playerRow == 31) {
+                            teleportPlayer(2, 4 * tileSize, 9 * tileSize);
+                        } else if (currentMap == 2 && playerCol == 31 && playerRow == 0) {
+                            teleportPlayer(1, 5 * tileSize, 5 * tileSize);
+                        } else if (currentMap == 2 && playerCol == 31 && playerRow == 31) {
+                            teleportPlayer(3, 4 * tileSize, 9 * tileSize);
+                        } else if (currentMap == 3 && playerCol == 31 && playerRow == 29) {
                             teleportPlayer(2, 5 * tileSize, 5 * tileSize);
                         } else if (currentMap == 1 && playerCol == 31 && playerRow == 0) {
-                            teleportPlayer(2, 4 * tileSize, 9 * tileSize); 
-                        } else if (currentMap == 2 && playerCol == 0 && playerRow == 0) { 
-                            teleportPlayer(1, 5 * tileSize, 5 * tileSize); 
-                        } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) { 
-                            teleportPlayer(3, 4 * tileSize, 9 * tileSize); 
-                        } else if (currentMap == 3 && playerCol == 0 && playerRow == 29) { 
-                            teleportPlayer(2, 5 * tileSize, 5 * tileSize); 
-                        } 
+                            teleportPlayer(2, 4 * tileSize, 9 * tileSize);
+                        } else if (currentMap == 2 && playerCol == 0 && playerRow == 0) {
+                            teleportPlayer(1, 5 * tileSize, 5 * tileSize);
+                        } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) {
+                            teleportPlayer(3, 4 * tileSize, 9 * tileSize);
+                        } else if (currentMap == 3 && playerCol == 0 && playerRow == 29) {
+                            teleportPlayer(2, 5 * tileSize, 5 * tileSize);
+                        }
                     }
                 }
             }
@@ -248,8 +246,11 @@ public class GamePanel extends JPanel implements Runnable {
             System.err.println("Path peta tidak valid untuk mapIndex: " + currentMap);
         }
 
-        music.play();
+        if (currentMap == 0) {
+            aSetter.setInteractableObject();
+        }
 
+        music.play();
         System.out.println("Player diteleportasi ke map " + currentMap + " di tile (" + player.worldX / tileSize + "," + player.worldY / tileSize + ")");
     }
 

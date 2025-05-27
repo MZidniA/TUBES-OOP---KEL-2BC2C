@@ -112,7 +112,6 @@ public class TransitionPanel extends JPanel {
             return;
         }
 
-        // Setup GamePanel
         frame.getContentPane().removeAll();
         GamePanel gamePanel = new GamePanel(frame);
         gamePanel.player.getPlayer().setName(name);
