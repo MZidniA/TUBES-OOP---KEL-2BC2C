@@ -1,11 +1,10 @@
 package org.example.model;
 
-import org.example.model.enums.Weather;
-import org.example.model.enums.Season;
-
-
 import java.time.LocalTime;
 import java.util.Random;
+
+import org.example.model.enums.Season;
+import org.example.model.enums.Weather;
 
 public class GameClock {
     private LocalTime currentTime;
@@ -26,11 +25,9 @@ public class GameClock {
         randomizeWeatherForDay(); 
     }
 
-
     public void advanceTimeMinutes(int minutes) {
         this.currentTime = this.currentTime.plusMinutes(minutes);
     }
-
 
     public void nextDay(PlayerStats playerstats) {
         this.day++;
@@ -39,7 +36,6 @@ public class GameClock {
         if (playerstats != null) {
             playerstats.incrementDaysPlayed(); 
         }
-
   
         if (this.daysIntoSeason > 10) {
             nextSeason();
@@ -55,7 +51,6 @@ public class GameClock {
         this.rainyDaysThisSeason = 0; 
         randomizeWeatherForDay(); 
     }
-
 
     private void randomizeWeatherForDay() {
         int daysRemainingInSeason = 10 - (this.daysIntoSeason -1);
@@ -77,7 +72,6 @@ public class GameClock {
         }
     }
 
-
     public boolean isDayTime() {
         return !currentTime.isBefore(LocalTime.of(6, 0)) && currentTime.isBefore(LocalTime.of(18, 0));
     }
@@ -90,15 +84,19 @@ public class GameClock {
     public LocalTime getCurrentTime() { 
         return currentTime; 
     }
+
     public int getDay() {
         return day; 
     }
+
     public Season getCurrentSeason() {
         return currentSeason; 
     }
+
     public Weather getTodayWeather() {
         return todayWeather; 
     }
+    
     public int getDaysIntoSeason() { 
         return daysIntoSeason; 
     }

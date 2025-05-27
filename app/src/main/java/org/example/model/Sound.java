@@ -8,7 +8,7 @@ import javax.sound.sampled.Clip;
 
 public class Sound {
     private Clip clip;
-    private final String soundPath = "/sound/SDW.wav";
+    private final String soundPath = "/sound/SpringSDW.wav";
 
     public Sound() {
         InputStream is = getClass().getResourceAsStream(soundPath);
@@ -51,4 +51,3 @@ public class Sound {
         }
     }
 }
-

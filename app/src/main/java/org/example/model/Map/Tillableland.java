@@ -1,8 +1,9 @@
 package org.example.model.Map;
-import org.example.model.Player;
-import org.example.controller.action.Action;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.example.controller.action.Action;
+import org.example.model.Player;
 
 public class Tillableland extends Tile {
     public Tillableland(int x, int y) {
@@ -10,7 +11,9 @@ public class Tillableland extends Tile {
     }
     @Override
     public List<Action> getActions(Player player) {
-        // Implement the logic to return actions specific to the Tillableland tile
         return new ArrayList<>();
+    }
+    public void interact() {
+        System.out.println("Interacting with Tillableland at coordinates (" + getX() + ", " + getY() + ")");
     }
 }

@@ -2,7 +2,7 @@ package org.example;
 
 import javax.swing.JFrame;
 
-import org.example.controller.GamePanel; // Ensure GamePanel is defined or imported
+import org.example.controller.MenuPanel; 
 
 public class Main {
     public static void main(String[] args) {
@@ -11,14 +11,12 @@ public class Main {
         window.setResizable(false);
         window.setTitle("Spakbor Hill");
 
-        GamePanel gamePanel = new GamePanel();
-        window.add(gamePanel);
+        MenuPanel menuPanel = new MenuPanel(window);
 
-        window.pack();
+        window.setContentPane(menuPanel);
 
+        window.pack(); 
         window.setLocationRelativeTo(null);
         window.setVisible(true);
-
-        gamePanel.startGameThread();
     }
 }
