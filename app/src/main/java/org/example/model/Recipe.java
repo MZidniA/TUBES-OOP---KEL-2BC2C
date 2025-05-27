@@ -3,8 +3,6 @@ package org.example.model; // Sesuaikan package jika perlu
 
 import org.example.model.Items.Items;
 import org.example.model.Items.Food;
-import org.example.model.PlayerStats;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;

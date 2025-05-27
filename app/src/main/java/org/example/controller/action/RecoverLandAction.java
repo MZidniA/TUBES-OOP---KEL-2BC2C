@@ -84,7 +84,6 @@ public class RecoverLandAction implements Action {
 
         int playerX = player.getTileX();
         int playerY = player.getTileY();
-        Tile currentTile = farmMap.getTile(playerX, playerY); // Sudah dipastikan TilledLand oleh canExecute
 
         // 1. Kurangi Energi Player
         player.decreaseEnergy(ENERGY_COST_PER_TILE);

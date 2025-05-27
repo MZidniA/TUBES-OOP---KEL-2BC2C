@@ -88,7 +88,7 @@ public class TimeManager {
              farm.setCurrentDay(farm.getCurrentDay() + 1);
 
             // Logika untuk perubahan musim (misal setiap 10 hari)
-            if (farm.getCurrentDay() % 10 == 1) { // Hari pertama di musim baru (Hari 1, 11, 21, 31, dst) [cite: 228]
+            if (farm.getCurrentDay() % 10 == 1) { // Hari pertama (Hari 1, 11, 21, 31, dst) [cite: 228]
                 Season nextSeason = null;
                 switch (farm.getCurrentSeason()) {
                     case SPRING:
@@ -101,20 +101,16 @@ public class TimeManager {
                         nextSeason = Season.WINTER;
                         break;
                     case WINTER:
-                        nextSeason = Season.SPRING; // Kembali ke Spring
+                        nextSeason = Season.SPRING; 
+                        break;
+                    case ALL:
+                        nextSeason = farm.getCurrentSeason();
                         break;
                 }
                 farm.setCurrentSeason(nextSeason);
-                // Reset hari untuk musim baru jika diperlukan (tergantung cara Anda menghitung total hari atau hari dalam musim)
-                // Jika currentDay adalah total hari, biarkan saja.
-                // Jika currentDay adalah hari dalam musim, maka reset ke 1.
-                // Saat ini, currentDay adalah total hari yang dimainkan.
             }
 
-            // Logika untuk perubahan cuaca (bisa random atau sesuai aturan spesifikasi)
-            // Spesifikasi: "Dalam satu season, Rainy Day minimal terjadi 2 kali." [cite: 232]
-            // Implementasi sederhana untuk demonstrasi: Ganti cuaca secara acak
-            if (Math.random() < 0.3) { // Contoh: 30% kemungkinan hujan
+            if (Math.random() < 0.3) { 
                 farm.setCurrentWeather(Weather.RAINY);
             } else {
                 farm.setCurrentWeather(Weather.SUNNY);

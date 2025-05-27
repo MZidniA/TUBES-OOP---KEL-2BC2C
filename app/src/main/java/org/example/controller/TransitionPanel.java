@@ -7,7 +7,6 @@ import javax.imageio.ImageIO;
 
 import java.awt.event.ActionEvent;
 import java.awt.*;
-import java.io.IOException;
 import javax.swing.*;
 
 

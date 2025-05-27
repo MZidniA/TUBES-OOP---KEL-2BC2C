@@ -6,9 +6,6 @@ import org.example.model.Player;
 import org.example.model.Map.FarmMap;
 import org.example.model.Map.Tile;
 import org.example.model.Map.Plantedland;
-import org.example.model.Map.Tilledland;
-import org.example.model.Items.Crops;
-import org.example.model.Items.ItemDatabase;
 
 public class HarvestingAction implements Action {
     private static final int ENERGY_COST = 3;
