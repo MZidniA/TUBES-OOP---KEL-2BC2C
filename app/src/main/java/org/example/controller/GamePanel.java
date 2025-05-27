@@ -185,26 +185,27 @@ public class GamePanel extends JPanel implements Runnable {
                     int playerRow = (player.worldY + player.solidArea.y + player.solidArea.height / 2) / tileSize;
 
                     if (playerCol >= 0 && playerCol < maxWorldCol && playerRow >= 0 && playerRow < maxWorldRow) {
-    
-                                if (currentMap == 0 && playerCol == 31 && playerRow == 31) {
-                                    teleportPlayer(1, 1 * tileSize, 1 * tileSize); 
-                                } else if (currentMap == 1 && playerCol == 0 && playerRow == 0) { 
-                                    teleportPlayer(0, 31 * tileSize, 31 * tileSize); 
-                                } else if (currentMap == 1 && playerCol == 31 && playerRow == 0) { 
-                                    teleportPlayer(2, 29 * tileSize, 0 * tileSize); 
-                                } else if (currentMap == 2 && playerCol == 29 && playerRow == 0) { 
-                                    teleportPlayer(1, 31 * tileSize, 0* tileSize); 
-                                } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) { 
-                                    teleportPlayer(3, 15 * tileSize, 31* tileSize); 
-                                } else if (currentMap == 3 && playerCol == 15 && playerRow == 31) { 
-                                    teleportPlayer(2, 0 * tileSize, 31 * tileSize);
-                                } 
+                            if (currentMap == 0 && playerCol == 31 && playerRow == 15) {
+                                teleportPlayer(1, 1 * tileSize, 1 * tileSize); 
+                            } else if (currentMap == 1 && playerCol == 0 && playerRow == 0) { 
+                                teleportPlayer(0, 31 * tileSize, 15 * tileSize); 
+                            } else if (currentMap == 1 && playerCol == 31 && playerRow == 0) { 
+                                teleportPlayer(2, 29 * tileSize, 0 * tileSize); 
+                            } else if (currentMap == 2 && playerCol == 29 && playerRow == 0) { 
+                                teleportPlayer(1, 31 * tileSize, 0* tileSize); 
+                            } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) { 
+                                teleportPlayer(3, 15 * tileSize, 31* tileSize); 
+                            } else if (currentMap == 3 && playerCol == 15 && playerRow == 31) { 
+                                teleportPlayer(2, 0 * tileSize, 31 * tileSize);
+                            } else if (currentMap == 4 && playerCol == 3 && playerRow == 11) {
+                                teleportPlayer(0, 4 * tileSize, 9 * tileSize);
                             }
                         }
                     }
-                            
+                }
+    
                     keyH.interactPressed = false;
-                        
+    
                 } else if (gameState.getGameState() == gameState.pause) { 
                     if (keyH.enterPressed) {
                         if (gameStateUI.commandNum == 0) { 
@@ -224,10 +225,6 @@ public class GamePanel extends JPanel implements Runnable {
         player.worldX = newWorldX;
         player.worldY = newWorldY;
 
-        for (int i = 0; i < obj[currentMap].length; i++) {
-            obj[currentMap][i] = null;
-        }
-
         String mapPath = "";
         if (currentMap == 0) {
             mapPath = "/maps/map.txt";
@@ -237,6 +234,8 @@ public class GamePanel extends JPanel implements Runnable {
             mapPath = "/maps/forest.txt";
         } else if (currentMap == 3) {
             mapPath = "/maps/lake.txt";
+        } else if (currentMap == 4) {
+            mapPath = "/maps/housemap.txt";
         }
 
         if (!mapPath.isEmpty()) {

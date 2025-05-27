@@ -15,7 +15,7 @@ public class TileManager {
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[500];
+        tile = new Tile[600];
         mapTileNum = new int[gp.maxMap][gp.maxWorldCol][gp.maxWorldRow];
         getTileImage();
         loadMap("/maps/map.txt", 0);
@@ -169,7 +169,6 @@ public class TileManager {
         // Town Map
         setup(134, "134", false);
         setup(135, "135", true);
-        setup(134, "134", false);
         setup(135, "135", true);
         setup(136, "136", true);
         setup(137, "137", false);
@@ -196,6 +195,7 @@ public class TileManager {
         setup(158, "158", true);
         setup(159, "159", true);
         setup(160, "160", true);
+        setup(161, "Hitam", true);
         setup(170, "170", true);
         setup(171, "171", true);
         setup(172, "172", true);
