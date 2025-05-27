@@ -1,14 +1,16 @@
 package org.example.controller;
 
+import org.example.view.InteractableObject.AbigailHouse;
 import org.example.view.InteractableObject.CarolineHouse;
 import org.example.view.InteractableObject.DascoHouse;
 import org.example.view.InteractableObject.DoorObject;
-import org.example.view.InteractableObject.EmilyHouse;
 import org.example.view.InteractableObject.EmilyStore;
 import org.example.view.InteractableObject.MayorHouse;
+import org.example.view.InteractableObject.OceanObject;
 import org.example.view.InteractableObject.PerryHouse;
 import org.example.view.InteractableObject.PlantedTileObject;
 import org.example.view.InteractableObject.PondObject; 
+import org.example.view.InteractableObject.RiverObject;
 import org.example.view.InteractableObject.ShippingBinObject;
 import org.example.view.InteractableObject.UnplantedTileObject;
 
@@ -95,8 +97,19 @@ public class AssetSetter {
         gp.obj[mapIndex][17].worldX = 26 * gp.tileSize;
         gp.obj[mapIndex][17].worldY = 17 * gp.tileSize;
 
-        gp.obj[mapIndex][18] = new EmilyHouse(gp);
+        gp.obj[mapIndex][18] = new AbigailHouse(gp);
         gp.obj[mapIndex][18].worldX = 25 * gp.tileSize;
         gp.obj[mapIndex][18].worldY = 28 * gp.tileSize;
+
+        mapIndex = 2;
+        gp.obj[mapIndex][19] = new RiverObject(gp);
+        gp.obj[mapIndex][19].worldX = 22 * gp.tileSize;
+        gp.obj[mapIndex][19].worldY = 7 * gp.tileSize;
+
+        mapIndex = 1;
+        gp.obj[mapIndex][20] = new OceanObject(gp);
+        gp.obj[mapIndex][20].worldX = 10 * gp.tileSize;
+        gp.obj[mapIndex][20].worldY = 21 * gp.tileSize;
+
     }
 }

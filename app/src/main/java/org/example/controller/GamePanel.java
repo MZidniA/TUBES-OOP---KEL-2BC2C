@@ -49,7 +49,7 @@ public class GamePanel extends JPanel implements Runnable {
     Player p = new Player("John", "Male", "Sunny Farm");
     public PlayerView player = new PlayerView(this, keyH, p);
 
-    public InteractableObject obj[][] = new InteractableObject[maxMap][20];
+    public InteractableObject obj[][] = new InteractableObject[maxMap][30];
     private JFrame frame;
     Sound music = new Sound();
 

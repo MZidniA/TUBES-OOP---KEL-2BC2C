@@ -1,8 +1,8 @@
 package org.example.view.InteractableObject;
 
-import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 
 import org.example.controller.GamePanel;
 import org.example.controller.UtilityTool;
@@ -33,7 +33,6 @@ public abstract class InteractableObject  {
     }
 
     public void interact() {
-        // Default interaction method, can be overridden by subclasses
         System.out.println("Interacted with " + name);
     }
 

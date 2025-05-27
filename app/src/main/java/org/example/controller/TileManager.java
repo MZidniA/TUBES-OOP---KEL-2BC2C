@@ -587,6 +587,28 @@ public class TileManager {
         setup(565, "row-12-column-10", false);
         setup(566, "row-12-column-11", false);
         setup(567, "row-12-column-12", false);
+        setup(568, "121", false);
+        setup(569, "569", false);
+        setup(570, "570", false);
+        setup(571, "571", false);
+        setup(572, "572", false);
+        setup(573, "573", false);
+        setup(574, "574", false);
+        setup(575, "575", false);
+        setup(576, "576", false);
+        setup(577, "577", false);
+        setup(578, "578", true);
+        setup(579, "579", true);
+        setup(580, "580", true);
+        setup(581, "581", false);
+        setup(582, "582", false);
+        setup(583, "583", false);
+        setup(584, "584", false);
+        setup(585, "585", false);
+        setup(586, "586", false);
+        setup(587, "587", false);
+        setup(588, "588", false);
+        setup(589, "589", false);
     }
     
 
