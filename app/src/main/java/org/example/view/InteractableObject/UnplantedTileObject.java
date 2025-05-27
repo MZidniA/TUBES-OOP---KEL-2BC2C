@@ -1,24 +1,43 @@
 package org.example.view.InteractableObject;
-import javax.imageio.ImageIO;
 
-import org.example.controller.GamePanel;
+import java.io.IOException; // Lebih spesifik untuk ImageIO
+import javax.imageio.ImageIO;
+import org.example.controller.GameController;
+// Tidak perlu import org.example.view.GamePanel;
 
 public class UnplantedTileObject extends InteractableObject {
-    GamePanel gp;
-    public UnplantedTileObject(GamePanel gp) {
-        this.gp = gp;
-        this.name = "Unplanted Tile";
+    // HAPUS: GamePanel gp;
+
+    public UnplantedTileObject() { // Konstruktor tanpa parameter
+        super("Unplanted Tile"); // Panggil konstruktor superclass dengan nama objek
+        // this.collision = false; // Tile yang belum ditanami biasanya tidak solid (bisa dilewati)
+        loadImage(); // Panggil metode untuk memuat gambar spesifik
+    }
+
+    @Override
+    protected void loadImage() {
         try {
+            // Hanya memuat gambar, tidak melakukan scaling di sini.
+            // Scaling akan dilakukan oleh AssetSetter.
             this.image = ImageIO.read(getClass().getResourceAsStream("/InteractableObject/UnplantedTile.png"));
-            uTool.scaleImage(image, gp.tileSize, gp.tileSize); // Assuming you want to scale the image to 48x48 pixels
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
+            System.err.println("Error loading UnplantedTile.png for UnplantedTileObject");
         }
     }
 
     @Override
-    public void interact() {
-        // Implement interaction logic here
+    public void interact(GameController controller) {
+        // Implementasikan logika interaksi spesifik untuk tile yang belum ditanami.
+        // Misalnya, jika pemain memegang cangkul, tile ini bisa diubah menjadi TilledLand.
+        // Jika pemain memegang bibit, bibit bisa ditanam di sini (jika sudah dicangkul).
         System.out.println("Interacting with the Unplanted Tile");
+        // Contoh:
+        // Items heldItem = controller.getFarmModel().getPlayerModel().getCurrentHeldItem();
+        // if (heldItem != null && heldItem.getName().equals("Hoe")) {
+        //    controller.tillSoil(this.worldX, this.worldY);
+        // } else if (heldItem instanceof Seeds) {
+        //    controller.plantSeed((Seeds)heldItem, this.worldX, this.worldY);
+        // }
     }
 }

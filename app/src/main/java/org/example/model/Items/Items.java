@@ -1,5 +1,4 @@
 package org.example.model.Items;
-import java.awt.image.BufferedImage;
 
 public abstract class Items {
     private String name;
