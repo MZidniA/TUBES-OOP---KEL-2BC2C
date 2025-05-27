@@ -154,7 +154,7 @@ public class TransitionPanel extends JPanel {
             protected void paintComponent(Graphics g) {
                 Image woodBg;
                 try {
-                    woodBg = ImageIO.read(getClass().getResource("/button/button.png"));
+                    woodBg = ImageIO.read(getClass().getResource("/button/message.png"));
                 } catch (IOException e) {
                     g.setColor(new Color(204, 153, 102));
                     g.fillRect(0, 0, getWidth(), getHeight());
