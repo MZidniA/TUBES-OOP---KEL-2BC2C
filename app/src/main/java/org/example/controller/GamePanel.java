@@ -55,6 +55,7 @@ public class GamePanel extends JPanel implements Runnable {
     Sound music = new Sound();
 
     public Font customFont;
+    public Object farm;
 
     public GamePanel(JFrame frame) {
         this.frame = frame;
@@ -217,10 +218,6 @@ public class GamePanel extends JPanel implements Runnable {
                 } 
             }    
         
-<<<<<<< Updated upstream
-    
-=======
->>>>>>> Stashed changes
     public void teleportPlayer(int mapIndex, int newWorldX, int newWorldY) {
         music.stop();
         currentMap = mapIndex;
@@ -302,9 +299,5 @@ public class GamePanel extends JPanel implements Runnable {
         gameStateUI.draw(g2);
         g2.dispose();
     }
-<<<<<<< Updated upstream
-}
-=======
 
 }
->>>>>>> Stashed changes

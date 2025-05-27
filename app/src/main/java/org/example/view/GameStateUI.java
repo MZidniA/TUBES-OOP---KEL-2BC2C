@@ -3,13 +3,15 @@ package org.example.view;
 import org.example.controller.GamePanel;
 import org.example.model.Inventory;
 import org.example.model.Items.Items;
+import org.example.model.enums.Season;
+import org.example.model.enums.Weather;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.BasicStroke; // Untuk bingkai
 import java.io.InputStream; // Untuk memuat font
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -20,13 +22,17 @@ public class GameStateUI {
     public int commandNum = 0;
     public int slotCol = 0;
     public int slotRow = 0;
+    private int currentDay;
+    private Season currentSeason;
+    private LocalTime currentTime;
+
 
     // Warna tema Stardew Valley (perkiraan)
     Color woodBrown = new Color(139, 69, 19); // Cokelat kayu
     Color lightYellow = new Color(255, 253, 208); // Kuning krem untuk teks
     Color darkTextShadow = new Color(80, 40, 0, 150);
     Color borderColor = new Color(210, 180, 140, 255); // Bayangan teks cokelat tua
-
+    
     public GameStateUI(GamePanel gp) {
         this.gp = gp;
 
@@ -56,98 +62,20 @@ public class GameStateUI {
 
     public void draw(Graphics2D g2) {
         this.g2 = g2;
-        
 
         g2.setFont(stardewFont_40);
-        g2.setColor(lightYellow); 
+        g2.setColor(lightYellow);
+
+        // Selalu tampilkan info waktu di pojok kanan atas
+        drawTimeInfo();
 
         if (gp.gameState.getGameState() == gp.gameState.pause) {
             drawPauseScreen();
-        } else if (gp.gameState.getGameState() == gp.gameState.inventory) { // BARU
+        } else if (gp.gameState.getGameState() == gp.gameState.inventory) {
             drawInventory();
         }
     }
 
-<<<<<<< Updated upstream
-=======
-    private void drawTimeInfo() {
-        // 1. Persiapan Dasar
-        if (gp == null || g2 == null) { // Guard clause jika GamePanel atau Graphics2D belum siap
-            System.err.println("GameStateUI.drawTimeInfo: GamePanel atau Graphics2D null!");
-            return;
-        }
-
-        // 2. Tentukan Ukuran dan Posisi Ikon yang Lebih Besar
-        int iconSize = (int) (gp.tileSize * 2.5); // Buat ikon lebih besar, misal 2.5x ukuran tile
-        int paddingKanan = 15; // Jarak dari tepi kanan layar
-        int paddingAtas = 15;  // Jarak dari tepi atas layar
-
-        int iconX = gp.screenWidth - paddingKanan - iconSize;
-        int iconY = paddingAtas;
-
-        // 3. Gambar Ikon Terlebih Dahulu
-        if (timeIcon != null) {
-            g2.drawImage(timeIcon, iconX, iconY, iconSize, iconSize, null);
-        } else {
-            // Jika ikon tidak ada, mungkin gambar kotak placeholder agar tata letak teks tetap terlihat
-            // g2.setColor(Color.DARK_GRAY);
-            // g2.fillRect(iconX, iconY, iconSize, iconSize);
-            System.err.println("GameStateUI.drawTimeInfo: timeIcon is null, tidak digambar.");
-        }
-
-        // 4. Siapkan Teks yang Akan Ditampilkan
-        String seasonText = (currentSeason != null) ? currentSeason.toString() : "Musim?";
-        String dayText = "Hari " + currentDay;
-        String timeText = (currentTime != null && timeFormatter != null) ? currentTime.format(timeFormatter) : "00:00";
-
-        // 5. Tentukan Font dan Warna untuk Teks di Atas Ikon
-        Font fontDiAtasIkon = (timeFont != null) ? timeFont.deriveFont(Font.BOLD, (float) (iconSize / 5.5)) : new Font("Arial", Font.BOLD, 10);
-        g2.setFont(fontDiAtasIkon); // PENTING: Set font PADA g2 SEBELUM mendapatkan FontMetrics
-
-        // DAPATKAN FontMetrics DARI g2 SETELAH FONT DI-SET
-        FontMetrics fm = g2.getFontMetrics(); // Tidak perlu membuat FontMetrics.java
-
-        int textHeightAscent = fm.getAscent(); // Tinggi dari baseline ke atas
-        int lineSpacing = fm.getDescent() / 2; // Contoh spasi antar baris
-
-        // Hitung total tinggi blok teks (3 baris)
-        int totalTextBlockHeight = (3 * textHeightAscent) + (2 * lineSpacing);
-
-        // 6. Hitung Posisi Y Awal untuk Baris Pertama
-        int startYText = iconY + (iconSize - totalTextBlockHeight) / 2 + textHeightAscent;
-
-        // 7. Gambar Setiap Baris Teks, Tengahkan Horizontal
-
-        // Line 1: Season
-        int textWidthSeason = fm.stringWidth(seasonText); // Gunakan fm untuk mendapatkan lebar string
-        int textXSeason = iconX + (iconSize - textWidthSeason) / 2;
-        g2.setColor(darkTextShadow);
-        g2.drawString(seasonText, textXSeason + 1, startYText + 1);
-        g2.setColor(lightYellow);
-        g2.drawString(seasonText, textXSeason, startYText);
-
-        // Line 2: Day
-        int currentY = startYText + textHeightAscent + lineSpacing; // Pindah ke baris berikutnya
-        int textWidthDay = fm.stringWidth(dayText); // Gunakan fm
-        int textXDay = iconX + (iconSize - textWidthDay) / 2;
-        g2.setColor(darkTextShadow);
-        g2.drawString(dayText, textXDay + 1, currentY + 1);
-        g2.setColor(lightYellow);
-        g2.drawString(dayText, textXDay, currentY);
-
-        // Line 3: Time
-        currentY += textHeightAscent + lineSpacing; // Pindah ke baris berikutnya
-        int textWidthTime = fm.stringWidth(timeText); // Gunakan fm
-        int textXTime = iconX + (iconSize - textWidthTime) / 2;
-        g2.setColor(darkTextShadow);
-        g2.drawString(timeText, textXTime + 1, currentY + 1);
-        g2.setColor(lightYellow);
-        g2.drawString(timeText, textXTime, currentY);
-        }
-
-    // Metode drawPauseScreen, drawInventory, drawSubWindow, getXforCenteredText tetap sama seperti sebelumnya
-    // ... (Pastikan untuk menyalin metode-metode ini dari versi GameStateUI Anda sebelumnya) ...
->>>>>>> Stashed changes
     private void drawPauseScreen() {
         int frameX = gp.tileSize * 4;
         int frameY = gp.tileSize * 3;
@@ -196,7 +124,72 @@ public class GameStateUI {
             g2.drawString(">", x - gp.tileSize + 5, y);
         }
     }
+    public void onTimeUpdate(int day, Season season, Weather weather, LocalTime time) {
+        this.currentDay = day;
+        this.currentSeason = season;
+        // this.currentWeather = weather; // Jika ingin data cuaca
+        this.currentTime = time;
+        // System.out.println("GameStateUI onTimeUpdate: Day=" + day + ", Season=" + season + ", Time=" + (time != null ? time.format(timeFormatter) : "null"));
+    }
 
+
+    private void drawTimeInfo() {
+        // Guard clause
+        if (gp == null || g2 == null) {
+            return;
+        }
+
+        // 1. Persiapan Teks
+        String seasonText = "Musim?";
+        if (currentSeason != null) {
+            seasonText = currentSeason.toString();
+        }
+
+        String dayText = "Hari " + currentDay;
+
+        String timeText = "--:--";
+        java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+        if (currentTime != null) {
+            timeText = currentTime.format(timeFormatter);
+        }
+
+        // 2. Tentukan Font dan Warna
+        // Anda bisa menggunakan font yang sudah ada seperti stardewFont_20
+        Font fontUntukWaktu = (stardewFont_20 != null) ? stardewFont_20.deriveFont(16f) : new Font("Arial", Font.PLAIN, 16);
+        // Ukuran 16f adalah contoh, sesuaikan agar terlihat bagus.
+        g2.setFont(fontUntukWaktu);
+
+        // 3. Tentukan Posisi X dan Y (Tanpa FontMetrics)
+        // Karena kita tidak tahu lebar teks, kita set X agar teks mulai dari posisi tertentu di kanan.
+        // Anda perlu menyesuaikan nilai '150' atau '200' ini agar pas.
+        int xPosisiTeks = gp.screenWidth - 150; // Mulai menggambar 150px dari tepi kanan
+        int yPosisiAwal = 30;                 // Jarak dari atas untuk baris pertama (baseline)
+        int spasiAntarBaris = 20;             // Perkiraan spasi vertikal antar baseline teks (sesuaikan)
+
+        // 4. Gambar Tiga Baris Teks
+
+        // Line 1: Season
+        g2.setColor(darkTextShadow);
+        g2.drawString(seasonText, xPosisiTeks + 1, yPosisiAwal + 1); // Bayangan
+        g2.setColor(lightYellow);
+        g2.drawString(seasonText, xPosisiTeks, yPosisiAwal);         // Teks utama
+
+        // Line 2: Day
+        int yPosisiBaris2 = yPosisiAwal + spasiAntarBaris;
+        g2.setColor(darkTextShadow);
+        g2.drawString(dayText, xPosisiTeks + 1, yPosisiBaris2 + 1);   // Bayangan
+        g2.setColor(lightYellow);
+        g2.drawString(dayText, xPosisiTeks, yPosisiBaris2);         // Teks utama
+
+        // Line 3: Time
+        int yPosisiBaris3 = yPosisiBaris2 + spasiAntarBaris;
+        g2.setColor(darkTextShadow);
+        g2.drawString(timeText, xPosisiTeks + 1, yPosisiBaris3 + 1);    // Bayangan
+        g2.setColor(lightYellow);
+        g2.drawString(timeText, xPosisiTeks, yPosisiBaris3);          // Teks utama
+
+    }
+    
     public void drawInventory() {
         // 1. Definisikan ukuran frame yang lebih kecil dan posisikan di tengah layar
         final int frameWidth = gp.tileSize * 11;  // Lebar sekitar 11 tile
