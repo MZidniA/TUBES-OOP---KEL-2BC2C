@@ -1,11 +1,11 @@
 package org.example.model;
 
-import org.example.model.NPC.NPC; 
-import org.example.model.enums.FishType; 
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.example.model.NPC.NPC;
+import org.example.model.enums.FishType;
 
 public class PlayerStats {
     private int totalIncome;                    
@@ -86,7 +86,6 @@ public class PlayerStats {
         }
     }
 
-
     public int getTotalIncome() {
         return totalIncome; 
     }
@@ -118,5 +117,4 @@ public class PlayerStats {
     public Map<String, Integer> getnpcTotalGift() { 
         return npcTotalGift; 
     }
-
 }

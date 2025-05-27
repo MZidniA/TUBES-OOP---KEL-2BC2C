@@ -1,49 +1,43 @@
 package org.example.controller;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.GraphicsEnvironment;
-import java.io.InputStream;
-
-
 public class MenuPanel extends JPanel implements ActionListener {
     private Image backgroundImage;
     private JButton startButton, quitButton;
     private JFrame frame;
+    private Font customFont;
+    private ImageIcon buttonIcon;
 
     public MenuPanel(JFrame frame) {
         this.frame = frame;
         setLayout(null);
         loadImage();
+        loadCustomFont();
+        loadButtonImage();
 
-        Font customFont = loadFont("/fonts/Stardew Valley ALL CAPS.ttf", 18f);
+        setPreferredSize(new Dimension(640, 576));
 
-        startButton = new JButton("New Game");
-        quitButton = new JButton("Quit");
+        startButton = createPixelButton("New Game");
+        quitButton = createPixelButton("Quit");
 
-        startButton.setBounds(240, 300, 180, 45);
-        quitButton.setBounds(240, 360, 180, 45);
-
-        if (customFont != null){
-            startButton.setFont(customFont);
-            quitButton.setFont(customFont);
-        }
-
-        styleButton(startButton);
-        styleButton(quitButton);
+        startButton.setBounds(240, 300, buttonIcon.getIconWidth(), buttonIcon.getIconHeight());
+        quitButton.setBounds(240, 360, buttonIcon.getIconWidth(), buttonIcon.getIconHeight());
 
         startButton.addActionListener(this);
         quitButton.addActionListener(this);
@@ -54,50 +48,48 @@ public class MenuPanel extends JPanel implements ActionListener {
 
     private void loadImage() {
         try {
-            backgroundImage = ImageIO.read(getClass().getResource("/gui/menu.png"));
-        } catch (IOException e) {
+            backgroundImage = ImageIO.read(getClass().getResource("/menu/menu.png"));
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private Font loadFont(String path, float size) {
+    private void loadCustomFont() {
         try {
-            InputStream is = getClass().getResourceAsStream(path);
-            Font font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(size);
-            return font;
+            InputStream is = getClass().getResourceAsStream("/font/PressStart2P.ttf");
+            if (is == null) {
+                System.out.println("Font kustom TIDAK ditemukan!");
+            }
+            customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 14f);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(customFont);
+            System.out.println("Font kustom berhasil dimuat di MenuPanel.");
         } catch (Exception e) {
-            System.err.println("Gagal load font: " + e.getMessage());
-            return null;
+            System.out.println("Font kustom tidak ditemukan, menggunakan Arial.");
+            customFont = new Font("Arial", Font.PLAIN, 14);
         }
     }
 
-    private void styleButton(JButton button) {
-        button.setFocusPainted(false);
-        button.setContentAreaFilled(true);
-        button.setOpaque(true);
-        button.setBorderPainted(false);
-        button.setForeground(java.awt.Color.WHITE);
-
-        // 🎨 Warna biru tua elegan
-        java.awt.Color darkBlue = new java.awt.Color(40, 70, 150); // deep blue
-        java.awt.Color darkBlueHover = new java.awt.Color(60, 90, 180); // hover glow
-
-        button.setBackground(darkBlue);
-        button.setFont(button.getFont().deriveFont(Font.BOLD, 18f));
-
-        // 🔁 Hover effect
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(darkBlueHover);
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(darkBlue);
-            }
-        });
+    private void loadButtonImage() {
+        try {
+            buttonIcon = new ImageIcon(getClass().getResource("/button/button.png"));
+        } catch (Exception e) {
+            System.out.println("Gagal memuat gambar tombol /button/button.png");
+            buttonIcon = null;
+        }
     }
 
-
+    private JButton createPixelButton(String text) {
+        JButton button = new JButton(text, buttonIcon);
+        button.setFont(customFont);
+        button.setForeground(Color.BLACK);
+        button.setHorizontalTextPosition(JButton.CENTER);
+        button.setVerticalTextPosition(JButton.CENTER);
+        button.setContentAreaFilled(false); 
+        button.setBorderPainted(false);   
+        button.setFocusPainted(false); 
+        button.setOpaque(false);
+        return button;
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -109,23 +101,15 @@ public class MenuPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == startButton) {
+            // ⬇️ GANTI ke TransitionPanel dulu
             frame.getContentPane().removeAll();
-
-            GamePanel gamePanel = new GamePanel();
-            frame.getContentPane().add(gamePanel);
-
+            TransitionPanel transitionPanel = new TransitionPanel(frame);
+            frame.setContentPane(transitionPanel);
             frame.revalidate();
             frame.repaint();
-
-            gamePanel.paintImmediately(0, 0, gamePanel.getWidth(), gamePanel.getHeight());
-
-            SwingUtilities.invokeLater(() -> {
-                gamePanel.requestFocus(); // ini wajib banget
-                gamePanel.startGameThread();
-            });
+            SwingUtilities.invokeLater(transitionPanel::requestFocusInWindow);
         } else if (e.getSource() == quitButton) {
             System.exit(0);
         }
     }
-
 }

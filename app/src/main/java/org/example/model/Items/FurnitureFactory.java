@@ -10,7 +10,6 @@ public class FurnitureFactory {
         furniture.put("King Bed", new Furniture("King Bed", 0, 15000));
         furniture.put("Stove", new Furniture("Stove", 0,7500));
 
-
         return furniture;
     }
 }

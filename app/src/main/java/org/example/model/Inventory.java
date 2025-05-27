@@ -26,15 +26,19 @@ public class Inventory {
         inventory.put(item, inventory.getOrDefault(item, 0) + quantity);
     }
 
-    public void removeInventory(Items item, int quantity) {
+    public void removeItem(Items item, int quantity) {
         if (inventory.containsKey(item)) {
             int currentQuantity = inventory.get(item);
             if (currentQuantity <= quantity) {
-                inventory.remove(item); 
+                inventory.remove(item);
             } else {
-                inventory.put(item, currentQuantity - quantity); 
+                inventory.put(item, currentQuantity - quantity);
             }
-        } 
+        }
+    }
+
+    public boolean hasItem(Items itemToEat, int quantity) {
+        return inventory.getOrDefault(itemToEat, 0) >= quantity;
     }
 
     public boolean hasItem(String itemName) {

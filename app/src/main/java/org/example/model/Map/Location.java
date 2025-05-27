@@ -1,9 +1,10 @@
 package org.example.model.Map;
 
-import org.example.model.enums.LocationType;
+import java.util.List;
+
 import org.example.controller.action.Action;
 import org.example.model.Player;
-import java.util.List;
+import org.example.model.enums.LocationType;
 
 public interface Location {
     String getLocation();

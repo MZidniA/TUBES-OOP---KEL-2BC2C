@@ -11,365 +11,729 @@ import javax.imageio.ImageIO;
 public class TileManager {
     GamePanel gp;
     public Tile[] tile;
-    public int mapTileNum[][];
+    public int mapTileNum[][][];
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[100];
-        mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
+        tile = new Tile[850];
+        mapTileNum = new int[gp.maxMap][gp.maxWorldCol][gp.maxWorldRow];
         getTileImage();
-        loadMap("/maps/map.txt");
+        loadMap("/maps/map.txt", 0);
+        loadMap("/maps/beachmap.txt", 1);
+        loadMap("/maps/rivermap.txt", 2);
+        loadMap("/maps/townmap.txt", 3);
+        loadMap("/maps/housemap.txt", 4);
     }
 
     public void getTileImage() {
+        // Farm Map
+        setup(0, "RumputSummer", false);
+        setup(1, "Tree1", true);
+        setup(2, "Tree2", true);
+        setup(3, "2", true); 
+        setup(4, "3", true);
+        setup(5, "4", true);
+        setup(6, "5", true);
+        setup(7, "7", true);
+        setup(8, "8", true);
+        setup(9, "9", true);
+        setup(10, "10", true);
+        setup(11, "11", true);
+        setup(12, "12", true);
+        setup(13, "18", true);
+        setup(14, "17", true);
+        setup(15, "16", true);
+        setup(16, "15", true);
+        setup(17, "14", true);
+        setup(18, "13", true);
+        setup(19, "19", true);
+        setup(20, "20", true);
+        setup(21, "21", true);
+        setup(22, "22", true);
+        setup(23, "23", true);
+        setup(24, "24", true);
+        setup(25, "30", true);
+        setup(26, "29", true);
+        setup(27, "28", true);
+        setup(28, "27", true);
+        setup(29, "26", true);
+        setup(30, "25", true);
+        setup(31, "31", true);
+        setup(32, "32", true);
+        setup(33, "33", true);
+        setup(34, "Path", true); 
+        setup(35, "35", true);
+        setup(36, "36", true);
+        setup(37, "Path", false); 
+        setup(38, "RumputCornerKiri", false);
+        setup(39, "RumputKiriBawah", false);
+        setup(40, "RumputKananBawah", false);
+        setup(41, "TebingKiriPojok", false); 
+        setup(42, "UnderTebingKiriPojok", true);
+        setup(43, "TebingTengah", true);
+        setup(44, "TebingTengah2", true);
+        setup(45, "TebingKiriAtas", false);
+        setup(46, "TebingTengahKanan", false);
+        setup(47, "TebingTengahKanan1", true);
+        setup(48, "TebingTengahKiri1", true);
+        setup(49, "TebingKiriPojok", false); 
+        setup(50, "TebingTengahKanan2", false);
+        setup(51, "TebingTengahKananPojok", true);
+        setup(52, "TebingBawah52", true);
+        setup(53, "53", true);
+        setup(54, "54", true);
+        setup(55, "55", false); 
+        setup(56, "56", false);
+        setup(57, "57", true);
+        setup(58, "58", true);
+        setup(59, "59", true);
+        setup(60, "RumputKiriBawah", false); 
+        setup(61, "Path", true); 
+        setup(62, "62", true);
+        setup(63, "63", true);
+        setup(64, "64", true);
+        setup(65, "RumputCorner3", false);
+        setup(66, "RumputCorner5", false);
+        setup(67, "RumputCorner4", false);
+        setup(68, "RumputCorner2", false);
+        setup(69, "RumputKananBawah", false); 
+        setup(70, "Rumput70", false);
+        setup(71, "RumputRata", false);
+        setup(72, "TanahLubang72", false); 
+        setup(73, "RumputCornerKanan", false);
+        setup(74, "Rumput74", false);
+        setup(75, "75", false); 
+        setup(76, "Path", false); 
+        setup(77, "77", false);
+        setup(78, "78", true);
+        setup(79, "79", true);
+        setup(80, "80", false); 
+        setup(81, "81", true);
+        setup(82, "82", false);
+        setup(83, "83", true);
+        setup(84, "84", true);
+        setup(85, "85", true);
+        setup(86, "RumputCorner86", false);
+        setup(87, "RumputCorner87", false);
+        setup(89, "Rumput89", false);
+        setup(88, "Path", true); 
+        setup(90, "Path", true);
+
+        // Beach and Ocean Map
+        setup(91, "LightSandPatch", false);
+        setup(92, "DarkSandPatch", false);
+        setup(93, "Sea", true);
+        setup(94, "BeachTree1", true);
+        setup(95, "BeachTree2", true);
+        setup(96, "SandMix2", false);
+        setup(97, "Beach4", false);
+        setup(98, "Beach2", false);
+        setup(99, "99", true);
+        setup(100, "Beach5", false);
+        setup(101, "SandMix4", false);
+
+        // River Map
+        setup(102, "102", false);
+        setup(103, "103", false);
+        setup(104, "104", false);
+        setup(105, "105", false);
+        setup(106, "106", false);
+        setup(107, "107", false);
+        setup(108, "108", false);
+        setup(109, "109", false);
+        setup(110, "110", false);
+        setup(111, "111", false);
+        setup(112, "112", false);
+        setup(113, "113", false);
+        setup(114, "114", true);
+        setup(115, "115", true);
+        setup(116, "116", true);
+        setup(117, "117", true);
+        setup(118, "118", true);
+        setup(119, "119", true);
+        setup(120, "120", true);
+        setup(121, "121", true);
+        setup(122, "122", true);
+        setup(123, "123", true);
+        setup(124, "124", true);
+        setup(125, "125", true);
+        setup(126, "126", false);
+        setup(127, "127", true);
+        setup(128, "128", false);
+        setup(129, "129", false);
+        setup(130, "130", false);
+        setup(131, "131", false);
+        setup(132, "132", false);
+        setup(133, "133", false);
+
+        // Town Map
+        setup(134, "134", false);
+        setup(135, "135", true);
+        setup(135, "135", true);
+        setup(136, "136", true);
+        setup(137, "137", false);
+        setup(138, "138", false);
+        setup(139, "139", false);
+        setup(140, "140", false);
+        setup(141, "141", false);
+        setup(142, "142", false);
+        setup(143, "143", false);
+        setup(144, "144", false);
+        setup(145, "145", false);
+        setup(146, "146", false);
+        setup(147, "147", false);
+        setup(148, "148", false);
+        setup(149, "149", false);
+        setup(150, "150", false);
+        setup(151, "151", false);
+        setup(152, "152", false);
+        setup(153, "153", false);
+        setup(154, "154", true);
+        setup(155, "155", true);
+        setup(156, "156", true);
+        setup(157, "157", true);
+        setup(158, "158", true);
+        setup(159, "159", true);
+        setup(160, "160", true);
+        setup(161, "Hitam", true);
+        setup(170, "170", true);
+        setup(171, "171", true);
+        setup(172, "172", true);
+        setup(173, "173", true);
+        setup(174, "174", true);
+        setup(175, "175", true);
+        setup(176, "176", true);
+        setup(177, "177", true);
+        setup(178, "178", true);
+        setup(179, "179", true);
+        setup(180, "180", true);
+        setup(181, "181", true);
+        setup(182, "182", true);
+        setup(183, "183", true);
+        setup(184, "184", true);
+        setup(185, "185", true);
+        setup(186, "186", true);
+        setup(187, "187", true);
+        setup(188, "188", true);
+        setup(189, "189", true);
+        setup(190, "190", true);
+        setup(191, "191", true);
+        setup(192, "192", true);
+        setup(193, "193", true);
+        setup(194, "194", true);
+        setup(195, "195", true);
+        setup(196, "196", true);
+        setup(197, "197", true);
+        setup(198, "198", true);
+        setup(199, "199", true);
+        setup(200, "200", true);
+        setup(201, "201", true);
+        setup(202, "202", true);
+        setup(203, "203", true);
+        setup(204, "204", true);
+        setup(205, "205", true);
+        setup(206, "206", true);
+        setup(207, "207", true);
+        setup(208, "208", true);
+        setup(209, "209", true);
+        setup(210, "210", true);
+        setup(211, "211", true);
+        setup(212, "212", true);
+        setup(213, "213", true);
+        setup(214, "214", true);
+        setup(215, "215", true);
+        setup(216, "216", true);
+        setup(217, "217", true);
+        setup(218, "218", true);
+        setup(219, "219", true);
+        setup(220, "220", true);
+        setup(221, "221", true);
+        setup(222, "222", true);
+        setup(223, "223", true);
+        setup(224, "224", true);
+        setup(225, "225", true);
+        setup(226, "226", true);
+        setup(227, "227", true);
+        setup(228, "228", true);
+        setup(229, "229", true);
+        setup(230, "230", true);
+        setup(231, "231", true);
+        setup(232, "232", true);
+        setup(233, "233", true);
+        setup(234, "234", true);
+        setup(235, "235", true);
+        setup(236, "236", true);
+        setup(237, "237", true);
+        setup(238, "238", true);
+        setup(239, "239", true);
+        setup(240, "240", true);
+        setup(241, "241", true);
+        setup(242, "242", true);
+        setup(243, "243", true);
+        setup(244, "244", true);
+        setup(245, "245", true);
+        setup(246, "246", true);
+        setup(247, "247", true);
+        setup(248, "248", true);
+        setup(249, "249", true);
+        setup(250, "250", true);
+        setup(251, "251", true);
+        setup(252, "252", true);
+        setup(253, "253", true);
+        setup(254, "254", true);
+        setup(255, "255", true);
+        setup(256, "256", true);
+        setup(257, "257", true);
+        setup(258, "258", true);
+        setup(259, "259", true);
+        setup(260, "260", true);
+        setup(261, "261", true);
+        setup(262, "262", true);
+        setup(263, "263", true);
+        setup(264, "264", true);
+        setup(265, "265", true);
+        setup(266, "266", true);
+        setup(267, "267", true);
+        setup(268, "268", true);
+        setup(269, "269", true);
+        setup(270, "270", true);
+
+        // Town Map
+        setup(134, "134", false);
+        setup(135, "135", true);
+        setup(136, "136", true);
+        setup(137, "137", false);
+        setup(138, "138", false);
+        setup(139, "139", false);
+        setup(140, "140", false);
+        setup(141, "141", false);
+        setup(142, "142", false);
+        setup(143, "143", false);
+        setup(144, "144", false);
+        setup(145, "145", false);
+        setup(146, "146", false);
+        setup(147, "147", false);
+        setup(148, "148", false);
+        setup(149, "149", false);
+        setup(150, "150", false);
+        setup(151, "151", false);
+        setup(152, "152", false);
+        setup(153, "153", false);
+        setup(154, "154", true);
+        setup(155, "155", true);
+        setup(156, "156", true);
+        setup(157, "157", true);
+        setup(158, "158", true);
+        setup(159, "159", true);
+        setup(160, "160", true);
+        setup(170, "170", true);
+        setup(171, "171", true);
+        setup(172, "172", true);
+        setup(173, "173", true);
+        setup(174, "174", true);
+        setup(175, "175", true);
+        setup(176, "176", true);
+        setup(177, "177", true);
+        setup(178, "178", true);
+        setup(179, "179", true);
+        setup(180, "180", true);
+        setup(181, "181", true);
+        setup(182, "182", true);
+        setup(183, "183", true);
+        setup(184, "184", true);
+        setup(185, "185", true);
+        setup(186, "186", true);
+        setup(187, "187", true);
+        setup(188, "188", true);
+        setup(189, "189", true);
+        setup(190, "190", true);
+        setup(191, "191", true);
+        setup(192, "192", true);
+        setup(193, "193", true);
+        setup(194, "194", true);
+        setup(195, "195", true);
+        setup(196, "196", true);
+        setup(197, "197", true);
+        setup(198, "198", true);
+        setup(199, "199", true);
+        setup(200, "200", true);
+        setup(201, "201", true);
+        setup(202, "202", true);
+        setup(203, "203", true);
+        setup(204, "204", true);
+        setup(205, "205", true);
+        setup(206, "206", true);
+        setup(207, "207", true);
+        setup(208, "208", true);
+        setup(209, "209", true);
+        setup(210, "210", true);
+        setup(211, "211", true);
+        setup(212, "212", true);
+        setup(213, "213", true);
+        setup(214, "214", true);
+        setup(215, "215", true);
+        setup(216, "216", true);
+        setup(217, "217", true);
+        setup(218, "218", true);
+        setup(219, "219", true);
+        setup(220, "220", true);
+        setup(221, "221", true);
+        setup(222, "222", true);
+        setup(223, "223", true);
+        setup(224, "224", true);
+        setup(225, "225", true);
+        setup(226, "226", true);
+        setup(227, "227", true);
+        setup(228, "228", true);
+        setup(229, "229", true);
+        setup(230, "230", true);
+        setup(231, "231", true);
+        setup(232, "232", true);
+        setup(233, "233", true);
+        setup(234, "234", true);
+        setup(235, "235", true);
+        setup(236, "236", true);
+        setup(237, "237", true);
+        setup(238, "238", true);
+        setup(239, "239", true);
+        setup(240, "240", true);
+        setup(241, "241", true);
+        setup(242, "242", true);
+        setup(243, "243", true);
+        setup(244, "244", true);
+        setup(245, "245", true);
+        setup(246, "246", true);
+        setup(247, "247", true);
+        setup(248, "248", true);
+        setup(249, "249", true);
+        setup(250, "250", true);
+        setup(251, "251", true);
+        setup(252, "252", true);
+        setup(253, "253", true);
+        setup(254, "254", true);
+        setup(255, "255", true);
+        setup(256, "256", true);
+        setup(257, "257", true);
+        setup(258, "258", true);
+        setup(259, "259", true);
+        setup(260, "260", true);
+        setup(261, "261", true);
+        setup(262, "262", true);
+        setup(263, "263", true);
+        setup(264, "264", true);
+        setup(265, "265", true);
+        setup(266, "266", true);
+        setup(267, "267", true);
+        setup(268, "268", true);
+        setup(269, "269", true);
+        setup(270, "270", true);
+        setup(271, "271", true);
+        setup(272, "272", true);
+        setup(273, "273", true);
+        setup(274, "274", true);
+        setup(275, "275", true);
+        setup(276, "276", true);
+        setup(277, "277", true);
+        setup(278, "278", true);
+        setup(279, "279", true);
+        setup(280, "280", true);
+        setup(281, "281", true);
+        setup(282, "282", true);
+        setup(283, "283", true);
+        setup(284, "284", true);
+        setup(285, "285", true);
+        setup(286, "286", true);
+        setup(287, "287", true);
+        setup(288, "288", true);
+        setup(289, "289", true);
+        setup(290, "290", true);
+        setup(291, "291", true);
+        setup(292, "292", true);
+        setup(293, "293", true);
+        setup(294, "294", true);
+        setup(295, "295", true);
+        setup(296, "296", true);
+        setup(297, "297", true);
+        setup(298, "298", true);
+        setup(299, "299", true);
+        setup(300, "300", true);
+        setup(301, "301", true);
+        setup(302, "302", true);
+        setup(303, "303", true);
+        setup(304, "304", true);
+        setup(305, "305", true);
+        setup(306, "306", true);
+        setup(307, "307", true);
+        setup(308, "308", true);
+        setup(309, "309", true);
+        setup(310, "310", true);
+        setup(311, "311", true);
+        setup(312, "312", true);
+        setup(313, "313", true);
+        setup(314, "314", true);
+        setup(315, "315", true);
+        setup(316, "316", true);
+        setup(317, "317", true);
+        setup(318, "318", true);
+        setup(319, "319", true);
+        setup(320, "320", true);
+        setup(321, "321", true);
+        setup(322, "322", true);
+        setup(323, "323", true);
+        setup(324, "324", true);
+        setup(325, "325", true);
+        setup(326, "326", true);
+        setup(327, "327", true);
+        setup(328, "328", true);
+        setup(329, "329", true);
+        setup(330, "330", true);
+        setup(331, "331", true);
+        setup(332, "332", true);
+        setup(333, "333", true);
+        setup(334, "334", true);
+        setup(335, "335", true);
+        setup(336, "336", true);
+        setup(337, "337", true);
+        setup(338, "338", true);
+        setup(339, "339", true);
+        setup(340, "340", true);
+        setup(341, "341", true);
+        setup(342, "342", true);
+        setup(343, "343", true);
+        setup(344, "344", true);
+        setup(345, "345", true);
+        setup(346, "346", true);
+        setup(347, "347", true);
+        setup(348, "348", true);
+        setup(349, "349", true);
+        setup(350, "350", true);
+        setup(351, "351", true);
+        setup(352, "352", true);
+        setup(353, "353", true);
+        setup(354, "354", true);
+        setup(355, "355", true);
+        setup(356, "356", true);
+        setup(357, "357", true);
+        setup(358, "358", true);
+        setup(359, "359", true);
+        setup(360, "360", true);
+        setup(361, "361", true);
+        setup(362, "362", true);
+        setup(363, "363", true);
+        setup(364, "364", true);
+        setup(365, "365", true);
+        setup(366, "366", true);
+        setup(367, "367", true);
+        setup(368, "368", true);
+        setup(369, "369", true);
+        setup(370, "370", true);
+        setup(380, "380", true);
+        setup(381, "381", true);
+        setup(382, "382", true);
+        setup(383, "383", true);
+        setup(384, "384", true);
+        setup(385, "385", true);
+        setup(386, "386", true);
+        setup(387, "387", true);
+        setup(388, "388", false);
+        setup(389, "389", true);
+        setup(390, "390", false);
+        setup(391, "391", true);
+        setup(392, "392", true);
+        setup(393, "393", true);
+        setup(394, "394", true);
+        setup(395, "395", true);
+        setup(396, "396", true);
+        setup(397, "397", false);
+        setup(398, "398", true);
+        setup(399, "399", false);
+        setup(400, "400", false);
+        setup(401, "401", true);
+        setup(402, "402", false);
+        setup(403, "403", true);
+        setup(404, "404", true);
+        setup(405, "405", true);
+        setup(406, "406", true);
+        setup(407, "407", true);
+        setup(408, "408", true);
+        setup(409, "409", true);
+        setup(410, "410", true);
+        setup(411, "411", true);
+        setup(412, "412", true);
+        setup(413, "413", true);
+        setup(414, "414", true);
+        setup(415, "415", false);
+        setup(416, "416", false);
+        setup(417, "417", true);
+        setup(418, "418", true);
+        setup(419, "419", false);
+        setup(420, "420", false);
+        setup(421, "421", false);
+        setup(422, "422", false);
+        setup(423, "423", false);
+        setup(424, "row-1-column-1", true);
+
+        // House Map
+        setup(425, "row-1-column-2", true);
+        setup(426, "row-1-column-3", true);
+        setup(427, "row-1-column-4", true);
+        setup(428, "row-1-column-5", true);
+        setup(429, "row-1-column-6", true);
+        setup(430, "row-1-column-7(1)", true);
+        setup(431, "row-1-column-8(2)", true);
+        setup(432, "row-1-column-9", true);
+        setup(433, "row-1-column-10", true);
+        setup(434, "row-1-column-11", true);
+        setup(435, "row-1-column-12", true);
+        setup(436, "row-2-column-1", true);
+        setup(437, "row-2-column-2", true);
+        setup(438, "row-2-column-3", true);
+        setup(439, "row-2-column-4", true);
+        setup(440, "row-2-column-5", true);
+        setup(441, "row-2-column-6", true);
+        setup(442, "row-2-column-7", true);
+        setup(443, "row-2-column-8", true);
+        setup(444, "row-2-column-9", true);
+        setup(445, "row-2-column-10", true);
+        setup(446, "row-2-column-11", true);
+        setup(447, "row-2-column-12", true);
+        setup(448, "row-3-column-1", true);
+        setup(449, "row-3-column-2", true);
+        setup(450, "row-3-column-3", true);
+        setup(451, "row-3-column-4", true);
+        setup(452, "row-3-column-5", true);
+        setup(453, "row-3-column-6", true);
+        setup(454, "row-3-column-7", true);
+        setup(455, "row-3-column-8", true);
+        setup(456, "row-3-column-9", true);
+        setup(457, "row-3-column-10", true);
+        setup(458, "row-3-column-11", true);
+        setup(459, "row-3-column-12", true);
+        setup(460, "row-4-column-1", true);
+        setup(461, "row-4-column-2", true);
+        setup(462, "row-4-column-3", true);
+        setup(463, "row-4-column-4", true);
+        setup(464, "row-4-column-5", true);
+        setup(465, "row-4-column-6", true);
+        setup(466, "row-4-column-7", true);
+        setup(467, "row-4-column-8", true);
+        setup(468, "row-4-column-9", true);
+        setup(469, "row-4-column-10", true);
+        setup(470, "row-4-column-11", true);
+        setup(471, "row-4-column-12", true);
+        setup(472, "row-5-column-1", false);
+        setup(473, "row-5-column-2", false);
+        setup(474, "row-5-column-3", false);
+        setup(475, "row-5-column-4", false);
+        setup(476, "row-5-column-5", false);
+        setup(477, "row-5-column-6", false);
+        setup(478, "row-5-column-7", false);
+        setup(479, "row-5-column-8", false);
+        setup(480, "row-5-column-9", false);
+        setup(481, "row-5-column-10", false);
+        setup(482, "row-5-column-11", false);
+        setup(483, "row-5-column-12", false);
+        setup(484, "row-6-column-1", false);
+        setup(485, "row-6-column-2", false);
+        setup(486, "row-6-column-3", false);
+        setup(487, "row-6-column-4", false);
+        setup(488, "row-6-column-5", false);
+        setup(489, "row-6-column-6", false);
+        setup(490, "row-6-column-7", false);
+        setup(491, "row-6-column-8", false);
+        setup(492, "row-6-column-9", false);
+        setup(493, "row-6-column-10", false);
+        setup(494, "row-6-column-11", false);
+        setup(495, "row-6-column-12", false);
+        setup(496, "row-7-column-1", false);
+        setup(497, "row-7-column-2", false);
+        setup(498, "row-7-column-3", false);
+        setup(499, "row-7-column-4", false);
+        setup(500, "row-7-column-5", false);
+        setup(501, "row-7-column-6", false);
+        setup(502, "row-7-column-7", false);
+        setup(503, "row-7-column-8", false);
+        setup(504, "row-7-column-9", false);
+        setup(505, "row-7-column-10", false);
+        setup(506, "row-7-column-11", false);
+        setup(507, "row-7-column-12", false);
+        setup(508, "row-8-column-1", false);
+        setup(509, "row-8-column-2", false);
+        setup(510, "row-8-column-3", false);
+        setup(511, "row-8-column-4", false);
+        setup(512, "row-8-column-5", false);
+        setup(513, "row-8-column-6", false);
+        setup(514, "row-8-column-7", false);
+        setup(515, "row-8-column-8", false);
+        setup(516, "row-8-column-9", false);
+        setup(517, "row-8-column-10", false);
+        setup(518, "row-8-column-11", false);
+        setup(519, "row-8-column-12", false);
+        setup(520, "row-9-column-1", false);
+        setup(521, "row-9-column-2", false);
+        setup(522, "row-9-column-3", false);
+        setup(523, "row-9-column-4", false);
+        setup(524, "row-9-column-5", false);
+        setup(525, "row-9-column-6", false);
+        setup(526, "row-9-column-7", false);
+        setup(527, "row-9-column-8", false);
+        setup(528, "row-9-column-9", false);
+        setup(529, "row-9-column-10", false);
+        setup(530, "row-9-column-11", false);
+        setup(531, "row-9-column-12", false);
+        setup(532, "row-10-column-1", false);
+        setup(533, "row-10-column-2", false);
+        setup(534, "row-10-column-3", false);
+        setup(535, "row-10-column-4", false);
+        setup(536, "row-10-column-5", false);
+        setup(537, "row-10-column-6", false);
+        setup(538, "row-10-column-7", false);
+        setup(539, "row-10-column-8", false);
+        setup(540, "row-10-column-9", false);
+        setup(541, "row-10-column-10", false);
+        setup(542, "row-10-column-11", false);
+        setup(543, "row-10-column-12", false);
+        setup(544, "row-11-column-1", false);
+        setup(545, "row-11-column-2", false);
+        setup(546, "row-11-column-3", false);
+        setup(547, "row-11-column-4", false);
+        setup(548, "row-11-column-5", false);
+        setup(549, "row-11-column-6", false);
+        setup(550, "row-11-column-7", false);
+        setup(551, "row-11-column-8", false);
+        setup(552, "row-11-column-9", false);
+        setup(553, "row-11-column-10", false);
+        setup(554, "row-11-column-11", false);
+        setup(555, "row-11-column-12", false);
+        setup(556, "row-12-column-1", false);
+        setup(557, "row-12-column-2", false);
+        setup(558, "row-12-column-3", false);
+        setup(559, "row-12-column-4", false);
+        setup(560, "row-12-column-5", false);
+        setup(561, "row-12-column-6", false);
+        setup(562, "row-12-column-7", false);
+        setup(563, "row-12-column-8", false);
+        setup(564, "row-12-column-9", false);
+        setup(565, "row-12-column-10", false);
+        setup(566, "row-12-column-11", false);
+        setup(567, "row-12-column-12", false);
+    }
+    
+
+    public void setup(int index, String imageName, boolean collision) {
+        UtilityTool uTool = new UtilityTool();
+
         try {
-            tile[0] = new Tile();
-            tile[0].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputSummer.png"));
-            
-            // Tree
-            tile[1] = new Tile();
-            tile[1].image = ImageIO.read(getClass().getResourceAsStream("/tiles/Tree1.png"));
-            tile[1].collision = true;
-
-            tile[2] = new Tile();
-            tile[2].image = ImageIO.read(getClass().getResourceAsStream("/tiles/Tree2.png"));
-            tile[2].collision = true;
-            
-            // House
-            tile[3] = new Tile();
-            tile[3].image = ImageIO.read(getClass().getResourceAsStream("/tiles/2.png"));
-            tile[3].collision = true;
-
-            tile[4] = new Tile();
-            tile[4].image = ImageIO.read(getClass().getResourceAsStream("/tiles/3.png"));
-            tile[4].collision = true;
-
-            tile[5] = new Tile();
-            tile[5].image = ImageIO.read(getClass().getResourceAsStream("/tiles/4.png"));
-            tile[5].collision = true;
-
-            tile[6] = new Tile();
-            tile[6].image = ImageIO.read(getClass().getResourceAsStream("/tiles/5.png"));
-            tile[6].collision = true;
-
-            tile[7] = new Tile();
-            tile[7].image = ImageIO.read(getClass().getResourceAsStream("/tiles/7.png"));
-            tile[7].collision = true;
-
-            tile[8] = new Tile();
-            tile[8].image = ImageIO.read(getClass().getResourceAsStream("/tiles/8.png"));
-            tile[8].collision = true;
-
-            tile[9] = new Tile();
-            tile[9].image = ImageIO.read(getClass().getResourceAsStream("/tiles/9.png"));
-            tile[9].collision = true;
-
-            tile[10] = new Tile();
-            tile[10].image = ImageIO.read(getClass().getResourceAsStream("/tiles/10.png"));
-            tile[10].collision = true;
-
-            tile[11] = new Tile();
-            tile[11].image = ImageIO.read(getClass().getResourceAsStream("/tiles/11.png"));
-            tile[11].collision = true;
-
-            tile[12] = new Tile();
-            tile[12].image = ImageIO.read(getClass().getResourceAsStream("/tiles/12.png"));
-            tile[12].collision = true;
-
-            tile[13] = new Tile();
-            tile[13].image = ImageIO.read(getClass().getResourceAsStream("/tiles/18.png"));
-            tile[13].collision = true;
-
-            tile[14] = new Tile();
-            tile[14].image = ImageIO.read(getClass().getResourceAsStream("/tiles/17.png"));
-            tile[14].collision = true;
-
-            tile[15] = new Tile();
-            tile[15].image = ImageIO.read(getClass().getResourceAsStream("/tiles/16.png"));
-            tile[15].collision = true;
-
-            tile[16] = new Tile();
-            tile[16].image = ImageIO.read(getClass().getResourceAsStream("/tiles/15.png"));
-            tile[16].collision = true;
-
-            tile[17] = new Tile();
-            tile[17].image = ImageIO.read(getClass().getResourceAsStream("/tiles/14.png"));
-            tile[17].collision = true;
-
-            tile[18] = new Tile();
-            tile[18].image = ImageIO.read(getClass().getResourceAsStream("/tiles/13.png"));
-            tile[18].collision = true;
-
-            tile[19] = new Tile();
-            tile[19].image = ImageIO.read(getClass().getResourceAsStream("/tiles/19.png"));
-            tile[19].collision = true;
-
-            tile[20] = new Tile();
-            tile[20].image = ImageIO.read(getClass().getResourceAsStream("/tiles/20.png"));
-            tile[20].collision = true;
-
-            tile[21] = new Tile();
-            tile[21].image = ImageIO.read(getClass().getResourceAsStream("/tiles/21.png"));
-            tile[21].collision = true;
-
-            tile[22] = new Tile();
-            tile[22].image = ImageIO.read(getClass().getResourceAsStream("/tiles/22.png"));
-            tile[22].collision = true;
-
-            tile[23] = new Tile();
-            tile[23].image = ImageIO.read(getClass().getResourceAsStream("/tiles/23.png"));
-            tile[23].collision = true;
-
-            tile[24] = new Tile();
-            tile[24].image = ImageIO.read(getClass().getResourceAsStream("/tiles/24.png"));
-            tile[24].collision = true;
-
-            tile[25] = new Tile();
-            tile[25].image = ImageIO.read(getClass().getResourceAsStream("/tiles/30.png"));
-            tile[25].collision = true;
-
-            tile[26] = new Tile();
-            tile[26].image = ImageIO.read(getClass().getResourceAsStream("/tiles/29.png"));
-            tile[26].collision = true;
-
-            tile[27] = new Tile();
-            tile[27].image = ImageIO.read(getClass().getResourceAsStream("/tiles/28.png"));
-            tile[27].collision = true;
-
-            tile[28] = new Tile();
-            tile[28].image = ImageIO.read(getClass().getResourceAsStream("/tiles/27.png"));
-            tile[28].collision = true;
-
-            tile[29] = new Tile();
-            tile[29].image = ImageIO.read(getClass().getResourceAsStream("/tiles/26.png"));
-            tile[29].collision = true;
-
-            tile[30] = new Tile();
-            tile[30].image = ImageIO.read(getClass().getResourceAsStream("/tiles/25.png"));
-            tile[30].collision = true;
-
-            tile[31] = new Tile();
-            tile[31].image = ImageIO.read(getClass().getResourceAsStream("/tiles/31.png"));
-            tile[31].collision = true;
-
-            tile[32] = new Tile();
-            tile[32].image = ImageIO.read(getClass().getResourceAsStream("/tiles/32.png"));
-            tile[32].collision = true;
-
-            tile[33] = new Tile();
-            tile[33].image = ImageIO.read(getClass().getResourceAsStream("/tiles/33.png"));
-            tile[33].collision = true;
-
-            tile[34] = new Tile();
-            tile[34].image = ImageIO.read(getClass().getResourceAsStream("/tiles/34.png"));
-            tile[34].collision = true;
-
-            tile[35] = new Tile();
-            tile[35].image = ImageIO.read(getClass().getResourceAsStream("/tiles/35.png"));
-            tile[35].collision = true;
-
-            tile[36] = new Tile();
-            tile[36].image = ImageIO.read(getClass().getResourceAsStream("/tiles/36.png"));
-            tile[36].collision = true;
-            
-            // Path 
-            tile[37] = new Tile();
-            tile[37].image = ImageIO.read(getClass().getResourceAsStream("/tiles/Path.png"));
-
-            // Rumput
-            tile[38] = new Tile();
-            tile[38].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputCornerKiri.png"));
-
-            tile[39] = new Tile();
-            tile[39].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputKiriBawah.png"));
-
-            tile[40] = new Tile();
-            tile[40].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputKananBawah.png"));
-
-            tile[41] = new Tile();
-            tile[41].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TebingKiriPojok.png"));
-
-            tile[42] = new Tile();
-            tile[42].image = ImageIO.read(getClass().getResourceAsStream("/tiles/UnderTebingKiriPojok.png"));
-            tile[42].collision = true;
-            
-            tile[43] = new Tile();
-            tile[43].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TebingTengah.png"));
-            tile[43].collision = true;
-
-            tile[44] = new Tile();
-            tile[44].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TebingTengah2.png"));
-            tile[44].collision = true;
-            
-            tile[45] = new Tile();
-            tile[45].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TebingKiriAtas.png"));
-
-            tile[46] = new Tile();
-            tile[46].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TebingTengahKanan.png"));
-
-            tile[47] = new Tile();
-            tile[47].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TebingTengahKanan1.png"));
-            tile[47].collision = true;
-
-            tile[48] = new Tile();
-            tile[48].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TebingTengahKiri1.png"));
-            tile[48].collision = true;
-
-            tile[49] = new Tile();
-            tile[49].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TebingKiriPojok.png"));
-
-            tile[50] = new Tile();
-            tile[50].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TebingTengahKanan2.png"));
-
-            tile[51] = new Tile();
-            tile[51].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TebingTengahKananPojok.png"));
-            tile[51].collision = true;
-
-            tile[52] = new Tile();
-            tile[52].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TebingBawah52.png"));
-            tile[52].collision = true;
-
-            tile[53] = new Tile();
-            tile[53].image = ImageIO.read(getClass().getResourceAsStream("/tiles/53.png"));
-            tile[53].collision = true;
-
-            tile[54] = new Tile();
-            tile[54].image = ImageIO.read(getClass().getResourceAsStream("/tiles/54.png"));
-            tile[54].collision = true;
-
-            tile[55] = new Tile();
-            tile[55].image = ImageIO.read(getClass().getResourceAsStream("/tiles/55.png"));
-
-            tile[56] = new Tile();
-            tile[56].image = ImageIO.read(getClass().getResourceAsStream("/tiles/56.png"));
-            
-            tile[57] = new Tile();
-            tile[57].image = ImageIO.read(getClass().getResourceAsStream("/tiles/57.png"));
-            tile[57].collision = true;
-
-            tile[58] = new Tile();
-            tile[58].image = ImageIO.read(getClass().getResourceAsStream("/tiles/58.png"));
-            tile[58].collision = true;
-
-            tile[59] = new Tile();
-            tile[59].image = ImageIO.read(getClass().getResourceAsStream("/tiles/59.png"));
-            tile[59].collision = true;
-
-            tile[60] = new Tile();
-            tile[60].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputKiriBawah.png"));
-
-            tile[61] = new Tile();
-            tile[61].image = ImageIO.read(getClass().getResourceAsStream("/tiles/ShippingBin.png"));
-            tile[61].collision = true;
-
-            tile[62] = new Tile();
-            tile[62].image = ImageIO.read(getClass().getResourceAsStream("/tiles/62.png"));
-            tile[62].collision = true;
-
-            tile[63] = new Tile();
-            tile[63].image = ImageIO.read(getClass().getResourceAsStream("/tiles/63.png"));
-            tile[63].collision = true;
-
-            tile[64] = new Tile();
-            tile[64].image = ImageIO.read(getClass().getResourceAsStream("/tiles/64.png"));
-            tile[64].collision = true;
-
-            tile[65] = new Tile();
-            tile[65].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputCorner3.png"));
-
-            tile[66] = new Tile();
-            tile[66].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputCorner5.png"));
-
-            tile[67] = new Tile();
-            tile[67].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputCorner4.png"));
-
-            tile[68] = new Tile();
-            tile[68].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputCorner2.png"));
-
-            tile[69] = new Tile();
-            tile[69].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputKananBawah.png"));
-
-            tile[70] = new Tile();
-            tile[70].image = ImageIO.read(getClass().getResourceAsStream("/tiles/Rumput70.png"));
-
-            tile[71] = new Tile();
-            tile[71].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputRata.png"));
-
-            tile[72] = new Tile();
-            tile[72].image = ImageIO.read(getClass().getResourceAsStream("/tiles/TanahLubang72.png"));
-
-            tile[73] = new Tile();
-            tile[73].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputCornerKanan.png"));
-
-            tile[74] = new Tile();
-            tile[74].image = ImageIO.read(getClass().getResourceAsStream("/tiles/Rumput74.png"));
-
-            // Kolam
-            tile[75] = new Tile();
-            tile[75].image = ImageIO.read(getClass().getResourceAsStream("/tiles/75.png"));
-
-            tile[76] = new Tile();
-            tile[76].image = ImageIO.read(getClass().getResourceAsStream("/tiles/76.png"));
-            
-            tile[77] = new Tile();
-            tile[77].image = ImageIO.read(getClass().getResourceAsStream("/tiles/77.png"));
-
-            tile[78] = new Tile();
-            tile[78].image = ImageIO.read(getClass().getResourceAsStream("/tiles/78.png"));
-            tile[78].collision = true;
-
-            tile[79] = new Tile();
-            tile[79].image = ImageIO.read(getClass().getResourceAsStream("/tiles/79.png"));
-            tile[79].collision = true;
-
-            tile[80] = new Tile();
-            tile[80].image = ImageIO.read(getClass().getResourceAsStream("/tiles/80.png"));
-
-            tile[81] = new Tile();
-            tile[81].image = ImageIO.read(getClass().getResourceAsStream("/tiles/81.png"));
-            tile[81].collision = true;
-
-            tile[82] = new Tile();
-            tile[82].image = ImageIO.read(getClass().getResourceAsStream("/tiles/82.png"));
-
-            tile[83] = new Tile();
-            tile[83].image = ImageIO.read(getClass().getResourceAsStream("/tiles/83.png"));
-            tile[83].collision = true;
-
-            tile[84] = new Tile();
-            tile[84].image = ImageIO.read(getClass().getResourceAsStream("/tiles/84.png"));
-            tile[84].collision = true;
-
-            tile[85] = new Tile();
-            tile[85].image = ImageIO.read(getClass().getResourceAsStream("/tiles/85.png"));
-            tile[85].collision = true;
-
-            // Rumput Part 2
-            tile[86] = new Tile();
-            tile[86].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputCorner86.png"));
-
-            tile[87] = new Tile();
-            tile[87].image = ImageIO.read(getClass().getResourceAsStream("/tiles/RumputCorner87.png"));
-
-            tile[89] = new Tile();
-            tile[89].image = ImageIO.read(getClass().getResourceAsStream("/tiles/Rumput89.png"));
-
-            // Tile
-            tile[88] = new Tile();
-            tile[88].image = ImageIO.read(getClass().getResourceAsStream("/tiles/PlantedTile.png"));
-            tile[88].collision = true;
-
-            tile[90] = new Tile();
-            tile[90].image = ImageIO.read(getClass().getResourceAsStream("/tiles/UnplantedTile.png"));
-            tile[90].collision = true;
-
-
+            tile[index] = new Tile();
+            tile[index].image = ImageIO.read(getClass().getResourceAsStream("/tiles/" + imageName + ".png"));
+            tile[index].image = uTool.scaleImage(tile[index].image, gp.tileSize, gp.tileSize);
+            tile[index].collision = collision;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void loadMap(String filePath) {
+    public void loadMap(String filePath, int map) {
         try {
             InputStream is = getClass().getResourceAsStream(filePath);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -384,7 +748,7 @@ public class TileManager {
     
                 for (int col = 0; col < gp.maxWorldCol; col++) {
                     int num = Integer.parseInt(numbers[col]);
-                    mapTileNum[col][row] = num;
+                    mapTileNum[map][col][row] = num;
                 }
                 row++;
             }
@@ -402,21 +766,20 @@ public class TileManager {
         int worldRow = 0;
     
         while (worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
-            int tileNum = mapTileNum[worldCol][worldRow];
+            int tileNum = mapTileNum[gp.currentMap][worldCol][worldRow];
     
             int worldX = worldCol * gp.tileSize;
             int worldY = worldRow * gp.tileSize;
             int screenX = worldX - gp.player.worldX + gp.player.screenX;
             int screenY = worldY - gp.player.worldY + gp.player.screenY;
-            int buffer = gp.tileSize * 2;
-
-            if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX - buffer &&
-                worldX - gp.tileSize < gp.player.worldX + gp.player.screenX + buffer &&
-                worldY + gp.tileSize > gp.player.worldY - gp.player.screenY - buffer &&
-                worldY - gp.tileSize < gp.player.worldY + gp.player.screenY + buffer) {
+    
+            if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX
+                    && worldX - gp.tileSize < gp.player.worldX + gp.player.screenX
+                    && worldY + gp.tileSize > gp.player.worldY - gp.player.screenY
+                    && worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
     
                 if (tileNum < tile.length && tile[tileNum] != null) {
-                    g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+                    g2.drawImage(tile[tileNum].image, screenX, screenY,gp.tileSize, gp.tileSize,null);
                 } else {
                     System.out.println("Undefined tile index: " + tileNum);
                 }

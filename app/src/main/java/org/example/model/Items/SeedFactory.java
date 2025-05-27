@@ -1,16 +1,14 @@
 package org.example.model.Items;
 
 
-import org.example.model.enums.Season;
-
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.example.model.enums.Season;
 
 public class SeedFactory {
     public static Map<String, Items> createSeeds() {
         Map<String, Items> seeds = new HashMap<>();
-
 
         seeds.put("Parsnip Seeds", new Seeds("Parsnip Seeds", 10, 20, Season.SPRING, 1));
         seeds.put("Cauliflower Seeds", new Seeds("Cauliflower Seeds", 40, 80, Season.SPRING, 5));
@@ -26,8 +24,6 @@ public class SeedFactory {
         seeds.put("Pumpkin Seeds", new Seeds("Pumpkin Seeds", 75, 150, Season.FALL, 7));
         seeds.put("Wheat Seeds", new Seeds("Wheat Seeds", 30, 60, Season.FALL, 1));
         seeds.put("Grape Seeds", new Seeds("Grape Seeds", 30, 60, Season.FALL, 3));
-
-        
 
         return seeds;
     }
