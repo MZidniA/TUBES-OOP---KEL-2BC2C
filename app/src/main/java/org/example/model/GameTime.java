@@ -30,7 +30,6 @@ public class GameTime {
         }
     }
     
-
     public boolean isAnyTime() {
         return isAnyTime;
     }
