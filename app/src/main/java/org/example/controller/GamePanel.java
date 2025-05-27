@@ -47,8 +47,9 @@ public class GamePanel extends JPanel implements Runnable {
     public AssetSetter aSetter = new AssetSetter(this);
 
     NPC partner = null;
-    Player p = new Player("John", "Male", "Sunny Farm");
+    public Player p = new Player("John", "Male", "Sunny Farm");
     public PlayerView player = new PlayerView(this, keyH, p);
+    public PlayerController playerController = new PlayerController(this,p, player);
 
     public InteractableObject obj[][] = new InteractableObject[maxMap][20];
     private JFrame frame;

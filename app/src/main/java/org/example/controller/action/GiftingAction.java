@@ -61,7 +61,7 @@ public class GiftingAction implements Action{
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
 
         // Hapus item dari inventory
-        player.getInventory().removeItem(itemToGive, 1);
+        player.getInventory().removeInventory(itemToGive, 1);
 
         // Tentukan efek hadiah
         int heartPointsAdded = 0;

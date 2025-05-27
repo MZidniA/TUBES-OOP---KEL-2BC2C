@@ -53,7 +53,7 @@ public class PlantingAction implements Action {
         Player player = farm.getPlayer();
         player.decreaseEnergy(ENERGY_COST);
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
-        player.getInventory().removeItem(seedToPlant, 1); 
+        player.getInventory().removeInventory(seedToPlant, 1); 
 
         System.out.println("LOG: " + player.getName() + " menanam " + seedToPlant.getName() + ".");
     }

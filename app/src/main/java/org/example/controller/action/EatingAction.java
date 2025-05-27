@@ -58,7 +58,7 @@ public class EatingAction implements Action {
         if (itemToEat instanceof EdibleItem) {
             int restored = ((EdibleItem) itemToEat).getEnergyRestored();
             player.setEnergy(player.getEnergy() + restored);
-            player.getInventory().removeItem(itemToEat, 1);
+            player.getInventory().removeInventory(itemToEat, 1);
             farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
             System.out.println("LOG: " + player.getName() + " memakan " + itemToEat.getName() + ". Energi pulih " + restored + ".");
         } else {

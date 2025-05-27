@@ -4,6 +4,7 @@ import org.example.controller.GamePanel;
 import org.example.model.Inventory;
 import org.example.model.Items.Items;
 import org.example.model.enums.Season;
+import java.time.LocalTime;
 import org.example.model.enums.Weather;
 
 import java.awt.Color;
@@ -11,14 +12,13 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.BasicStroke; // Untuk bingkai
 import java.io.InputStream; // Untuk memuat font
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Map;
 
 public class GameStateUI {
     GamePanel gp;
     Graphics2D g2;
-    Font stardewFont_40, stardewFont_30, stardewFont_20; // Ganti nama font jika Anda punya
+    Font stardewFont_40, stardewFont_30, stardewFont_20, defaultFont; // Ganti nama font jika Anda punya
     public int commandNum = 0;
     public int slotCol = 0;
     public int slotRow = 0;
@@ -31,32 +31,27 @@ public class GameStateUI {
     Color woodBrown = new Color(139, 69, 19); // Cokelat kayu
     Color lightYellow = new Color(255, 253, 208); // Kuning krem untuk teks
     Color darkTextShadow = new Color(80, 40, 0, 150);
-    Color borderColor = new Color(210, 180, 140, 255); // Bayangan teks cokelat tua
-    
+    Color borderColor = new Color(210, 180, 140); // Dibuat tidak transparan agar lebih solid
+
     public GameStateUI(GamePanel gp) {
         this.gp = gp;
+        defaultFont = new Font("Arial", Font.PLAIN, 12); // Inisialisasi defaultFont
 
-        // Coba muat font pixelated
         try {
-            InputStream is = getClass().getResourceAsStream("/font/slkscr.ttf"); // Sesuaikan path ke font Anda
-            if (is != null) {
-                Font baseFont = Font.createFont(Font.TRUETYPE_FONT, is);
-                stardewFont_40 = baseFont.deriveFont(40f);
-                stardewFont_30 = baseFont.deriveFont(30f);
-                stardewFont_20 = baseFont.deriveFont(20f); 
-            } else {
-                // Fallback ke Arial jika font tidak ditemukan
-                System.err.println("Font kustom tidak ditemukan, menggunakan Arial.");
-                stardewFont_40 = new Font("Arial", Font.BOLD, 40);
-                stardewFont_30 = new Font("Arial", Font.PLAIN, 30);
-                stardewFont_20 = new Font("Arial", Font.PLAIN, 20); // Tambahkan font untuk inventory
+            InputStream is = getClass().getResourceAsStream("/font/slkscr.ttf"); // Path ke font Anda
+            if (is == null) {
+                throw new Exception("File font tidak ditemukan di resources: /font/slkscr.ttf");
             }
+            Font baseFont = Font.createFont(Font.TRUETYPE_FONT, is);
+            stardewFont_40 = baseFont.deriveFont(40f);
+            stardewFont_30 = baseFont.deriveFont(30f);
+            stardewFont_20 = baseFont.deriveFont(20f);
+            System.out.println("Font kustom 'slkscr.ttf' berhasil dimuat.");
         } catch (Exception e) {
-            e.printStackTrace();
-            // Fallback jika ada error saat memuat font
+            System.err.println("Gagal memuat font kustom, menggunakan Arial. Error: " + e.getMessage());
             stardewFont_40 = new Font("Arial", Font.BOLD, 40);
             stardewFont_30 = new Font("Arial", Font.PLAIN, 30);
-            stardewFont_20 = new Font("Arial", Font.PLAIN, 20); // Tambahkan font untuk inventory
+            stardewFont_20 = new Font("Arial", Font.PLAIN, 20);
         }
     }
 
@@ -72,56 +67,45 @@ public class GameStateUI {
         if (gp.gameState.getGameState() == gp.gameState.pause) {
             drawPauseScreen();
         } else if (gp.gameState.getGameState() == gp.gameState.inventory) {
-            drawInventory();
+            drawInventoryScreen(); // Menggunakan nama metode yang konsisten
         }
     }
+
 
     private void drawPauseScreen() {
         int frameX = gp.tileSize * 4;
         int frameY = gp.tileSize * 3;
         int frameWidth = gp.screenWidth - (gp.tileSize * 8);
-        int frameHeight = gp.tileSize * 6; 
+        int frameHeight = gp.tileSize * 6;
 
-        drawSubWindow(frameX, frameY, frameWidth, frameHeight);
+        drawSubWindow(frameX, frameY, frameWidth, frameHeight, new Color(0, 0, 0, 210)); // Background pause lebih gelap
 
-        g2.setFont(stardewFont_40);
-        g2.setColor(lightYellow);
+        Font titleFont = (stardewFont_40 != null ? stardewFont_40 : defaultFont.deriveFont(40F));
+        Font optionFont = (stardewFont_30 != null ? stardewFont_30 : defaultFont.deriveFont(30F));
+
         String text = "Paused";
-        int x = getXforCenteredText(text);
-        int y = frameY + gp.tileSize + 10; 
-        g2.setColor(darkTextShadow);
-        g2.drawString(text, x + 2, y + 2);
-        g2.setColor(lightYellow);
-        g2.drawString(text, x, y);
+        // Menggunakan getXforCenteredTextInWindow agar terpusat di dalam frame pause
+        int x = getXforCenteredTextInWindow(text, frameX, frameWidth, titleFont);
+        int y = frameY + gp.tileSize + gp.tileSize/2; // Posisi Y judul disesuaikan
+        drawTextWithShadow(text, x, y, titleFont);
 
-        g2.setFont(stardewFont_30);
-
-
+        g2.setFont(optionFont);
         text = "Continue";
-        x = getXforCenteredText(text);
+        x = getXforCenteredTextInWindow(text, frameX, frameWidth, optionFont);
         y += gp.tileSize * 2;
-
-        g2.setColor(darkTextShadow);
-        g2.drawString(text, x + 2, y + 2);
-
-        g2.setColor(lightYellow);
-        g2.drawString(text, x, y);
+        drawTextWithShadow(text, x, y, optionFont);
         if (commandNum == 0) {
-            g2.drawImage(null, x - gp.tileSize, y - gp.tileSize + 10, gp.tileSize, gp.tileSize, null); // Ganti null dengan gambar panah jika ada
-            g2.drawString(">", x - gp.tileSize + 5, y); 
+            g2.setColor(lightYellow); // Pastikan warna untuk panah
+            g2.drawString(">", x - gp.tileSize, y);
         }
 
-
         text = "Exit Game";
-        x = getXforCenteredText(text);
-        y += gp.tileSize + 10; 
-        g2.setColor(darkTextShadow);
-        g2.drawString(text, x + 2, y + 2);
-        g2.setColor(lightYellow);
-        g2.drawString(text, x, y);
+        x = getXforCenteredTextInWindow(text, frameX, frameWidth, optionFont);
+        y += gp.tileSize + 10;
+        drawTextWithShadow(text, x, y, optionFont);
         if (commandNum == 1) {
-            g2.drawImage(null, x - gp.tileSize, y - gp.tileSize + 10, gp.tileSize, gp.tileSize, null); // Ganti null dengan gambar panah
-            g2.drawString(">", x - gp.tileSize + 5, y);
+            g2.setColor(lightYellow);
+            g2.drawString(">", x - gp.tileSize, y);
         }
     }
     public void onTimeUpdate(int day, Season season, Weather weather, LocalTime time) {
@@ -190,122 +174,147 @@ public class GameStateUI {
 
     }
     
-    public void drawInventory() {
-        // 1. Definisikan ukuran frame yang lebih kecil dan posisikan di tengah layar
-        final int frameWidth = gp.tileSize * 11;  // Lebar sekitar 11 tile
-        final int frameHeight = gp.tileSize * 8; // Tinggi sekitar 8 tile
-        final int frameX = (gp.screenWidth / 2) - (frameWidth / 2);
-        final int frameY = (gp.screenHeight / 2) - (frameHeight / 2);
-    
-        // Gambar background window
-        drawSubWindow(frameX, frameY, frameWidth, frameHeight);
-    
-        // Judul "Inventory"
-        g2.setFont(stardewFont_40);
-        g2.setColor(lightYellow);
+    private void drawInventoryScreen() {
+        final int frameX = gp.tileSize;
+        final int frameY = gp.tileSize;
+        final int frameWidth = gp.screenWidth - (gp.tileSize * 2);
+        final int frameHeight = gp.tileSize * 8;
+        drawSubWindow(frameX, frameY, frameWidth, frameHeight, new Color(101, 67, 33, 230)); // Warna inventory
+
+        Font titleFont = (stardewFont_40 != null ? stardewFont_40 : defaultFont.deriveFont(40F));
+        g2.setColor(lightYellow); // Set warna sebelum menggambar teks
         String text = "Inventory";
-        // Menengahkan teks judul di dalam frame baru
-        int textLength = (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth();
-        int x = frameX + (frameWidth - textLength) / 2;
-        int y = frameY + gp.tileSize;
-        g2.setColor(darkTextShadow);
-        g2.drawString(text, x + 2, y + 2);
-        g2.setColor(lightYellow);
-        g2.drawString(text, x, y);
-    
-        // Cek jika inventory kosong
-        Inventory inventory = gp.player.getInventory();
-        if (inventory == null || inventory.getInventory().isEmpty()) {
-            g2.setFont(stardewFont_30);
-            g2.setColor(lightYellow);
-            String msg = "Inventory is empty.";
-            int msgLength = (int) g2.getFontMetrics().getStringBounds(msg, g2).getWidth();
-            int msgX = frameX + (frameWidth - msgLength) / 2;
-            int msgY = frameY + frameHeight / 2;
-            g2.drawString(msg, msgX, msgY);
-            return;
-        }
-    
-        // 2. Pengaturan Slot untuk 20 item (5x4 grid)
-        final int slotsPerRow = 5;
-        final int slotRows = 4;
-        final int inventoryCapacity = slotsPerRow * slotRows; // Total 20 slot
-    
-        final int slotSize = gp.tileSize + 10;
-        final int slotGap = 8;
-    
-        // Kalkulasi untuk menengahkan grid slot di dalam frame
+        int titleX = getXforCenteredTextInWindow(text, frameX, frameWidth, titleFont);
+        int titleY = frameY + gp.tileSize;
+        drawTextWithShadow(text, titleX, titleY, titleFont);
+
+        final int slotsPerRow = 12;
+        final int totalDisplayRows = 3;
+        final int slotSize = gp.tileSize + 6;
+        final int slotGap = 4;
+        final int maxSlotsToDisplay = slotsPerRow * totalDisplayRows;
+
         final int gridWidth = (slotsPerRow * slotSize) + ((slotsPerRow - 1) * slotGap);
         final int slotXStart = frameX + (frameWidth - gridWidth) / 2;
-        final int slotYStart = frameY + gp.tileSize + 40; // Posisi Y di bawah judul
-    
-        int slotX = slotXStart;
-        int slotY = slotYStart;
-    
-        // Menggambar item di dalam slot
+        final int slotYStart = titleY + gp.tileSize + (gp.tileSize / 2) + 5; // Beri ruang untuk nomor hotbar
+
+        int currentSlotX = slotXStart;
+        int currentSlotY = slotYStart;
+
+        Inventory inventory = gp.p.getInventory();
         ArrayList<Map.Entry<Items, Integer>> inventoryList = new ArrayList<>(inventory.getInventory().entrySet());
-        for (int i = 0; i < inventoryList.size(); i++) {
-            if (i >= inventoryCapacity) {
-                break; // Hanya gambar item sesuai kapasitas UI (20)
-            }
-    
-            Map.Entry<Items, Integer> entry = inventoryList.get(i);
-            Items item = entry.getKey();
-            Integer quantity = entry.getValue();
-    
-            // Gambar kotak slot
-            g2.setColor(new Color(139, 69, 19, 150));
-            g2.fillRoundRect(slotX, slotY, slotSize, slotSize, 10, 10);
+
+        Font itemPlaceholderFont = (stardewFont_20 != null ? stardewFont_20.deriveFont(9F) : defaultFont.deriveFont(9F));
+        Font quantityFont = (stardewFont_20 != null ? stardewFont_20.deriveFont(12F) : defaultFont.deriveFont(12F));
+        Font hotkeyFont = (stardewFont_20 != null ? stardewFont_20.deriveFont(10F) : defaultFont.deriveFont(10F));
+
+        for (int i = 0; i < maxSlotsToDisplay; i++) {
+            g2.setColor(new Color(80, 40, 0, 200)); // Warna slot
+            g2.fillRoundRect(currentSlotX, currentSlotY, slotSize, slotSize, 8, 8);
             g2.setColor(borderColor);
             g2.setStroke(new BasicStroke(2));
-            g2.drawRoundRect(slotX, slotY, slotSize, slotSize, 10, 10);
-    
-            // Gambar nama item (dengan logika pemotongan teks)
-            g2.setFont(stardewFont_20.deriveFont(12F));
-            g2.setColor(lightYellow);
-            String itemName = item.getName();
-            if (g2.getFontMetrics().stringWidth(itemName) > slotSize - 10) {
-                while(g2.getFontMetrics().stringWidth(itemName + "...") > slotSize - 10 && itemName.length() > 1){
-                    itemName = itemName.substring(0, itemName.length() - 1);
-                }
-                itemName += "...";
-            }
-            g2.drawString(itemName, slotX + 5, slotY + 20);
-    
-            // Gambar kuantitas item
-            if (quantity > 1) {
-                g2.setFont(stardewFont_20.deriveFont(15F));
-                String qtyText = String.valueOf(quantity);
-                int qtyX = slotX + slotSize - g2.getFontMetrics().stringWidth(qtyText) - 5;
-                int qtyY = slotY + slotSize - 5;
-                g2.setColor(darkTextShadow);
-                g2.drawString(qtyText, qtyX + 1, qtyY + 1);
+            g2.drawRoundRect(currentSlotX, currentSlotY, slotSize, slotSize, 8, 8);
+
+            if (i < inventoryList.size()) {
+                Items item = inventoryList.get(i).getKey();
+                Integer quantity = inventoryList.get(i).getValue();
+
+                g2.setFont(itemPlaceholderFont);
                 g2.setColor(lightYellow);
-                g2.drawString(qtyText, qtyX, qtyY);
+                String itemName = item.getName();
+                int maxNameLengthInSlot = 6; // Sesuaikan jika perlu
+                if (itemName.length() > maxNameLengthInSlot) {
+                    itemName = itemName.substring(0, Math.min(itemName.length(), maxNameLengthInSlot - 2)) + "..";
+                }
+                int textWidth = g2.getFontMetrics().stringWidth(itemName);
+                int textX = currentSlotX + (slotSize - textWidth) / 2;
+                int textY = currentSlotY + (slotSize / 2) + (g2.getFontMetrics().getAscent() / 3); // Penyesuaian Y
+                g2.drawString(itemName, textX, textY);
+
+                if (quantity > 1) {
+                    g2.setFont(quantityFont); // Set font sebelum getFontMetrics
+                    String qtyText = String.valueOf(quantity);
+                    int qtyTextWidth = g2.getFontMetrics().stringWidth(qtyText);
+                    int qtyX = currentSlotX + slotSize - qtyTextWidth - 4;
+                    int qtyY = currentSlotY + slotSize - 4;
+                    drawTextWithShadow(qtyText, qtyX, qtyY, quantityFont);
+                }
             }
-    
-            // 3. Pindah ke slot berikutnya dalam grid 5x4
-            slotX += slotSize + slotGap;
+
+            if (i < slotsPerRow) { // Nomor untuk hotbar
+                String hotkeyNum = "";
+                if (i < 9) hotkeyNum = String.valueOf(i + 1);
+                else if (i == 9) hotkeyNum = "0";
+                else if (i == 10) hotkeyNum = "-";
+                else if (i == 11) hotkeyNum = "=";
+                
+                g2.setFont(hotkeyFont); // Set font sebelum getFontMetrics
+                g2.setColor(new Color(230, 230, 230, 200));
+                int hotkeyTextWidth = g2.getFontMetrics().stringWidth(hotkeyNum);
+                g2.drawString(hotkeyNum, currentSlotX + (slotSize - hotkeyTextWidth) / 2, currentSlotY - 4);
+            }
+
+            currentSlotX += slotSize + slotGap;
             if ((i + 1) % slotsPerRow == 0) {
-                slotX = slotXStart;
-                slotY += slotSize + slotGap;
+                currentSlotX = slotXStart;
+                currentSlotY += slotSize + slotGap;
             }
         }
+        
+        int cursorX = slotXStart + (slotSize + slotGap) * slotCol;
+        int cursorY = slotYStart + (slotSize + slotGap) * slotRow;
+        g2.setColor(Color.YELLOW);
+        g2.setStroke(new BasicStroke(3));
+        g2.drawRoundRect(cursorX - 2, cursorY - 2, slotSize + 4, slotSize + 4, 10, 10);
     }
 
-    public void drawSubWindow(int x, int y, int width, int height) {
-        Color windowBackgroundColor = new Color(101, 67, 33, 220); // Cokelat tua semi-transparan (seperti Stardew)
-        g2.setColor(windowBackgroundColor);
-        g2.fillRoundRect(x, y, width, height, 35, 35); // Kotak dengan sudut membulat
-        Color borderColor = new Color(210, 180, 140, 255); // Cokelat muda (Tan)
+    // Helper method untuk menggambar sub-window (latar belakang UI)
+    public void drawSubWindow(int x, int y, int width, int height, Color backgroundColor) {
+        g2.setColor(backgroundColor);
+        g2.fillRoundRect(x, y, width, height, 35, 35);
         g2.setColor(borderColor);
-        g2.setStroke(new BasicStroke(5)); // Ketebalan bingkai
+        g2.setStroke(new BasicStroke(5));
         g2.drawRoundRect(x + 5, y + 5, width - 10, height - 10, 25, 25);
     }
 
-
+    // Helper method untuk menengahkan teks di seluruh layar
     public int getXforCenteredText(String text) {
         int length = (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth();
         return gp.screenWidth / 2 - length / 2;
+    }
+
+    // Helper method untuk menengahkan teks di dalam sebuah window/frame tertentu
+    public int getXforCenteredTextInWindow(String text, int windowX, int windowWidth, Font font) {
+        Font originalFont = g2.getFont();
+        if (font != null) g2.setFont(font);
+        int length = (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth();
+        if (font != null) g2.setFont(originalFont);
+        return windowX + (windowWidth - length) / 2;
+    }
+     // Overload jika font sudah di-set di g2
+    public int getXforCenteredTextInWindow(String text, int windowX, int windowWidth) {
+        int length = (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth();
+        return windowX + (windowWidth - length) / 2;
+    }
+
+
+    // Helper method untuk menggambar teks dengan bayangan
+    // Overload ini menggunakan font yang sudah di-set pada g2
+    private void drawTextWithShadow(String text, int x, int y) {
+        g2.setColor(darkTextShadow);
+        g2.drawString(text, x + 2, y + 2); // Sesuaikan offset bayangan jika perlu
+        g2.setColor(lightYellow);
+        g2.drawString(text, x, y);
+    }
+    
+    // Overload ini menerima font spesifik
+    private void drawTextWithShadow(String text, int x, int y, Font font) {
+        Font originalFont = g2.getFont();
+        if (font != null) g2.setFont(font);
+        g2.setColor(darkTextShadow);
+        g2.drawString(text, x + 2, y + 2); // Sesuaikan offset bayangan
+        g2.setColor(lightYellow);
+        g2.drawString(text, x, y);
+        if (font != null) g2.setFont(originalFont); // Kembalikan font
     }
 }
