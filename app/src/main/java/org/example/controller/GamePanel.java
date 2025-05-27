@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.example.model.NPC.NPC;
-import org.example.model.Farm;
 import org.example.model.Player;
 import org.example.model.Sound;
 import org.example.view.GameStateUI;
@@ -55,7 +54,6 @@ public class GamePanel extends JPanel implements Runnable {
     Sound music = new Sound();
 
     public Font customFont;
-    public Object farm;
 
     public GamePanel(JFrame frame) {
         this.frame = frame;
@@ -299,5 +297,4 @@ public class GamePanel extends JPanel implements Runnable {
         gameStateUI.draw(g2);
         g2.dispose();
     }
-
 }

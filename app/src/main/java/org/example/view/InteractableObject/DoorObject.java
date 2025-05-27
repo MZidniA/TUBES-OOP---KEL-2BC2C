@@ -12,7 +12,7 @@ public class DoorObject extends InteractableObject {
         this.name = "Door";
         try {
             this.image = ImageIO.read(getClass().getResourceAsStream("/InteractableObject/Door.png"));
-            uTool.scaleImage(image, gp.tileSize, gp.tileSize); // Assuming you want to scale the image to 48x48 pixels
+            uTool.scaleImage(image, gp.tileSize, gp.tileSize);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -20,7 +20,6 @@ public class DoorObject extends InteractableObject {
 
     @Override
     public void interact() {
-        // Logic for interacting with the door, e.g., opening it
         gp.teleportPlayer(4, 6 * gp.tileSize, 6 * gp.tileSize);
     }
 }
