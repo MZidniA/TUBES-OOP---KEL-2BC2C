@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.example.model.NPC.NPC;
+import org.example.model.Farm;
 import org.example.model.Player;
 import org.example.model.Sound;
 import org.example.view.GameStateUI;
@@ -216,7 +217,10 @@ public class GamePanel extends JPanel implements Runnable {
                 } 
             }    
         
+<<<<<<< Updated upstream
     
+=======
+>>>>>>> Stashed changes
     public void teleportPlayer(int mapIndex, int newWorldX, int newWorldY) {
         music.stop();
         currentMap = mapIndex;
@@ -298,4 +302,9 @@ public class GamePanel extends JPanel implements Runnable {
         gameStateUI.draw(g2);
         g2.dispose();
     }
+<<<<<<< Updated upstream
 }
+=======
+
+}
+>>>>>>> Stashed changes

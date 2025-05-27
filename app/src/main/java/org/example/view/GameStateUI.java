@@ -6,6 +6,7 @@ import org.example.model.Items.Items;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.BasicStroke; // Untuk bingkai
 import java.io.InputStream; // Untuk memuat font
@@ -67,6 +68,86 @@ public class GameStateUI {
         }
     }
 
+<<<<<<< Updated upstream
+=======
+    private void drawTimeInfo() {
+        // 1. Persiapan Dasar
+        if (gp == null || g2 == null) { // Guard clause jika GamePanel atau Graphics2D belum siap
+            System.err.println("GameStateUI.drawTimeInfo: GamePanel atau Graphics2D null!");
+            return;
+        }
+
+        // 2. Tentukan Ukuran dan Posisi Ikon yang Lebih Besar
+        int iconSize = (int) (gp.tileSize * 2.5); // Buat ikon lebih besar, misal 2.5x ukuran tile
+        int paddingKanan = 15; // Jarak dari tepi kanan layar
+        int paddingAtas = 15;  // Jarak dari tepi atas layar
+
+        int iconX = gp.screenWidth - paddingKanan - iconSize;
+        int iconY = paddingAtas;
+
+        // 3. Gambar Ikon Terlebih Dahulu
+        if (timeIcon != null) {
+            g2.drawImage(timeIcon, iconX, iconY, iconSize, iconSize, null);
+        } else {
+            // Jika ikon tidak ada, mungkin gambar kotak placeholder agar tata letak teks tetap terlihat
+            // g2.setColor(Color.DARK_GRAY);
+            // g2.fillRect(iconX, iconY, iconSize, iconSize);
+            System.err.println("GameStateUI.drawTimeInfo: timeIcon is null, tidak digambar.");
+        }
+
+        // 4. Siapkan Teks yang Akan Ditampilkan
+        String seasonText = (currentSeason != null) ? currentSeason.toString() : "Musim?";
+        String dayText = "Hari " + currentDay;
+        String timeText = (currentTime != null && timeFormatter != null) ? currentTime.format(timeFormatter) : "00:00";
+
+        // 5. Tentukan Font dan Warna untuk Teks di Atas Ikon
+        Font fontDiAtasIkon = (timeFont != null) ? timeFont.deriveFont(Font.BOLD, (float) (iconSize / 5.5)) : new Font("Arial", Font.BOLD, 10);
+        g2.setFont(fontDiAtasIkon); // PENTING: Set font PADA g2 SEBELUM mendapatkan FontMetrics
+
+        // DAPATKAN FontMetrics DARI g2 SETELAH FONT DI-SET
+        FontMetrics fm = g2.getFontMetrics(); // Tidak perlu membuat FontMetrics.java
+
+        int textHeightAscent = fm.getAscent(); // Tinggi dari baseline ke atas
+        int lineSpacing = fm.getDescent() / 2; // Contoh spasi antar baris
+
+        // Hitung total tinggi blok teks (3 baris)
+        int totalTextBlockHeight = (3 * textHeightAscent) + (2 * lineSpacing);
+
+        // 6. Hitung Posisi Y Awal untuk Baris Pertama
+        int startYText = iconY + (iconSize - totalTextBlockHeight) / 2 + textHeightAscent;
+
+        // 7. Gambar Setiap Baris Teks, Tengahkan Horizontal
+
+        // Line 1: Season
+        int textWidthSeason = fm.stringWidth(seasonText); // Gunakan fm untuk mendapatkan lebar string
+        int textXSeason = iconX + (iconSize - textWidthSeason) / 2;
+        g2.setColor(darkTextShadow);
+        g2.drawString(seasonText, textXSeason + 1, startYText + 1);
+        g2.setColor(lightYellow);
+        g2.drawString(seasonText, textXSeason, startYText);
+
+        // Line 2: Day
+        int currentY = startYText + textHeightAscent + lineSpacing; // Pindah ke baris berikutnya
+        int textWidthDay = fm.stringWidth(dayText); // Gunakan fm
+        int textXDay = iconX + (iconSize - textWidthDay) / 2;
+        g2.setColor(darkTextShadow);
+        g2.drawString(dayText, textXDay + 1, currentY + 1);
+        g2.setColor(lightYellow);
+        g2.drawString(dayText, textXDay, currentY);
+
+        // Line 3: Time
+        currentY += textHeightAscent + lineSpacing; // Pindah ke baris berikutnya
+        int textWidthTime = fm.stringWidth(timeText); // Gunakan fm
+        int textXTime = iconX + (iconSize - textWidthTime) / 2;
+        g2.setColor(darkTextShadow);
+        g2.drawString(timeText, textXTime + 1, currentY + 1);
+        g2.setColor(lightYellow);
+        g2.drawString(timeText, textXTime, currentY);
+        }
+
+    // Metode drawPauseScreen, drawInventory, drawSubWindow, getXforCenteredText tetap sama seperti sebelumnya
+    // ... (Pastikan untuk menyalin metode-metode ini dari versi GameStateUI Anda sebelumnya) ...
+>>>>>>> Stashed changes
     private void drawPauseScreen() {
         int frameX = gp.tileSize * 4;
         int frameY = gp.tileSize * 3;
