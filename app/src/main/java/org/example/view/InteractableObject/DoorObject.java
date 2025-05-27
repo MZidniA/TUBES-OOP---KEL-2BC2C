@@ -21,6 +21,6 @@ public class DoorObject extends InteractableObject {
     @Override
     public void interact() {
         // Logic for interacting with the door, e.g., opening it
-        System.out.println("You opened the door.");
+        gp.teleportPlayer(4, 6 * gp.tileSize, 6 * gp.tileSize);
     }
 }

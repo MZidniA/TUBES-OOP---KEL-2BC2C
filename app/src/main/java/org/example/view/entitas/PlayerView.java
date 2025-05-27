@@ -91,39 +91,9 @@ public class PlayerView extends Entity {
             collisionOn = false;
             gp.cChecker.checkTile(this);
 
-            int objIndex = gp.cChecker.checkObject(this, gp.obj, gp.currentMap);
+            gp.cChecker.checkObject(this, gp.obj, gp.currentMap);
 
-            if (objIndex != 999 && gp.keyH.interactPressed) {
-                gp.obj[gp.currentMap][objIndex].interact();
-            }
-
-            if (keyH.interactPressed) {
-                boolean interactionHandled = false;
-
-                if (objIndex != 999) {
-                    if (gp.obj[gp.currentMap][objIndex] != null) {
-                        gp.obj[gp.currentMap][objIndex].interact(); 
-                        interactionHandled = true;
-                    }
-                } else {
-                    int playerCol = (worldX + solidArea.x + solidArea.width / 2) / gp.tileSize;
-                    int playerRow = (worldY + solidArea.y + solidArea.height / 2) / gp.tileSize;
-
-                    if (playerCol >= 0 && playerCol < gp.maxWorldCol && playerRow >= 0 && playerRow < gp.maxWorldRow) {
-                        int tileNum = gp.tileM.mapTileNum[gp.currentMap][playerCol][playerRow];
-
-                        // Contoh: teleport jika berada di tile ID 69
-                        if (gp.currentMap == 0 && tileNum == 69) {
-                            System.out.println("Berdiri di tile 69 pada map 0, teleportasi!");
-                            gp.teleportPlayer(1, 5 * gp.tileSize, 5 * gp.tileSize);
-                            interactionHandled = true;
-                        }
-
-                        // Tambahan: bisa bikin else if teleport lain di sini
-                    }
-                }
-                keyH.interactPressed = false;
-            }
+        
 
             if (!collisionOn) {
                 switch (direction) {
