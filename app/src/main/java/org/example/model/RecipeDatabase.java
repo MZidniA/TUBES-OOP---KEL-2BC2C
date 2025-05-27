@@ -1,11 +1,4 @@
-// Lokasi: src/main/java/org/example/model/RecipeBook.java
-package org.example.model; // Sesuaikan package jika perlu
-
-import org.example.model.Items.ItemDatabase;
-import org.example.model.Items.Items;
-import org.example.model.Items.Food;
-import org.example.model.Items.Fish; // Untuk mengecek instance Fish
-import org.example.model.enums.FishType;
+package org.example.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,13 +6,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.example.model.Items.Fish;
+import org.example.model.Items.Food;
+import org.example.model.Items.ItemDatabase;
+import org.example.model.Items.Items;
+import org.example.model.enums.FishType;
+
 public class RecipeDatabase {
     private static final Map<String, Recipe> recipes = new HashMap<>();
     private static boolean isInitialized = false;
-
-    // Item placeholder untuk "Any Fish"
-    // Ini bisa menjadi kelas khusus atau hanya instance Items dengan nama tertentu
-    // Untuk kesederhanaan, kita bisa menggunakan nama string khusus dan menanganinya di CookingAction
     public static final String ANY_FISH_INGREDIENT_NAME = "Any Fish";
     public static final String ANY_COMMON_FISH_INGREDIENT_NAME = "Any Common Fish";
     public static final String ANY_REGULAR_FISH_INGREDIENT_NAME = "Any Regular Fish";
@@ -28,28 +23,26 @@ public class RecipeDatabase {
 
     public static synchronized void initialize() {
         if (isInitialized) return;
-        if (!ItemDatabase.isInitialized()) { // Pastikan ItemDatabase sudah diinisialisasi
+        if (!ItemDatabase.isInitialized()) {
             ItemDatabase.initialize();
         }
         recipes.clear();
 
-        // --- Helper untuk mendapatkan item dari ItemDatabase ---
         Items wheat = ItemDatabase.getItem("Wheat");
-        Items potato = ItemDatabase.getItem("Potato"); // Asumsi ada "Potato" di CropsFactory
+        Items potato = ItemDatabase.getItem("Potato"); 
         Items salmon = ItemDatabase.getItem("Salmon");
         Items pufferfish = ItemDatabase.getItem("Pufferfish");
         Items grape = ItemDatabase.getItem("Grape");
-        Items egg = ItemDatabase.getItem("Egg"); // Asumsi ada "Egg"
+        Items egg = ItemDatabase.getItem("Egg"); 
         Items cauliflower = ItemDatabase.getItem("Cauliflower");
         Items parsnip = ItemDatabase.getItem("Parsnip");
         Items tomato = ItemDatabase.getItem("Tomato");
         Items hotPepper = ItemDatabase.getItem("Hot Pepper");
         Items melon = ItemDatabase.getItem("Melon");
         Items cranberry = ItemDatabase.getItem("Cranberry");
-        Items blueberry = ItemDatabase.getItem("Blueberry"); // Asumsi ada "Blueberry" di CropsFactory
-        Items legendFishItem = ItemDatabase.getItem("Legend"); // Ikan "Legend"
+        Items blueberry = ItemDatabase.getItem("Blueberry"); 
+        Items legendFishItem = ItemDatabase.getItem("Legend"); 
 
-        // --- Hasil Masakan dari FoodFactory ---
         Food fishNChipsDish = (Food) ItemDatabase.getItem("Fish n’ Chips");
         Food baguetteDish = (Food) ItemDatabase.getItem("Baguette");
         Food sashimiDish = (Food) ItemDatabase.getItem("Sashimi");
@@ -62,15 +55,9 @@ public class RecipeDatabase {
         Food fishSandwichDish = (Food) ItemDatabase.getItem("Fish Sandwich");
         Food legendsOfSpakborDish = (Food) ItemDatabase.getItem("The Legends of Spakbor");
 
-
-        // === Inisialisasi Resep ===
-
         // recipe_1: Fish n' Chips
         Map<Items, Integer> r1Ingredients = new HashMap<>();
-        // Untuk "Any Fish", kita akan gunakan placeholder dan logika khusus di CookingAction
-        // Untuk sementara, kita bisa letakkan item non-spesifik atau null jika ItemDatabase tidak punya "Any Fish"
-        // Ini akan jadi penanda di CookingAction untuk mencari ikan apapun.
-        r1Ingredients.put(ItemDatabase.getItem(ANY_FISH_INGREDIENT_NAME), 2); // Placeholder
+        r1Ingredients.put(ItemDatabase.getItem(ANY_FISH_INGREDIENT_NAME), 2);
         r1Ingredients.put(wheat, 1);
         r1Ingredients.put(potato, 1);
         recipes.put("recipe_1", new Recipe("recipe_1", "Fish n' Chips", fishNChipsDish, r1Ingredients,
@@ -84,7 +71,7 @@ public class RecipeDatabase {
 
         // recipe_3: Sashimi
         Map<Items, Integer> r3Ingredients = new HashMap<>();
-        r3Ingredients.put(salmon, 3); // Menggunakan Salmon x3 sesuai spek (bukan 10 jenis ikan berbeda)
+        r3Ingredients.put(salmon, 3); 
         recipes.put("recipe_3", new Recipe("recipe_3", "Sashimi", sashimiDish, r3Ingredients,
                 "achievement", "Setelah memancing 10 ikan (total)",
                 stats -> {
@@ -103,19 +90,7 @@ public class RecipeDatabase {
                 "achievement", "Memancing pufferfish",
                 stats -> {
                     if (stats == null || pufferfish == null) return false;
-                    // Cek apakah pemain pernah menangkap Pufferfish
-                    // Ini bisa dilakukan dengan mengecek inventory atau log penangkapan ikan
-                    // Untuk sekarang, asumsikan ada cara untuk mengecek.
-                    // Atau, jika hanya perlu Pufferfish di inventory saat ini:
-                    // (Logika ini mungkin lebih cocok di canCook())
-                    // Untuk unlock, kita asumsikan PlayerStats punya info apakah Pufferfish pernah ditangkap
-                    // Jika PlayerStats tidak punya, kita bisa asumsikan true jika Pufferfish-nya ada
-                    // atau membuat kondisi yang selalu true dan validasi bahan di canCook.
-                    // Mari kita asumsikan stats akan memiliki cara melacak "item pernah didapatkan"
-                    // Untuk contoh: kita cek apakah ada di inventory (walaupun ini lebih ke canCook)
-                    // Cara yang lebih baik: PlayerStats.hasObtainedItem("Pufferfish")
-                    // Kita akan buat unlock condition yang lebih sederhana untuk contoh:
-                    return true; // Sementara, akan dicek bahan saat memasak
+                    return true; 
                 }));
 
 
@@ -129,7 +104,7 @@ public class RecipeDatabase {
         Map<Items, Integer> r6Ingredients = new HashMap<>();
         r6Ingredients.put(egg, 1);
         r6Ingredients.put(wheat, 1);
-        r6Ingredients.put(ItemDatabase.getItem("Pumpkin"), 1); // Asumsi "Pumpkin" ada
+        r6Ingredients.put(ItemDatabase.getItem("Pumpkin"), 1); 
         recipes.put("recipe_6", new Recipe("recipe_6", "Pumpkin Pie", pumpkinPieDish, r6Ingredients,
                 "Default/Bawaan", "Default/Bawaan", null));
 
@@ -145,13 +120,11 @@ public class RecipeDatabase {
 
         // recipe_8: Fish Stew
         Map<Items, Integer> r8Ingredients = new HashMap<>();
-        r8Ingredients.put(ItemDatabase.getItem(ANY_FISH_INGREDIENT_NAME), 2); // Placeholder
+        r8Ingredients.put(ItemDatabase.getItem(ANY_FISH_INGREDIENT_NAME), 2); 
         recipes.put("recipe_8", new Recipe("recipe_8", "Fish Stew", fishStewDish, r8Ingredients,
                 "achievement", "Dapatkan \"Hot Pepper\"",
                 stats -> {
-                    // Asumsi ada cara untuk cek apakah "Hot Pepper" pernah didapatkan
-                    // atau ada di inventory. Kita sederhanakan untuk sekarang.
-                    return true; // Validasi bahan akan dilakukan saat canCook
+                    return true;
                 }));
 
         // recipe_9: Spakbor Salad
@@ -165,7 +138,7 @@ public class RecipeDatabase {
 
         // recipe_10: Fish Sandwich
         Map<Items, Integer> r10Ingredients = new HashMap<>();
-        r10Ingredients.put(ItemDatabase.getItem(ANY_FISH_INGREDIENT_NAME), 1); // Placeholder
+        r10Ingredients.put(ItemDatabase.getItem(ANY_FISH_INGREDIENT_NAME), 1); 
         r10Ingredients.put(wheat, 2);
         r10Ingredients.put(tomato, 1);
         r10Ingredients.put(hotPepper, 1);
@@ -178,18 +151,13 @@ public class RecipeDatabase {
         r11Ingredients.put(potato, 2);
         r11Ingredients.put(parsnip, 1);
         r11Ingredients.put(tomato, 1);
-        r11Ingredients.put(ItemDatabase.getItem("Eggplant"), 1); // Asumsi "Eggplant" ada
+        r11Ingredients.put(ItemDatabase.getItem("Eggplant"), 1); 
         recipes.put("recipe_11", new Recipe("recipe_11", "The Legends of Spakbor", legendsOfSpakborDish, r11Ingredients,
                 "achievement", "Memancing \"Legend\"",
                 stats -> {
                     if (stats == null || legendFishItem == null) return false;
-                    // Cek apakah ikan Legend pernah ditangkap.
-                    // Misal, dengan PlayerStats.hasCaughtFish(FishType.LEGENDARY, "Legend")
-                    // Atau lebih sederhana, jika item "Legend" (ikan) ada di inventory:
-                    // (Ini lebih ke canCook, untuk unlock bisa jadi perlu mekanisme lain)
-                    // Untuk contoh:
                     return stats.getTotalFishCaught().getOrDefault(FishType.LEGENDARY, 0) > 0 &&
-                           stats.getTotalFishCaught().containsKey(FishType.LEGENDARY); // Lebih baik jika bisa cek spesifik Legend
+                           stats.getTotalFishCaught().containsKey(FishType.LEGENDARY); 
                 }));
 
 
@@ -282,18 +250,15 @@ public class RecipeDatabase {
      */
     public static List<Items> getFishIngredientsFromInventory(Inventory playerInventory, int quantityBerapaBanyak) {
         List<Items> fishToConsume = new ArrayList<>();
-        Map<Items, Integer> currentInventory = new HashMap<>(playerInventory.getInventory()); // Salinan untuk dimodifikasi sementara
+        Map<Items, Integer> currentInventory = new HashMap<>(playerInventory.getInventory());
 
-        // Ambil semua ikan dari inventory
         List<Map.Entry<Items, Integer>> allFishInInventory = currentInventory.entrySet().stream()
                 .filter(entry -> entry.getKey() instanceof Fish)
                 .collect(Collectors.toList());
 
-        // Prioritaskan Common, Regular, Legendary (bisa disesuaikan)
         allFishInInventory.sort((e1, e2) -> {
             Fish f1 = (Fish) e1.getKey();
             Fish f2 = (Fish) e2.getKey();
-            // Asumsi FishType punya urutan alami atau kita definisikan di sini
             return f1.getFishType().iterator().next().compareTo(f2.getFishType().iterator().next());
         });
 
@@ -311,7 +276,7 @@ public class RecipeDatabase {
         }
 
         if (fishToConsume.size() < quantityBerapaBanyak) {
-            return new ArrayList<>(); // Tidak cukup ikan
+            return new ArrayList<>();
         }
         return fishToConsume;
     }

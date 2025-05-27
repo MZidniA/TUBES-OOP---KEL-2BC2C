@@ -1,37 +1,32 @@
-// Lokasi: src/main/java/org/example/controller/TimeManager.java
 package org.example.controller;
-
-import org.example.model.Farm; // Asumsi TimeManager memiliki akses ke Farm
-import org.example.model.enums.Season;
-import org.example.model.enums.Weather;
-import org.example.view.TimeObserver; // Import interface observer
 
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.example.model.Farm;
+import org.example.model.enums.Season;
+import org.example.model.enums.Weather;
+import org.example.view.TimeObserver;
+
 public class TimeManager {
     private Thread timeThread;
     private boolean running;
-    private Farm farm; // TimeManager perlu tahu Farm untuk memperbarui waktunya
-    private final int REAL_SECOND_TO_GAME_MINUTE = 5; // 1 detik nyata = 5 menit game [cite: 223]
+    private Farm farm; 
+    private final int REAL_SECOND_TO_GAME_MINUTE = 5; 
 
-    // List untuk menyimpan observer
     private List<TimeObserver> observers;
 
-    public TimeManager(Farm farm) { // Constructor menerima objek Farm
+    public TimeManager(Farm farm) { 
         this.farm = farm;
         this.observers = new ArrayList<>();
     }
 
-    // Metode untuk mendaftarkan observer
     public void addObserver(TimeObserver observer) {
         observers.add(observer);
     }
 
-    // Metode untuk memberi tahu semua observer
     private void notifyObservers() {
-        // Panggil onTimeUpdate pada setiap observer dengan data waktu terbaru dari Farm
         for (TimeObserver observer : observers) {
             observer.onTimeUpdate(farm.getCurrentDay(), farm.getCurrentSeason(), farm.getCurrentWeather(), farm.getCurrentTime());
         }
@@ -47,26 +42,21 @@ public class TimeManager {
                     long currentTimeMillis = System.currentTimeMillis();
                     long elapsed = currentTimeMillis - lastTime;
 
-                    // Menggunakan konstanta 1000ms untuk 1 detik nyata
-                    if (elapsed >= 1000) { // Jika sudah 1 detik nyata berlalu [cite: 223]
-                        updateGameTime(REAL_SECOND_TO_GAME_MINUTE); // Tambah waktu game [cite: 223]
-                        lastTime = currentTimeMillis; // Reset lastTime
-
-                        // Setelah waktu game diupdate, beri tahu UI untuk memperbarui
+                    if (elapsed >= 1000) { 
+                        updateGameTime(REAL_SECOND_TO_GAME_MINUTE);
+                        lastTime = currentTimeMillis; 
                         notifyObservers();
                     }
 
                     try {
-                        // Agar tidak terlalu boros CPU, thread bisa tidur sebentar
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt(); // Restore the interrupted status
-                        e.printStackTrace();
-                        running = false; // Hentikan thread jika terjadi interupsi
+                        Thread.currentThread().interrupt(); 
+                        running = false;
                     }
                 }
             });
-            timeThread.setName("GameTimeThread"); // Beri nama thread untuk debug [cite: 19]
+            timeThread.setName("GameTimeThread"); 
             timeThread.start();
         }
     }
@@ -78,17 +68,19 @@ public class TimeManager {
         }
     }
 
-    // Metode ini yang akan memperbarui waktu di objek Farm
     private void updateGameTime(int minutesToAdd) {
         LocalTime newTime = farm.getCurrentTime().plusMinutes(minutesToAdd);
         farm.setCurrentTime(newTime);
 
-        // Jika waktu melewati tengah malam (00:00), maka hari bertambah
-        if (newTime.isBefore(farm.getCurrentTime())) { // Cek jika waktu "mundur" karena lewat tengah malam
+        if (newTime.isBefore(farm.getCurrentTime())) { 
              farm.setCurrentDay(farm.getCurrentDay() + 1);
 
+<<<<<<< HEAD
             // Logika untuk perubahan musim (misal setiap 10 hari)
             if (farm.getCurrentDay() % 10 == 1) { // Hari pertama (Hari 1, 11, 21, 31, dst) [cite: 228]
+=======
+            if (farm.getCurrentDay() % 10 == 1) { 
+>>>>>>> main
                 Season nextSeason = null;
                 switch (farm.getCurrentSeason()) {
                     case SPRING:
@@ -102,12 +94,18 @@ public class TimeManager {
                         break;
                     case WINTER:
                         nextSeason = Season.SPRING; 
+<<<<<<< HEAD
                         break;
                     case ALL:
                         nextSeason = farm.getCurrentSeason();
                         break;
                 }
                 farm.setCurrentSeason(nextSeason);
+=======
+                        break;
+                }
+                farm.setCurrentSeason(nextSeason); 
+>>>>>>> main
             }
 
             if (Math.random() < 0.3) { 

@@ -15,10 +15,15 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities; // Walaupun tidak digunakan di kode ini, baik untuk ada jika perlu
 
+<<<<<<< HEAD
 // Import Model dan View yang Relevan
 import org.example.model.Farm;
 import org.example.model.Player; // Model Player
 import org.example.model.NPC.NPC; // Sesuaikan path jika perlu
+=======
+import org.example.model.NPC.NPC;
+import org.example.model.Player;
+>>>>>>> main
 import org.example.model.Sound;
 import org.example.view.GameStateUI;
 import org.example.view.TimeObserver; // Interface observer
@@ -26,7 +31,10 @@ import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
 
 public class GamePanel extends JPanel implements Runnable {
+<<<<<<< HEAD
     // SCREEN SETTINGS (tetap sama)
+=======
+>>>>>>> main
     final int originalTileSize = 16;
     final int scale = 2;
     public final int tileSize = originalTileSize * scale;
@@ -35,7 +43,10 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
 
+<<<<<<< HEAD
     // WORLD SETTINGS (tetap sama)
+=======
+>>>>>>> main
     public final int maxWorldCol = 32;
     public final int maxWorldRow = 32;
     public final int maxMap = 6;
@@ -102,13 +113,13 @@ public class GamePanel extends JPanel implements Runnable {
 
         this.addKeyListener(keyH);
         this.setFocusable(true);
-
         loadCustomFont();
         setupGame(); // Panggil setupGame untuk langkah finalisasi
     }
 
     public void loadCustomFont() {
         try {
+<<<<<<< HEAD
             InputStream is = getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf");
             if (is == null) {
                 System.err.println("Font kustom '/fonts/PressStart2P-Regular.ttf' tidak ditemukan. Menggunakan Arial.");
@@ -121,10 +132,24 @@ public class GamePanel extends JPanel implements Runnable {
         } catch (Exception e) {
             System.err.println("Error memuat font kustom: " + e.getMessage());
             customFont = new Font("Arial", Font.PLAIN, 18); // Fallback
+=======
+            InputStream is = getClass().getResourceAsStream("/font/PressStart2P.ttf");
+            if (is == null) {
+                throw new Exception("Font file tidak ditemukan.");
+            }
+            customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 12f);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(customFont);
+            System.out.println("Font kustom berhasil dimuat: " + customFont.getFontName());
+        } catch (Exception e) {
+            System.out.println("Font kustom tidak ditemukan, menggunakan Arial.");
+            e.printStackTrace();
+            customFont = new Font("Arial", Font.PLAIN, 18);
+>>>>>>> main
         }
     }
 
     public void setupGame() {
+<<<<<<< HEAD
         // Semua objek utama (Farm, TimeManager, GameStateUI) sudah diinisialisasi di konstruktor.
         // Metode ini untuk menghubungkan observer dan memulai sistem.
 
@@ -144,6 +169,10 @@ public class GamePanel extends JPanel implements Runnable {
         aSetter.setInteractableObject(); // Setup objek-objek di map
         gameState.setGameState(gameState.play); // Set state awal game
         System.out.println("GamePanel setupGame: Selesai. State awal: " + gameState.getGameState());
+=======
+        aSetter.setInteractableObject();
+        gameState.setGameState(gameState.play);
+>>>>>>> main
     }
 
     public void startGameThread() {
@@ -260,6 +289,38 @@ public class GamePanel extends JPanel implements Runnable {
                 }
                 // ... (Logika teleportasi atau aksi lain jika tidak ada objek) ...
                 keyH.interactPressed = false;
+<<<<<<< HEAD
+=======
+
+                if (!interactionHandled) {
+                    int playerCol = (player.worldX + player.solidArea.x + player.solidArea.width / 2) / tileSize;
+                    int playerRow = (player.worldY + player.solidArea.y + player.solidArea.height / 2) / tileSize;
+
+                    if (playerCol >= 0 && playerCol < maxWorldCol && playerRow >= 0 && playerRow < maxWorldRow) {
+                        if (currentMap == 0 && playerCol == 31 && playerRow == 31) {
+                            teleportPlayer(1, 5 * tileSize, 5 * tileSize);
+                        } else if (currentMap == 1 && playerCol == 0 && playerRow == 0) {
+                            teleportPlayer(0, 4 * tileSize, 9 * tileSize);
+                        } else if (currentMap == 1 && playerCol == 31 && playerRow == 31) {
+                            teleportPlayer(2, 4 * tileSize, 9 * tileSize);
+                        } else if (currentMap == 2 && playerCol == 31 && playerRow == 0) {
+                            teleportPlayer(1, 5 * tileSize, 5 * tileSize);
+                        } else if (currentMap == 2 && playerCol == 31 && playerRow == 31) {
+                            teleportPlayer(3, 4 * tileSize, 9 * tileSize);
+                        } else if (currentMap == 3 && playerCol == 31 && playerRow == 29) {
+                            teleportPlayer(2, 5 * tileSize, 5 * tileSize);
+                        } else if (currentMap == 1 && playerCol == 31 && playerRow == 0) {
+                            teleportPlayer(2, 4 * tileSize, 9 * tileSize);
+                        } else if (currentMap == 2 && playerCol == 0 && playerRow == 0) {
+                            teleportPlayer(1, 5 * tileSize, 5 * tileSize);
+                        } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) {
+                            teleportPlayer(3, 4 * tileSize, 9 * tileSize);
+                        } else if (currentMap == 3 && playerCol == 0 && playerRow == 29) {
+                            teleportPlayer(2, 5 * tileSize, 5 * tileSize);
+                        }
+                    }
+                }
+>>>>>>> main
             }
         } else if (gameState.getGameState() == gameState.pause) {
             if (keyH.enterPressed) {
@@ -273,6 +334,54 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+<<<<<<< HEAD
+=======
+    public void teleportPlayer(int mapIndex, int newWorldX, int newWorldY) {
+        music.stop();
+        currentMap = mapIndex;
+        player.worldX = newWorldX;
+        player.worldY = newWorldY;
+
+        for (int i = 0; i < obj[currentMap].length; i++) {
+            obj[currentMap][i] = null;
+        }
+
+        String mapPath = "";
+        if (currentMap == 0) {
+            mapPath = "/maps/map.txt";
+        } else if (currentMap == 1) {
+            mapPath = "/maps/beachmap.txt";
+        } else if (currentMap == 2) {
+            mapPath = "/maps/forest.txt";
+        } else if (currentMap == 3) {
+            mapPath = "/maps/lake.txt";
+        }
+
+        if (!mapPath.isEmpty()) {
+            tileM.loadMap(mapPath, currentMap);
+        } else {
+            System.err.println("Path peta tidak valid untuk mapIndex: " + currentMap);
+        }
+
+        if (currentMap == 0) {
+            aSetter.setInteractableObject();
+        }
+
+        music.play();
+        System.out.println("Player diteleportasi ke map " + currentMap + " di tile (" + player.worldX / tileSize + "," + player.worldY / tileSize + ")");
+    }
+
+    private void exitToMenu() {
+        stopGameThread();
+        frame.getContentPane().removeAll();
+        MenuPanel menuPanel = new MenuPanel(frame);
+        frame.setContentPane(menuPanel);
+        frame.revalidate();
+        frame.repaint();
+        SwingUtilities.invokeLater(menuPanel::requestFocusInWindow);
+    }
+
+>>>>>>> main
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

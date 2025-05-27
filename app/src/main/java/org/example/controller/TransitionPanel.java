@@ -1,13 +1,34 @@
 package org.example.controller;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+<<<<<<< HEAD
 
 import java.awt.event.ActionEvent;
 import java.awt.*;
 import javax.swing.*;
+=======
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+>>>>>>> main
 
 
 public class TransitionPanel extends JPanel {
@@ -24,18 +45,18 @@ public class TransitionPanel extends JPanel {
         setLayout(null);
         setPreferredSize(new Dimension(640, 576));
         try {
-            InputStream is = getClass().getResourceAsStream("/font/PressStart2P.ttf"); // pastikan path-nya benar
+            InputStream is = getClass().getResourceAsStream("/font/PressStart2P.ttf");
             pixelFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(10f);
             GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
         } catch (Exception e) {
-            pixelFont = new Font("Arial", Font.PLAIN, 12); // fallback font
+            pixelFont = new Font("Arial", Font.PLAIN, 12);
             System.err.println("Font gagal dimuat, pakai Arial sementara.");
 }
 
         setBackground(Color.BLACK);
 
         try {
-            backgroundImage = ImageIO.read(getClass().getResource("/menu/transition_background.png")); // ganti nama sesuai file bear town
+            backgroundImage = ImageIO.read(getClass().getResource("/menu/transition_background.png")); 
             fieldBg = ImageIO.read(getClass().getResource("/button/button.png"));
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,7 +77,7 @@ public class TransitionPanel extends JPanel {
         JButton startButton = new JButton("Start Game");
         startButton.setBounds(250, 380, 180, 40);
         startButton.setFont(pixelFont.deriveFont(10f));
-        startButton.setBackground(new Color(204, 153, 102)); // soft brown
+        startButton.setBackground(new Color(204, 153, 102));
         startButton.setFocusPainted(false);
         startButton.addActionListener(this::startGame);
         add(startButton);
@@ -94,10 +115,22 @@ public class TransitionPanel extends JPanel {
         String gender = (String) genderBox.getSelectedItem();
         String farm = farmNameField.getText().trim();
 
+        // Validasi karakter
         if (name.isEmpty() || gender == null || farm.isEmpty()) {
             showStardewAlert("Semua field harus diisi ya!");
             return;
         }
+
+        if (!name.matches("^[a-zA-Z]+$")) {
+            showStardewAlert("Name hanya boleh berisi huruf tanpa spasi yaa!");
+            return;
+        }
+
+        if (!farm.matches("^[a-zA-Z0-9]+$")) {
+            showStardewAlert("Farm Name hanya boleh huruf/angka tanpa spasi yaa!");
+            return;
+        }
+
 
         // Setup GamePanel
         frame.getContentPane().removeAll();
@@ -120,7 +153,7 @@ public class TransitionPanel extends JPanel {
     private void showStardewAlert(String message) {
         JDialog dialog = new JDialog(frame, "Oops!", true);
         dialog.setUndecorated(true);
-        dialog.setSize(400, 120);
+        dialog.setSize(460, 160);
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(null);
 
@@ -128,9 +161,9 @@ public class TransitionPanel extends JPanel {
             protected void paintComponent(Graphics g) {
                 Image woodBg;
                 try {
-                    woodBg = ImageIO.read(getClass().getResource("/button/button.png"));
+                    woodBg = ImageIO.read(getClass().getResource("/button/message.png"));
                 } catch (IOException e) {
-                    g.setColor(new Color(204, 153, 102)); // fallback
+                    g.setColor(new Color(204, 153, 102));
                     g.fillRect(0, 0, getWidth(), getHeight());
                     return;
                 }
@@ -138,16 +171,21 @@ public class TransitionPanel extends JPanel {
             }
         };
         bgPanel.setLayout(null);
-        bgPanel.setBounds(0, 0, 400, 120);
+        bgPanel.setBounds(0, 0, 460, 160);
 
-        JLabel msg = new JLabel(message, SwingConstants.CENTER);
-        msg.setFont(pixelFont.deriveFont(14f));
-        msg.setBounds(0, 20, 400, 30);
+        JLabel msg = new JLabel(
+            "<html><div style='text-align:center; padding-top:4px; line-height:1.5;'>"
+            + message +
+            "</div></html>",
+            SwingConstants.CENTER
+        );
+        msg.setFont(pixelFont.deriveFont(9f));
         msg.setForeground(Color.BLACK);
+        msg.setBounds(30, 25, 400, 60);
 
         JButton okBtn = new JButton("OK");
-        okBtn.setFont(pixelFont.deriveFont(12f));
-        okBtn.setBounds(150, 70, 100, 30);
+        okBtn.setFont(pixelFont.deriveFont(10f));
+        okBtn.setBounds(180, 90, 100, 30);
         okBtn.addActionListener(e -> dialog.dispose());
 
         bgPanel.add(msg);
