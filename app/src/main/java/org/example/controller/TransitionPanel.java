@@ -18,6 +18,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -107,10 +108,22 @@ public class TransitionPanel extends JPanel {
         String gender = (String) genderBox.getSelectedItem();
         String farm = farmNameField.getText().trim();
 
+        // Validasi karakter
         if (name.isEmpty() || gender == null || farm.isEmpty()) {
             showStardewAlert("Semua field harus diisi ya!");
             return;
         }
+
+        if (!name.matches("^[a-zA-Z]+$")) {
+            showStardewAlert("Name hanya boleh berisi huruf tanpa spasi yaa!");
+            return;
+        }
+
+        if (!farm.matches("^[a-zA-Z0-9]+$")) {
+            showStardewAlert("Farm Name hanya boleh huruf/angka tanpa spasi yaa!");
+            return;
+        }
+
 
         // Setup GamePanel
         frame.getContentPane().removeAll();
@@ -133,7 +146,7 @@ public class TransitionPanel extends JPanel {
     private void showStardewAlert(String message) {
         JDialog dialog = new JDialog(frame, "Oops!", true);
         dialog.setUndecorated(true);
-        dialog.setSize(400, 120);
+        dialog.setSize(460, 160);
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(null);
 
@@ -151,16 +164,21 @@ public class TransitionPanel extends JPanel {
             }
         };
         bgPanel.setLayout(null);
-        bgPanel.setBounds(0, 0, 400, 120);
+        bgPanel.setBounds(0, 0, 460, 160);
 
-        JLabel msg = new JLabel(message, SwingConstants.CENTER);
-        msg.setFont(pixelFont.deriveFont(14f));
-        msg.setBounds(0, 20, 400, 30);
+        JLabel msg = new JLabel(
+            "<html><div style='text-align:center; padding-top:4px; line-height:1.5;'>"
+            + message +
+            "</div></html>",
+            SwingConstants.CENTER
+        );
+        msg.setFont(pixelFont.deriveFont(9f));
         msg.setForeground(Color.BLACK);
+        msg.setBounds(30, 25, 400, 60);
 
         JButton okBtn = new JButton("OK");
-        okBtn.setFont(pixelFont.deriveFont(12f));
-        okBtn.setBounds(150, 70, 100, 30);
+        okBtn.setFont(pixelFont.deriveFont(10f));
+        okBtn.setBounds(180, 90, 100, 30);
         okBtn.addActionListener(e -> dialog.dispose());
 
         bgPanel.add(msg);
