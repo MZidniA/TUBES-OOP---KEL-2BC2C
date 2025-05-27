@@ -12,4 +12,9 @@ public class FontMetrics {
         throw new UnsupportedOperationException("Unimplemented method 'getDescent'");
     }
 
+    public int getHeight() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getHeight'");
+    }
+
 }
