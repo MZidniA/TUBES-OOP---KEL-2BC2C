@@ -64,4 +64,9 @@ public class Inventory {
         }
         return 0;
     }
+
+    public void removeItem(Items requiredItem, int requiredQuantity) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'removeItem'");
+    }
 }

@@ -257,6 +257,10 @@ public class GamePanel extends JPanel implements Runnable {
         System.out.println("GamePanel run: Game loop selesai.");
     }
 
+// Di dalam file GamePanel.java
+
+// ... (import dan deklarasi kelas Anda lainnya tetap sama) ...
+
     public void update() {
         if (keyH.escapePressed) {
             if (gameState.getGameState() == gameState.play) {
@@ -279,24 +283,49 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (gameState.getGameState() == gameState.play) {
             player.update(); // player adalah PlayerView
+<<<<<<< Updated upstream
             // Logika interaksi Anda
             if (keyH.interactPressed) {
                 int objIndex = cChecker.checkObject(player, obj, currentMap);
+=======
+
+            // BARU: Panggil pengecekan untuk masakan yang sudah selesai
+            // Pastikan semua objek yang dibutuhkan tidak null sebelum memanggil
+            if (farm != null && ((Farm) farm).getPlayer() != null && ((Farm) farm).getPlayer().getInventory() != null && ((Farm) farm).getGameClock() != null) {
+                // Asumsi GameClock di Farm adalah yang memegang waktu game terkini yang relevan
+                // atau jika Farm punya currentTime sendiri yang diupdate TimeManager:
+                // farm.checkCompletedCookings(farm.getPlayer().getInventory(), farm.getCurrentTime());
+                ((Farm) farm).checkCompletedCookings(((Farm) farm).getPlayer().getInventory(), ((Farm) farm).getGameClock().getCurrentTime());
+                // System.out.println("DEBUG: Checked completed cookings. Current game time: " + farm.getGameClock().getCurrentTime()); // Untuk debug
+            }
+
+
+            if (keyH.interactPressed) {
+                boolean interactionHandled = false;
+
+                int objIndex = cChecker.checkObject(player, obj, currentMap); // player adalah PlayerView
+>>>>>>> Stashed changes
                 if (objIndex != 999) {
                     if (obj[currentMap][objIndex] != null) {
                         obj[currentMap][objIndex].interact();
                     }
                 }
+<<<<<<< Updated upstream
                 // ... (Logika teleportasi atau aksi lain jika tidak ada objek) ...
                 keyH.interactPressed = false;
 <<<<<<< HEAD
 =======
+=======
+
+                // Hapus keyH.interactPressed = false; dari sini, karena sudah ada di bawah
+>>>>>>> Stashed changes
 
                 if (!interactionHandled) {
                     int playerCol = (player.worldX + player.solidArea.x + player.solidArea.width / 2) / tileSize;
                     int playerRow = (player.worldY + player.solidArea.y + player.solidArea.height / 2) / tileSize;
 
                     if (playerCol >= 0 && playerCol < maxWorldCol && playerRow >= 0 && playerRow < maxWorldRow) {
+<<<<<<< Updated upstream
                         if (currentMap == 0 && playerCol == 31 && playerRow == 31) {
                             teleportPlayer(1, 5 * tileSize, 5 * tileSize);
                         } else if (currentMap == 1 && playerCol == 0 && playerRow == 0) {
@@ -327,15 +356,48 @@ public class GamePanel extends JPanel implements Runnable {
                 if (gameStateUI.commandNum == 0) { // Continue
                     gameState.setGameState(gameState.play);
                 } else if (gameStateUI.commandNum == 1) { // Exit Game
+=======
+                        // ... (logika teleportasi Anda tetap sama) ...
+                        if (currentMap == 0 && playerCol == 31 && playerRow == 15) {
+                            teleportPlayer(1, 1 * tileSize, 1 * tileSize);
+                        } else if (currentMap == 1 && playerCol == 0 && playerRow == 0) {
+                            teleportPlayer(0, 31 * tileSize, 15 * tileSize);
+                        } else if (currentMap == 1 && playerCol == 31 && playerRow == 0) {
+                            teleportPlayer(2, 29 * tileSize, 0 * tileSize);
+                        } else if (currentMap == 2 && playerCol == 29 && playerRow == 0) {
+                            teleportPlayer(1, 31 * tileSize, 0 * tileSize);
+                        } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) {
+                            teleportPlayer(3, 15 * tileSize, 31 * tileSize);
+                        } else if (currentMap == 3 && playerCol == 15 && playerRow == 31) {
+                            teleportPlayer(2, 0 * tileSize, 31 * tileSize);
+                        } else if (currentMap == 4 && playerCol == 3 && playerRow == 11) {
+                            teleportPlayer(0, 4 * tileSize, 9 * tileSize);
+                        }
+                    }
+                }
+                keyH.interactPressed = false; // Pindahkan ke sini agar selalu direset setelah blok interactPressed
+            }
+
+        } else if (gameState.getGameState() == gameState.pause) {
+            if (keyH.enterPressed) {
+                if (gameStateUI.commandNum == 0) {
+                    gameState.setGameState(gameState.play);
+                } else if (gameStateUI.commandNum == 1) {
+>>>>>>> Stashed changes
                     exitToMenu();
                 }
                 keyH.enterPressed = false;
             }
         }
+<<<<<<< Updated upstream
     }
 
 <<<<<<< HEAD
 =======
+=======
+    }        
+    
+>>>>>>> Stashed changes
     public void teleportPlayer(int mapIndex, int newWorldX, int newWorldY) {
         music.stop();
         currentMap = mapIndex;
