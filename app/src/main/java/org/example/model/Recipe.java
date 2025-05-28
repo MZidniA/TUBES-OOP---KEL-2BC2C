@@ -89,7 +89,6 @@ public class Recipe {
     public boolean equals(Object o) { /* ... kode Anda ... */ return Objects.equals(id, ((Recipe)o).id); }
     @Override
     public int hashCode() { return Objects.hash(id); }
-    @Override
-    public String toString() { /* ... kode Anda ... */ return displayName; }
+    // Removed duplicate toString() method to resolve the error.
 
 }
