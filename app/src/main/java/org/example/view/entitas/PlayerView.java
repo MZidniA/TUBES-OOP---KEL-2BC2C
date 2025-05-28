@@ -83,17 +83,9 @@ public class PlayerView extends Entity {
             else if (Boolean.TRUE.equals(movementState.get("right"))) direction = "right";
 
             collisionOn = false;
-<<<<<<< HEAD
-            gp.cChecker.checkTile(this);
-
-            gp.cChecker.checkObject(this, gp.obj, gp.currentMap);
-
-            
-=======
             cChecker.checkTile(this);
             // Pemanggilan checkObject sekarang lebih sederhana sesuai dengan CollisionChecker yang sudah diperbaiki
             cChecker.checkObject(this); 
->>>>>>> main
 
             if (!collisionOn) {
                 switch (direction) {

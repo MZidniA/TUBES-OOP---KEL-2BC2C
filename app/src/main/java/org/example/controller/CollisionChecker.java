@@ -2,7 +2,7 @@ package org.example.controller;
 
 import org.example.model.Farm;
 import org.example.view.InteractableObject.InteractableObject;
-import org.example.view.tile.TileManager; // Ensure this import is present
+import org.example.view.tile.TileManager;
 import org.example.view.entitas.Entity;
 import org.example.view.entitas.PlayerView;
 

@@ -1,11 +1,6 @@
 // Lokasi: src/main/java/org/example/model/Recipe.java
 package org.example.model;
 
-<<<<<<< HEAD
-import org.example.model.Items.Items;
-import org.example.model.Items.Food;
-=======
->>>>>>> main
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;

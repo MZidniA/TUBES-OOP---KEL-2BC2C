@@ -1,12 +1,7 @@
 package org.example.controller;
 
 import org.example.model.Farm;
-import org.example.view.InteractableObject.DoorObject;
-import org.example.view.InteractableObject.PlantedTileObject;
-import org.example.view.InteractableObject.PondObject;
-import org.example.view.InteractableObject.ShippingBinObject;
-import org.example.view.InteractableObject.UnplantedTileObject;
-import org.example.view.InteractableObject.InteractableObject;
+import org.example.view.InteractableObject.*;
 
 public class AssetSetter {
     private final GameController controller;

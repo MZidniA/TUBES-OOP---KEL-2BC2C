@@ -11,12 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
-<<<<<<< HEAD
-
-import java.awt.event.ActionEvent;
-import java.awt.*;
-import javax.swing.*;
-=======
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -28,7 +22,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
->>>>>>> main
 
 
 public class TransitionPanel extends JPanel {
@@ -36,6 +29,8 @@ public class TransitionPanel extends JPanel {
     private Image backgroundImage;
     private Image fieldBg;
     private Font pixelFont;
+    private GamePanel gamePanel = new GamePanel(frame, new GameController(null, null));
+    
 
     private JTextField nameField, genderField, farmNameField;
     private JComboBox<String> genderBox;
@@ -134,13 +129,13 @@ public class TransitionPanel extends JPanel {
 
         // Setup GamePanel
         frame.getContentPane().removeAll();
-        GamePanel gamePanel = new GamePanel(frame);
-        gamePanel.player.getPlayer().setName(name);
-        gamePanel.player.getPlayer().setGender(gender);
-        gamePanel.player.getPlayer().setFarmname(farm);
+        GameController gameController = new GameController(null, null);
+        gameController.farm.getPlayerModel().setName(name);
+        gameController.farm.getPlayerModel().setGender(gender);
+        gameController.farm.getPlayerModel().setFarmname(farm);
 
         frame.setContentPane(gamePanel);
-        gamePanel.setupGame();
+        gameController.setupGame();
         frame.revalidate();
         frame.repaint();
 
