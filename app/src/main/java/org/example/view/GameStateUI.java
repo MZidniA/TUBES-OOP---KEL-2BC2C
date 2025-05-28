@@ -1,4 +1,3 @@
-// Lokasi: src/main/java/org/example/view/GameStateUI.java
 package org.example.view;
 
 import org.example.view.GamePanel; // Tetap dibutuhkan untuk konstanta layout
@@ -16,7 +15,6 @@ import java.awt.BasicStroke;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
-import javax.imageio.ImageIO;
 
 public class GameStateUI implements TimeObserver { // Pastikan implement TimeObserver
     GamePanel gp; // Untuk konstanta layout dan dimensi
@@ -26,14 +24,11 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
     public int slotCol = 0;    // State internal untuk navigasi inventory
     public int slotRow = 0;
 
-    // Ikon waktu untuk UI
-    private java.awt.image.BufferedImage timeIcon;
-
     // State untuk TimeInfo, diperbarui oleh onTimeUpdate
     private int currentDay = 1;
     private Season currentSeason = Season.SPRING;
-    private Weather currentWeather = Weather.SUNNY;
     private LocalTime currentTime = LocalTime.of(6,0);
+    private Weather currentWeather = Weather.SUNNY; // Default cuaca, bisa diubah sesuai game state
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
 
@@ -44,6 +39,9 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
     Color borderColor = new Color(210, 180, 140);
 
     public GameStateUI(GamePanel gp) {
+        this.gp = gp;
+        defaultFont = new Font("Arial", Font.PLAIN, 12); // Fallback font
+
         try {
             InputStream is = getClass().getResourceAsStream("/font/slkscr.ttf"); // Ganti dengan path font Anda
             if (is == null) {
@@ -62,19 +60,6 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
             stardewFont_40 = new Font("Arial", Font.BOLD, 40);
             stardewFont_30 = new Font("Arial", Font.PLAIN, 30);
             stardewFont_20 = new Font("Arial", Font.PLAIN, 20);
-        }
-
-        // Load time icon
-        try {
-            InputStream iconStream = getClass().getResourceAsStream("/Time.png"); 
-            if (iconStream != null) {
-                timeIcon = ImageIO.read(iconStream);
-            } else {
-                System.err.println("GameStateUI: time icon resource not found at Time.png");
-            }
-        } catch (Exception e) {
-            System.err.println("GameStateUI: Failed to load time icon: " + e.getMessage());
-            timeIcon = null;
         }
     }
 
@@ -103,7 +88,7 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
     public void onTimeUpdate(int day, Season season, Weather weather, LocalTime time) {
         this.currentDay = day;
         this.currentSeason = season;
-        // this.currentWeather = weather; // Anda bisa uncomment jika ingin menampilkan cuaca juga
+        this.currentWeather = weather; // Anda bisa uncomment jika ingin menampilkan cuaca juga
         this.currentTime = time;
     }
 
@@ -129,9 +114,6 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
         drawTextWithShadow(timeText, xPosisiTeks, yPosisiAwal + (spasiAntarBaris * 3));
     }
 
-
-    // Metode drawPauseScreen, drawInventory, drawSubWindow, getXforCenteredText tetap sama seperti sebelumnya
-    // ... (Pastikan untuk menyalin metode-metode ini dari versi GameStateUI Anda sebelumnya) ...
     private void drawPauseScreen() {
         int frameX = gp.tileSize * 4;
         int frameY = gp.tileSize * 3;
