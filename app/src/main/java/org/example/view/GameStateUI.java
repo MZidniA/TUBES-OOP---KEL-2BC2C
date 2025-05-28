@@ -28,6 +28,7 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
     private int currentDay = 1;
     private Season currentSeason = Season.SPRING;
     private LocalTime currentTime = LocalTime.of(6,0);
+    private Weather currentWeather = Weather.SUNNY; // Default cuaca, bisa diubah sesuai game state
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
 
@@ -87,7 +88,7 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
     public void onTimeUpdate(int day, Season season, Weather weather, LocalTime time) {
         this.currentDay = day;
         this.currentSeason = season;
-        // this.currentWeather = weather; // Anda bisa uncomment jika ingin menampilkan cuaca juga
+        this.currentWeather = weather; // Anda bisa uncomment jika ingin menampilkan cuaca juga
         this.currentTime = time;
     }
 
@@ -95,6 +96,7 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
         if (g2 == null || gp == null) return;
 
         String seasonText = (currentSeason != null) ? currentSeason.toString() : "Musim?";
+        String weatherText = (currentWeather != null) ? currentWeather.toString() : "Cuaca?";
         String dayText = "Hari " + currentDay;
         String timeText = (currentTime != null) ? currentTime.format(timeFormatter) : "--:--";
 
@@ -107,8 +109,9 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
 
         // Menggambar teks dengan bayangan untuk keterbacaan
         drawTextWithShadow(seasonText, xPosisiTeks, yPosisiAwal);
-        drawTextWithShadow(dayText, xPosisiTeks, yPosisiAwal + spasiAntarBaris);
-        drawTextWithShadow(timeText, xPosisiTeks, yPosisiAwal + (spasiAntarBaris * 2));
+        drawTextWithShadow(weatherText, xPosisiTeks, yPosisiAwal + spasiAntarBaris);
+        drawTextWithShadow(dayText, xPosisiTeks, yPosisiAwal + spasiAntarBaris*2);
+        drawTextWithShadow(timeText, xPosisiTeks, yPosisiAwal + (spasiAntarBaris * 3));
     }
 
     private void drawPauseScreen() {

@@ -236,6 +236,8 @@ public void confirmPauseUISelection() {
     }
 }
 
+
+
 public void navigateInventoryUI(String direction) {
     if (gamePanel != null && gamePanel.gameStateUI != null) {
         GameStateUI ui = gamePanel.gameStateUI;
@@ -311,7 +313,7 @@ public void confirmInventoryUISelection() {
     public GameState getGameState() { return this.gameState; }
     public PlayerView getPlayerViewInstance() { return this.playerViewInstance; }
 
-    public int getTileSize() { return gamePanel != null ? gamePanel.tileSize : 48; } // Default jika gp null
+    public int getTileSize() { return gamePanel != null ? gamePanel.tileSize : 32; } // Default jika gp null
     public int getMaxWorldCol() { return gamePanel != null ? gamePanel.maxWorldCol : 32; }
     public int getMaxWorldRow() { return gamePanel != null ? gamePanel.maxWorldRow : 32; }
     public TileManager getTileManager() { return gamePanel != null ? gamePanel.tileM : null; }

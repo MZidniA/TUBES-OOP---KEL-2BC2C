@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import org.example.controller.CollisionChecker;
 import org.example.controller.UtilityTool;
 import org.example.model.Player; // Player model
+import org.example.model.Items.Items;
 import org.example.view.GamePanel; // Untuk konstanta seperti tileSize dan screenWidth/Height
 
 public class PlayerView extends Entity {
@@ -135,6 +136,37 @@ public class PlayerView extends Entity {
             g2.setColor(java.awt.Color.MAGENTA); // Warna placeholder
             g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
             System.err.println("PlayerView.draw(): Gambar untuk arah " + direction + " adalah null.");
+        }
+
+        Items heldItem = playerModel.getCurrentHeldItem();
+        if (heldItem != null && heldItem.getImage() != null) {
+            BufferedImage itemImage = heldItem.getImage(); // Gambar ini HARUSNYA sudah di-scale ke ukuran ikon standar (misal 32x32) oleh Equipment.loadImage()
+            
+            // Tentukan ukuran tampilan item di tangan (mungkin lebih kecil dari tileSize pemain)
+            int itemDisplaySize = gp.tileSize / 2; // Contoh: separuh ukuran tile pemain
+
+
+            // Tentukan posisi item relatif terhadap pemain (PERLU EKSPERIMEN BANYAK!)
+            // Nilai offset ini sangat bergantung pada sprite pemain Anda dan bagaimana Anda ingin item terlihat.
+            int itemDrawX = screenX;
+            int itemDrawY = screenY;
+
+            // Contoh offset sederhana:
+            if ("down".equals(direction)) {
+                itemDrawX = screenX + (gp.tileSize / 3); // Agak ke tengah
+                itemDrawY = screenY + (gp.tileSize / 2); // Di depan, sedikit ke bawah
+            } else if ("up".equals(direction)) {
+                itemDrawX = screenX + (gp.tileSize / 3); // Agak ke tengah
+                itemDrawY = screenY + (gp.tileSize / 4) - itemDisplaySize; // Di depan, sedikit ke atas
+            } else if ("left".equals(direction)) {
+                itemDrawX = screenX - (itemDisplaySize / 2) + (gp.tileSize / 4); // Di sisi kiri
+                itemDrawY = screenY + (gp.tileSize / 2);
+            } else if ("right".equals(direction)) {
+                itemDrawX = screenX + (gp.tileSize / 2) ; // Di sisi kanan
+                itemDrawY = screenY + (gp.tileSize / 2);
+            }
+            
+            g2.drawImage(itemImage, itemDrawX, itemDrawY, itemDisplaySize, itemDisplaySize, null);
         }
     }
 

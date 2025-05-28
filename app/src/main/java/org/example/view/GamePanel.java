@@ -82,7 +82,7 @@ public class GamePanel extends JPanel {
                 tileM.draw(g2, playerView, farmModel.getCurrentMap());
             }
 
-            // 2. Gambar Objek Interaktif
+
             InteractableObject[] objectsOnCurrentMap = farmModel.getObjectsForCurrentMap();
             if (objectsOnCurrentMap != null) {
                 for (InteractableObject obj : objectsOnCurrentMap) {
@@ -92,10 +92,8 @@ public class GamePanel extends JPanel {
                 }
             }
 
-            // 3. Gambar Player
             playerView.draw(g2, this);
 
-            // 4. Gambar Prompt Interaksi
             if (currentGameState != null && currentGameState.getGameState() == currentGameState.play) {
                 CollisionChecker cChecker = gameController.getCollisionChecker();
                 if (cChecker != null) {
@@ -124,7 +122,7 @@ public class GamePanel extends JPanel {
             g2.drawString("Data game (Farm/PlayerView) belum siap.", 20, 40);
         }
 
-        // 5. Gambar UI di atas segalanya
+
         if (currentGameState != null && gameStateUI != null) {
             gameStateUI.draw(g2, currentGameState, playerInventory);
         }
