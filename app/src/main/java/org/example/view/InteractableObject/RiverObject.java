@@ -9,7 +9,8 @@ import org.example.controller.GameController;
 public class RiverObject extends InteractableObject {
 
     public RiverObject() { 
-        super("River"); 
+        super("River");
+        this.collision = true; 
         loadImage(); 
     }
 

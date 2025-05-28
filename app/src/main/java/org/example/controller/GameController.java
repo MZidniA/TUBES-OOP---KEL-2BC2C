@@ -33,6 +33,7 @@ public class GameController implements Runnable {
     private final AssetSetter aSetter;
     private final GameState gameState;
     private final Sound music;
+    private final TimeManager timeManager;
 
     private Thread gameThread;
     private final Map<String, Boolean> movementState = new HashMap<>();
@@ -47,6 +48,9 @@ public class GameController implements Runnable {
         this.keyHandler = new KeyHandler(this);
         this.music = new Sound();
         this.music.setFile();
+        this.timeManager = new TimeManager(farm, farm.getGameClock());
+        this.timeManager.addObserver(this.gamePanel.gameStateUI);
+        this.timeManager.startTimeSystem(); 
 
         this.tileManager = new TileManager(gamePanel);
         this.gameStateUI = new GameStateUI(gamePanel);
@@ -90,6 +94,9 @@ public class GameController implements Runnable {
             aSetter.setInteractableObject();
         }
         gameState.setGameState(this.gameState.play);
+        if (timeManager != null) {
+            timeManager.startTimeSystem();
+        }
     }
 
     public void startGameThread() {
