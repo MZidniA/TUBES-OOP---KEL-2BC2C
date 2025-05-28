@@ -1,7 +1,9 @@
 package org.example.model;
 
 import java.util.EnumSet;
-
+// import org.example.model.items.Items; // Import the Items class
+// Ensure the Items class exists in the correct package or update the import path
+import org.example.model.Items.Items; 
 import org.example.model.NPC.NPC;
 import org.example.model.enums.LocationType;
 
@@ -15,7 +17,8 @@ public class Player {
     private NPC partner;
     private int gold;
     private Inventory inventory;
-    private LocationType currentLocationType; // Ganti nama agar lebih jelas
+    private LocationType currentLocationType;// Ganti nama agar lebih jelas
+    private Items currentHeldItem;// Ganti nama agar lebih jelas
 
     // Tambahkan field posisi tile player
     private int tileX = 0;
@@ -30,7 +33,8 @@ public class Player {
         // this.partner = partner; // Bisa di-set nanti
         this.gold = 500; // Modal awal, sesuaikan
         this.inventory = new Inventory(); // Inisialisasi inventory kosong atau default
-        this.currentLocationType = LocationType.FARM; // Lokasi awal
+        this.currentLocationType = LocationType.FARM; 
+        this.currentHeldItem = null;// Lokasi awal
     }
 
     public String getName() {
@@ -126,5 +130,16 @@ public class Player {
 
     public void setTileY(int tileY) {
         this.tileY = tileY;
+    }
+    public Items getCurrentHeldItem() {
+        return currentHeldItem;
+    }
+    public void setCurrentHeldItem(Items currentHeldItem) {
+        this.currentHeldItem = currentHeldItem;
+        if (currentHeldItem != null) {
+            System.out.println("Now holding: " + currentHeldItem.getName());
+        } else {
+            System.out.println("Hands are empty.");
+        }
     }
 }

@@ -1,4 +1,4 @@
-package org.example.controller;
+package org.example.view;
 
 import java.awt.Color;
 import java.awt.Dimension;

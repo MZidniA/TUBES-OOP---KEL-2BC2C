@@ -17,12 +17,12 @@ public class Fish extends Items implements EdibleItem {
     private GameTime time;
     private int energyRestored; // Tambahkan field ini
 
-    public Fish(String name, int sellprice, int buyprice, EnumSet<Season> season, EnumSet<FishType> fishType, EnumSet<Weather> weather, EnumSet<LocationType> LocationType, GameTime time, int energyRestored) {
+    public Fish(String name, int sellprice, int buyprice, EnumSet<Season> season, EnumSet<FishType> fishType, EnumSet<Weather> weather, EnumSet<LocationType> locationTypeParam, GameTime time, int energyRestored) {
         super(name, sellprice, buyprice);
         this.season = season;
         this.fishType = fishType;
         this.weather = weather;
-        this.locationType = locationType;
+        this.locationType = locationTypeParam;
         this.time = time;
         this.energyRestored = energyRestored; // Set nilai energi
     }

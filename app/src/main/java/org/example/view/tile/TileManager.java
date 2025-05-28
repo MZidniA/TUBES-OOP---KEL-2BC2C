@@ -1,32 +1,47 @@
-package org.example.controller;
+package org.example.view.tile;
 
 import java.awt.Graphics2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
 import javax.imageio.ImageIO;
+import org.example.view.GamePanel;
+import org.example.controller.UtilityTool;
+import org.example.view.entitas.PlayerView;
+
+// Asumsi ada file Tile.java di package yang sama atau di-import
+// package org.example.controller;
+// import java.awt.image.BufferedImage;
+// public class Tile {
+//     public BufferedImage image;
+//     public boolean collision = false;
+// }
 
 public class TileManager {
     GamePanel gp;
     public Tile[] tile;
-    public int mapTileNum[][][];
+    public int[][][] mapTileNum;
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
         tile = new Tile[850];
-        mapTileNum = new int[gp.maxMap][gp.maxWorldCol][gp.maxWorldRow];
+        // Inisialisasi mapTileNum berdasarkan dimensi dari GamePanel
+        mapTileNum = new int[6][gp.maxWorldCol][gp.maxWorldRow]; // Nilai maxMap diambil dari gp
         getTileImage();
+        // Memuat semua peta saat inisialisasi
         loadMap("/maps/map.txt", 0);
         loadMap("/maps/beachmap.txt", 1);
-        loadMap("/maps/rivermap.txt", 2);
-        loadMap("/maps/townmap.txt", 3);
+        loadMap("/maps/rivermap.txt", 2); // Mengganti rivermap dengan forest.txt sesuai GamePanel
+        loadMap("/maps/townmap.txt", 3);   // Mengganti townmap dengan lake.txt
         loadMap("/maps/housemap.txt", 4);
     }
 
+    public TileManager getTileManager() {
+        return gp.tileM;
+    }
+   
     public void getTileImage() {
-        // Farm Map
         setup(0, "RumputSummer", false);
         setup(1, "Tree1", true);
         setup(2, "Tree2", true);
@@ -169,7 +184,6 @@ public class TileManager {
         // Town Map
         setup(134, "134", false);
         setup(135, "135", true);
-        setup(134, "134", false);
         setup(135, "135", true);
         setup(136, "136", true);
         setup(137, "137", false);
@@ -196,6 +210,7 @@ public class TileManager {
         setup(158, "158", true);
         setup(159, "159", true);
         setup(160, "160", true);
+        setup(161, "Hitam", true);
         setup(170, "170", true);
         setup(171, "171", true);
         setup(172, "172", true);
@@ -717,18 +732,21 @@ public class TileManager {
         setup(565, "row-12-column-10", false);
         setup(566, "row-12-column-11", false);
         setup(567, "row-12-column-12", false);
+        
     }
-    
 
     public void setup(int index, String imageName, boolean collision) {
         UtilityTool uTool = new UtilityTool();
-
         try {
             tile[index] = new Tile();
             tile[index].image = ImageIO.read(getClass().getResourceAsStream("/tiles/" + imageName + ".png"));
+            // Menggunakan gp.tileSize yang disimpan saat konstruksi
             tile[index].image = uTool.scaleImage(tile[index].image, gp.tileSize, gp.tileSize);
             tile[index].collision = collision;
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Error setting up tile: " + imageName + ". Make sure the image exists.");
             e.printStackTrace();
         }
     }
@@ -737,60 +755,64 @@ public class TileManager {
         try {
             InputStream is = getClass().getResourceAsStream(filePath);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
-    
+
             int row = 0;
-    
+            // Menggunakan gp.maxWorldRow & gp.maxWorldCol yang disimpan saat konstruksi
             while (row < gp.maxWorldRow) {
                 String line = br.readLine();
                 if (line == null) break;
-    
+
                 String[] numbers = line.split("\\s+");
-    
                 for (int col = 0; col < gp.maxWorldCol; col++) {
-                    int num = Integer.parseInt(numbers[col]);
-                    mapTileNum[map][col][row] = num;
+                    if (col < numbers.length) {
+                        int num = Integer.parseInt(numbers[col]);
+                        mapTileNum[map][col][row] = num;
+                    }
                 }
                 row++;
             }
-    
             br.close();
-            System.out.println("Map loaded successfully.");
         } catch (Exception e) {
-            System.out.println("Error loading map: " + e.getMessage());
+            System.err.println("Error loading map: " + filePath);
+            e.printStackTrace();
         }
     }
-    
 
-    public void draw(Graphics2D g2) {
+    public void draw(Graphics2D g2, PlayerView playerView, int currentMap) {
         int worldCol = 0;
         int worldRow = 0;
-    
+
+        // Posisi pemain di layar selalu di tengah
+        final int playerScreenX = gp.screenWidth / 2 - (gp.tileSize / 2);
+        final int playerScreenY = gp.screenHeight / 2 - (gp.tileSize / 2);
+
         while (worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
-            int tileNum = mapTileNum[gp.currentMap][worldCol][worldRow];
-    
+            // Menggunakan currentMap dari parameter, bukan gp.currentMap
+            int tileNum = mapTileNum[currentMap][worldCol][worldRow];
+
             int worldX = worldCol * gp.tileSize;
             int worldY = worldRow * gp.tileSize;
-            int screenX = worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = worldY - gp.player.worldY + gp.player.screenY;
-    
-            if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX
-                    && worldX - gp.tileSize < gp.player.worldX + gp.player.screenX
-                    && worldY + gp.tileSize > gp.player.worldY - gp.player.screenY
-                    && worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
-    
-                if (tileNum < tile.length && tile[tileNum] != null) {
-                    g2.drawImage(tile[tileNum].image, screenX, screenY,gp.tileSize, gp.tileSize,null);
-                } else {
-                    System.out.println("Undefined tile index: " + tileNum);
+            
+            // Menggunakan playerView dari parameter, bukan gp.player
+            int screenX = worldX - playerView.worldX + playerScreenX;
+            int screenY = worldY - playerView.worldY + playerScreenY;
+
+            // Culling (hanya gambar yang terlihat di layar)
+            if (worldX + gp.tileSize > playerView.worldX - playerScreenX &&
+                worldX - gp.tileSize < playerView.worldX + playerScreenX &&
+                worldY + gp.tileSize > playerView.worldY - playerScreenY &&
+                worldY - gp.tileSize < playerView.worldY + playerScreenY) {
+
+                if (tileNum < tile.length && tile[tileNum] != null && tile[tileNum].image != null) {
+                    g2.drawImage(tile[tileNum].image, screenX, screenY, null); 
                 }
             }
-    
+
             worldCol++;
-    
             if (worldCol == gp.maxWorldCol) {
                 worldCol = 0;
                 worldRow++;
             }
         }
-    }    
+    }
 }
