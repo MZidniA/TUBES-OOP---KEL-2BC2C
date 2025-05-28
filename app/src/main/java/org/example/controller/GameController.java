@@ -296,6 +296,7 @@ public class GameController implements Runnable {
         return tileManager;
     }
     public GameStateUI getGameStateUI() {
+     
         return gameStateUI;
     }
 }
