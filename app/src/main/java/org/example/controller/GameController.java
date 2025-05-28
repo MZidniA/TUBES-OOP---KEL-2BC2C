@@ -13,20 +13,25 @@ import org.example.view.GameStateUI;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
+import java.awt.Graphics2D;
 
 public class GameController implements Runnable {
 
+    // --- Komponen utama ---
     private final GamePanel gamePanel;
-    private final Farm farm;
+    final Farm farm;
     private final PlayerView playerViewInstance;
+    private final TileManager tileManager;
+    private final GameStateUI gameStateUI;
 
-    private Thread gameThread;
+    // --- Helper/logic ---
     private final KeyHandler keyHandler;
     private final CollisionChecker cChecker;
     private final AssetSetter aSetter;
     private final GameState gameState;
     private final Sound music;
 
+    private Thread gameThread;
     private final Map<String, Boolean> movementState = new HashMap<>();
 
     public GameController(GamePanel gamePanel, Farm farm) {
@@ -39,6 +44,13 @@ public class GameController implements Runnable {
         this.keyHandler = new KeyHandler(this);
         this.music = new Sound();
         this.music.setFile();
+
+        this.tileManager = new TileManager(gamePanel);
+        this.gameStateUI = new GameStateUI(gamePanel);
+
+
+
+        // --- Integrasi KeyHandler ke panel ---
         if (this.gamePanel != null) {
             this.gamePanel.addKeyListener(this.keyHandler);
             this.gamePanel.setFocusable(true);
@@ -127,8 +139,9 @@ public class GameController implements Runnable {
         }
     }
 
+    // --- Input handler ---
     public void handlePlayerMove(String direction, boolean isMoving) {
-        if (gameState.getGameState() == this.gameState.play) {
+        if (gameState.getGameState() == gameState.play) {
             movementState.put(direction, isMoving);
         }
     }
@@ -164,24 +177,25 @@ public class GameController implements Runnable {
                             teleportPlayer(0, 4 * tileSize, 9 * tileSize);
                         }
                     }
+                    // Tambahkan logika teleportasi lain sesuai kebutuhan
                 }
             }
         }
     }
 
     public void togglePause() {
-        if (gameState.getGameState() == this.gameState.play) {
-            gameState.setGameState(this.gameState.pause);
-        } else if (gameState.getGameState() == this.gameState.pause) {
-            gameState.setGameState(this.gameState.play);
+        if (gameState.getGameState() == gameState.play) {
+            gameState.setGameState(gameState.pause);
+        } else if (gameState.getGameState() == gameState.pause) {
+            gameState.setGameState(gameState.play);
         }
     }
 
     public void toggleInventory() {
-        if (gameState.getGameState() == this.gameState.play) {
-            gameState.setGameState(this.gameState.inventory);
-        } else if (gameState.getGameState() == this.gameState.inventory) {
-            gameState.setGameState(this.gameState.play);
+        if (gameState.getGameState() == gameState.play) {
+            gameState.setGameState(gameState.inventory);
+        } else if (gameState.getGameState() == gameState.inventory) {
+            gameState.setGameState(gameState.play);
         }
     }
 
@@ -256,24 +270,59 @@ public class GameController implements Runnable {
         }
     }
 
+    // --- Teleportasi player antar map ---
     public void teleportPlayer(int mapIndex, int worldX, int worldY) {
         if (farm != null && playerViewInstance != null && gamePanel != null && gamePanel.tileM != null && aSetter != null) {
             farm.setCurrentMap(mapIndex);
             playerViewInstance.worldX = worldX;
             playerViewInstance.worldY = worldY;
             playerViewInstance.direction = "down";
-            gamePanel.tileM.loadMap(farm.getMapPathFor(mapIndex), mapIndex);
+            tileManager.loadMap(farm.getMapPathFor(mapIndex), mapIndex);
             farm.clearObjects(mapIndex);
             aSetter.setInteractableObject();
-            System.out.println("Player diteleportasi ke map " + mapIndex + " di (" + worldX / getTileSize() + "," + worldY / getTileSize() + ")");
+            System.out.println("Player diteleportasi ke map " + mapIndex + " di (" + worldX/getTileSize() + "," + worldY/getTileSize() + ")");
         }
     }
 
-    public Farm getFarmModel() { return this.farm; }
-    public GameState getGameState() { return this.gameState; }
-    public PlayerView getPlayerViewInstance() { return this.playerViewInstance; }
+    // --- Draw method untuk GamePanel ---
+    public void draw(Graphics2D g2) {
+        // Draw tile
+        tileManager.draw(g2, playerViewInstance, farm.getCurrentMap());
+        // Draw objects
+        InteractableObject[] objects = farm.getObjectsForCurrentMap();
+        if (objects != null) {
+            for (InteractableObject obj : objects) {
+                if (obj != null) obj.draw(g2, gamePanel, playerViewInstance);
+            }
+        }
+        // Draw player
+        playerViewInstance.draw(g2, gamePanel);
+
+        // Draw UI
+        if (gameStateUI != null) {
+            gameStateUI.draw(g2, gameState, farm.getPlayerModel().getInventory());
+        }
+    }
+
+    // --- Getters untuk komponen lain ---
+    public KeyHandler getKeyHandler() { return keyHandler; }
+    public GameState getGameState() { return gameState; }
+    public Farm getFarmModel() { return farm; }
+    public PlayerView getPlayerView() {
+        return playerViewInstance;
+    }
+
+
+    public GameStateUI getGameStateUI() {
+        return gameStateUI;
+    }
+
+    public TileManager getTileManager() { return tileManager; }
     public int getTileSize() { return gamePanel != null ? gamePanel.tileSize : 48; }
     public int getMaxWorldCol() { return gamePanel != null ? gamePanel.maxWorldCol : 32; }
     public int getMaxWorldRow() { return gamePanel != null ? gamePanel.maxWorldRow : 32; }
-    public TileManager getTileManager() { return gamePanel != null ? gamePanel.tileM : null; }
+
+    public PlayerView getPlayerViewInstance() {
+    return this.playerViewInstance;
+    }
 }

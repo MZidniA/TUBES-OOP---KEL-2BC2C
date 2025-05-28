@@ -22,6 +22,7 @@ public class RecipeDatabase {
 
 
     public static synchronized void initialize() {
+        
         if (isInitialized) return;
         if (!ItemDatabase.isInitialized()) {
             ItemDatabase.initialize();

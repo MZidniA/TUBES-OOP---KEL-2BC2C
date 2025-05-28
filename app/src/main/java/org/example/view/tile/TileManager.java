@@ -12,6 +12,8 @@ import org.example.controller.UtilityTool;
 import org.example.view.GamePanel;
 import org.example.view.entitas.PlayerView;
 
+
+
 // Asumsi ada file Tile.java di package yang sama atau di-import
 // package org.example.controller;
 // import java.awt.image.BufferedImage;
@@ -25,7 +27,7 @@ public class TileManager {
     public Tile[] tile;
     public int[][][] mapTileNum;
 
-    public TileManager(GamePanel gp) {
+    public TileManager(org.example.view.GamePanel gp) {
         this.gp = gp;
         tile = new Tile[850];
         // Inisialisasi mapTileNum berdasarkan dimensi dari GamePanel

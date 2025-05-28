@@ -101,4 +101,10 @@ public class GameClock {
         return daysIntoSeason; 
     }
 
+    public void setCurrentTime(LocalTime newTime) {
+        if (newTime != null) {
+            this.currentTime = newTime;
+        }
+    }
+
 }
