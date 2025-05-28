@@ -284,41 +284,12 @@ public class GameController implements Runnable {
         }
     }
 
-    // --- Draw method untuk GamePanel ---
-    public void draw(Graphics2D g2) {
-        // Draw tile
-        tileManager.draw(g2, playerViewInstance, farm.getCurrentMap());
-        // Draw objects
-        InteractableObject[] objects = farm.getObjectsForCurrentMap();
-        if (objects != null) {
-            for (InteractableObject obj : objects) {
-                if (obj != null) obj.draw(g2, gamePanel, playerViewInstance);
-            }
-        }
-        // Draw player
-        playerViewInstance.draw(g2, gamePanel);
+    // --- Getters untuk digunakan oleh komponen lain (terutama View) ---
+    public Farm getFarmModel() { return this.farm; }
+    public GameState getGameState() { return this.gameState; }
+    public PlayerView getPlayerViewInstance() { return this.playerViewInstance; }
 
-        // Draw UI
-        if (gameStateUI != null) {
-            gameStateUI.draw(g2, gameState, farm.getPlayerModel().getInventory());
-        }
-    }
-
-    // --- Getters untuk komponen lain ---
-    public KeyHandler getKeyHandler() { return keyHandler; }
-    public GameState getGameState() { return gameState; }
-    public Farm getFarmModel() { return farm; }
-    public PlayerView getPlayerView() {
-        return playerViewInstance;
-    }
-
-
-    public GameStateUI getGameStateUI() {
-        return gameStateUI;
-    }
-
-    public TileManager getTileManager() { return tileManager; }
-    public int getTileSize() { return gamePanel != null ? gamePanel.tileSize : 48; }
+    public int getTileSize() { return gamePanel != null ? gamePanel.tileSize : 48; } // Default jika gp null
     public int getMaxWorldCol() { return gamePanel != null ? gamePanel.maxWorldCol : 32; }
     public int getMaxWorldRow() { return gamePanel != null ? gamePanel.maxWorldRow : 32; }
 

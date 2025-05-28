@@ -108,8 +108,10 @@ public class GamePanel extends JPanel {
                 }
             }
 
+            // 3. Gambar Player
             playerView.draw(g2, this);
 
+            // 4. Gambar Prompt Interaksi
             if (currentGameState != null && currentGameState.getGameState() == currentGameState.play) {
                 CollisionChecker cChecker = gameController.getCollisionChecker();
                 if (cChecker != null) {

@@ -31,21 +31,12 @@ public class Seeds extends Items {
         this.daysToHarvest = daysToHarvest;
     }
 
-    /**
-     * Memeriksa apakah bibit dapat ditanam di musim saat ini.
-     * @param currentSeason Musim saat ini.
-     * @return true jika bibit dapat ditanam di musim tersebut, false jika tidak.
-     */
+
     public boolean canPlantInSeason(Season currentSeason) {
         // Jika bibit dapat ditanam di SEMUA musim atau musimnya cocok
         return this.season == Season.ALL || this.season == currentSeason;
     }
 
-    /**
-    /**
-     * Menghasilkan objek Crops yang sesuai dari bibit ini.
-     * @param itemDb Referensi ke ItemDatabase untuk mendapatkan objek Crops yang benar.
-     * @return Objek Crops yang dihasilkan, atau null jika tidak ditemukan.
-     */
+ 
 
 }
