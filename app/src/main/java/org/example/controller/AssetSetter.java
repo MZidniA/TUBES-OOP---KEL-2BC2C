@@ -16,6 +16,7 @@ import org.example.view.InteractableObject.PlantedTileObject;
 import org.example.view.InteractableObject.PondObject;
 import org.example.view.InteractableObject.RiverObject;
 import org.example.view.InteractableObject.ShippingBinObject;
+import org.example.view.InteractableObject.StoveObject;
 import org.example.view.InteractableObject.UnplantedTileObject;
 
 public class AssetSetter {
@@ -126,5 +127,21 @@ public class AssetSetter {
         } else {
             System.err.println("AssetSetter Error: Index 20 out of bounds for mapIndex 1 (Ocean)");
         }
+        
+        // --- Map 4 (House) ---
+        mapIndex = 4;
+        StoveObject stove = new StoveObject();
+        if (stove.image != null) {
+            stove.image = uTool.scaleImage(stove.image, tileSize, tileSize);
+        }
+        stove.worldX = 6 * tileSize;
+        stove.worldY = 3 * tileSize;
+
+        if (21 < objects[mapIndex].length) {
+            objects[mapIndex][21] = stove;
+        } else {
+            System.err.println("AssetSetter Error: Index 21 out of bounds for mapIndex 4 (House)");
+        }
+
     }
 }
