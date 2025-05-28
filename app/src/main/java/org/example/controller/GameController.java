@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
 import org.example.model.Farm;
 import org.example.model.Items.Items;
 import org.example.model.Player;
@@ -60,6 +63,15 @@ public class GameController implements Runnable {
         movementState.put("left", false);
         movementState.put("right", false);
         setupGame();
+    }
+
+    public GamePanel getGamePanel() {
+        return gamePanel;
+    }
+
+
+    public JFrame getMainFrame() {
+        return (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
     }
 
     public GameStateUI getGameStateUIFromPanel() {
