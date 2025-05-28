@@ -140,17 +140,17 @@ public class CookingAction implements Action {
             if (requiredItem != null && RecipeDatabase.ANY_FISH_INGREDIENT_NAME.equals(requiredItem.getName())) {
                 List<Items> fishToConsume = RecipeDatabase.getFishIngredientsFromInventory(inventory, requiredQuantity); // Ambil lagi untuk konsumsi
                 for (Items fish : fishToConsume) {
-                    inventory.removeItem(fish, 1); // Menggunakan removeItem dari Inventory Anda
+                    inventory.removeInventory(fish, 1); // Menggunakan removeInventory dari Inventory Anda
                     System.out.println("- Consumed 1x " + fish.getName());
                 }
             } else if (requiredItem != null) {
-                inventory.removeItem(requiredItem, requiredQuantity); // Menggunakan removeItem
+                inventory.removeInventory(requiredItem, requiredQuantity); // Menggunakan removeInventory
                 System.out.println("- Consumed " + requiredQuantity + "x " + requiredItem.getName());
             }
         }
 
         // 3. Kurangi Bahan Bakar (Langsung)
-        inventory.removeItem(fuelToUse, 1); // Menggunakan removeItem
+        inventory.removeInventory(fuelToUse, 1); // Menggunakan removeInventory
         System.out.println("- Consumed 1x " + fuelToUse.getName() + " as fuel.");
 
         // 4. Tentukan jumlah hidangan yang dihasilkan (default 1, bisa diubah sesuai kebutuhan)

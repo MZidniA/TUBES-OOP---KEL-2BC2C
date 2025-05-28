@@ -99,32 +99,26 @@ public class Farm {
     }
 
     public LocalTime getCurrentTime() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCurrentTime'");
+        return gameClock.getCurrentTime();
     }
 
     public void setCurrentTime(LocalTime newTime) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setCurrentTime'");
+        gameClock.setCurrentTime(newTime);
     }
 
     public Season getCurrentSeason() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCurrentSeason'");
+        return currentSeason;
     }
 
     public Weather getCurrentWeather() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCurrentWeather'");
+        return currentWeather;
     }
 
     public void setCurrentSeason(Season nextSeason) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setCurrentSeason'");
+        this.currentSeason = nextSeason;
     }
 
-    public void setCurrentWeather(Weather rainy) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setCurrentWeather'");
+    public void setCurrentWeather(Weather nextWeather) {
+        this.currentWeather = nextWeather;
     }
 }

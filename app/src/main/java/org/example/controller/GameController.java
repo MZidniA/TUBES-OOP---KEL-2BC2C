@@ -12,13 +12,14 @@ import org.example.model.Items.Items;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
+import java.awt.Graphics2D;
 
 public class GameController implements Runnable {
 
     // --- Komponen utama ---
     private final GamePanel gamePanel;
     final Farm farm;
-    private final PlayerView playerView;
+    private final PlayerView playerViewInstance;
     private final TileManager tileManager;
     private final GameStateUI gameStateUI;
 
@@ -38,7 +39,7 @@ public class GameController implements Runnable {
         this.gameState = new GameState();
 
         // --- Inisialisasi komponen view dan logic ---
-        this.playerView = new PlayerView(farm.getPlayerModel(), gamePanel);
+        this.playerViewInstance = new PlayerView(farm.getPlayerModel(), gamePanel);
         this.tileManager = new TileManager(gamePanel);
         this.gameStateUI = new GameStateUI(gamePanel);
 
@@ -119,9 +120,9 @@ public class GameController implements Runnable {
 
     // --- Update logic utama ---
     public void update() {
-        if (playerView == null || collisionChecker == null) return;
+        if (playerViewInstance == null || collisionChecker == null) return;
         if (gameState.getGameState() == gameState.play) {
-            playerView.update(movementState, collisionChecker);
+            playerViewInstance.update(movementState, collisionChecker);
             // Tambahkan update NPC, waktu, dsb jika perlu
         }
     }
@@ -135,7 +136,7 @@ public class GameController implements Runnable {
 
     public void handleInteraction() {
         if (gameState.getGameState() == gameState.play) {
-            int objIndex = collisionChecker.checkObject(playerView);
+            int objIndex = collisionChecker.checkObject(playerViewInstance);
             if (objIndex != 999) {
                 InteractableObject[] currentObjects = farm.getObjectsForCurrentMap();
                 if (currentObjects != null && objIndex < currentObjects.length && currentObjects[objIndex] != null) {
@@ -144,8 +145,8 @@ public class GameController implements Runnable {
             } else {
                 // Teleportasi jika tidak ada objek interaktif
                 int tileSize = getTileSize();
-                int playerCol = (playerView.worldX + playerView.solidArea.x + playerView.solidArea.width / 2) / tileSize;
-                int playerRow = (playerView.worldY + playerView.solidArea.y + playerView.solidArea.height / 2) / tileSize;
+                int playerCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width / 2) / tileSize;
+                int playerRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y + playerViewInstance.solidArea.height / 2) / tileSize;
                 int currentMap = farm.getCurrentMap();
                 if (playerCol >= 0 && playerCol < getMaxWorldCol() && playerRow >= 0 && playerRow < getMaxWorldRow()) {
                     // Contoh logika teleportasi
@@ -245,11 +246,11 @@ public class GameController implements Runnable {
 
     // --- Teleportasi player antar map ---
     public void teleportPlayer(int mapIndex, int worldX, int worldY) {
-        if (farm != null && playerView != null && tileManager != null && assetSetter != null) {
+        if (farm != null && playerViewInstance != null && tileManager != null && assetSetter != null) {
             farm.setCurrentMap(mapIndex);
-            playerView.worldX = worldX;
-            playerView.worldY = worldY;
-            playerView.direction = "down";
+            playerViewInstance.worldX = worldX;
+            playerViewInstance.worldY = worldY;
+            playerViewInstance.direction = "down";
             tileManager.loadMap(farm.getMapPathFor(mapIndex), mapIndex);
             farm.clearObjects(mapIndex);
             if (mapIndex == 0) {
@@ -262,16 +263,16 @@ public class GameController implements Runnable {
     // --- Draw method untuk GamePanel ---
     public void draw(Graphics2D g2) {
         // Draw tile
-        tileManager.draw(g2, playerView, farm.getCurrentMap());
+        tileManager.draw(g2, playerViewInstance, farm.getCurrentMap());
         // Draw objects
         InteractableObject[] objects = farm.getObjectsForCurrentMap();
         if (objects != null) {
             for (InteractableObject obj : objects) {
-                if (obj != null) obj.draw(g2, this);
+                if (obj != null) obj.draw(g2, gamePanel, playerViewInstance);
             }
         }
         // Draw player
-        playerView.draw(g2);
+        playerViewInstance.draw(g2, gamePanel);
 
         // Draw UI
         if (gameStateUI != null) {
@@ -283,10 +284,24 @@ public class GameController implements Runnable {
     public KeyHandler getKeyHandler() { return keyHandler; }
     public GameState getGameState() { return gameState; }
     public Farm getFarmModel() { return farm; }
-    public PlayerView getPlayerView() { return playerView; }
+    public PlayerView getPlayerView() {
+        return playerViewInstance;
+    }
+
+    public CollisionChecker getCollisionChecker() {
+        return collisionChecker;
+    }
+
+    public GameStateUI getGameStateUI() {
+        return gameStateUI;
+    }
+
     public TileManager getTileManager() { return tileManager; }
-    public GameStateUI getGameStateUI() { return gameStateUI; }
     public int getTileSize() { return gamePanel != null ? gamePanel.tileSize : 48; }
     public int getMaxWorldCol() { return gamePanel != null ? gamePanel.maxWorldCol : 32; }
     public int getMaxWorldRow() { return gamePanel != null ? gamePanel.maxWorldRow : 32; }
+
+    public PlayerView getPlayerViewInstance() {
+    return this.playerViewInstance;
+    }
 }

@@ -32,6 +32,7 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
     // State untuk TimeInfo, diperbarui oleh onTimeUpdate
     private int currentDay = 1;
     private Season currentSeason = Season.SPRING;
+    private Weather currentWeather = Weather.SUNNY;
     private LocalTime currentTime = LocalTime.of(6,0);
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
@@ -107,39 +108,27 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
     }
 
     private void drawTimeInfo() {
-        g2.setFont(stardewFont_20);
-        g2.setColor(lightYellow);
+        if (g2 == null || gp == null) return;
 
-        int x = gp.screenWidth - gp.tileSize * 6; // Posisi agak ke kiri sedikit
-        int yBase = gp.tileSize / 2 + 15; // Posisi Y dasar
+        String seasonText = (currentSeason != null) ? currentSeason.toString() : "Musim?";
+        String weatherText = (currentWeather != null) ? currentWeather.toString() : "Cuaca?";
+        String dayText = "Hari " + currentDay;
+        String timeText = (currentTime != null) ? currentTime.format(timeFormatter) : "--:--";
 
-        String timeString = "Time Error";
-        if (currentTime != null) {
-            timeString = currentTime.format(timeFormatter);
-        } else {
-             System.err.println("GameStateUI: currentTime is null in drawTimeInfo!");
-        }
+        Font fontUntukWaktu = (stardewFont_20 != null) ? stardewFont_20.deriveFont(16f) : new Font("Arial", Font.PLAIN, 16);
+        g2.setFont(fontUntukWaktu);
 
+        int xPosisiTeks = gp.screenWidth - 150; // Sesuaikan agar pas
+        int yPosisiAwal = 30;
+        int spasiAntarBaris = 20;
 
-        String dayString = "Day " + currentDay;
-        String seasonString = (currentSeason != null) ? currentSeason.toString() : "Season Error";
-
-        String fullTimeString = String.format("%s - %s - %s", seasonString, dayString, timeString);
-
-        // Bayangan teks
-        g2.setColor(darkTextShadow);
-        g2.drawString(fullTimeString, x + gp.tileSize + 2, yBase + 2); // +2 untuk shadow offset
-        // Teks utama
-        g2.setColor(lightYellow);
-        g2.drawString(fullTimeString, x + gp.tileSize, yBase);
-
-        // Gambar ikon waktu jika ada
-        if (timeIcon != null) {
-            g2.drawImage(timeIcon, x + gp.tileSize/2 -10 , yBase - gp.tileSize / 2 , gp.tileSize , gp.tileSize, null);
-        } else {
-            // System.err.println("GameStateUI: timeIcon is null, tidak bisa digambar."); // Hanya untuk debug jika perlu
-        }
+        // Menggambar teks dengan bayangan untuk keterbacaan
+        drawTextWithShadow(seasonText, xPosisiTeks, yPosisiAwal);
+        drawTextWithShadow(weatherText, xPosisiTeks, yPosisiAwal + spasiAntarBaris);
+        drawTextWithShadow(dayText, xPosisiTeks, yPosisiAwal + spasiAntarBaris*2);
+        drawTextWithShadow(timeText, xPosisiTeks, yPosisiAwal + (spasiAntarBaris * 3));
     }
+
 
     // Metode drawPauseScreen, drawInventory, drawSubWindow, getXforCenteredText tetap sama seperti sebelumnya
     // ... (Pastikan untuk menyalin metode-metode ini dari versi GameStateUI Anda sebelumnya) ...
