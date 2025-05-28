@@ -1,22 +1,22 @@
 package org.example.view.InteractableObject;
 
-import javax.imageio.ImageIO;
-import org.example.controller.GameController;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+import org.example.controller.GameController;
 
 public class DoorObject extends InteractableObject {
 
     public DoorObject() {
-        super("Door"); // Panggil konstruktor superclass dengan nama objek
+        super("Door"); 
         this.collision = true;
-        loadImage(); // Panggil metode untuk memuat gambar spesifik DoorObject
+        loadImage(); 
     }
 
     @Override
     protected void loadImage() {
         try {
-            // Hanya memuat gambar, tidak melakukan scaling di sini.
-            // Scaling akan dilakukan oleh AssetSetter.
             this.image = ImageIO.read(getClass().getResourceAsStream("/InteractableObject/Door.png"));
         } catch (IOException e) {
             e.printStackTrace();
@@ -27,7 +27,6 @@ public class DoorObject extends InteractableObject {
     @Override
     public void interact(GameController controller) {
         int targetTileSize = controller.getTileSize();
-        // Koordinat target teleportasi menggunakan tileSize dari controller
         controller.teleportPlayer(4, 6 * targetTileSize, 6 * targetTileSize);
     }
 }

@@ -6,7 +6,7 @@ import org.example.view.InteractableObject.InteractableObject;
 public class Farm {
     private final Player playerModel;
     // private final PlayerView playerView; // DIHAPUS: Farm tidak boleh tahu tentang PlayerView
-    private final InteractableObject[][] objects = new InteractableObject[6][20]; // maxMap, maxObjects
+    private final InteractableObject[][] objects = new InteractableObject[6][30]; // maxMap, maxObjects
     private int currentMap = 0;
 
     public Farm(String farmName, Player playerModel) { // Parameter hanya Player model
