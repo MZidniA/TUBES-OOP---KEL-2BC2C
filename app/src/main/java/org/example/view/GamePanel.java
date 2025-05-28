@@ -1,7 +1,16 @@
 package org.example.view;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.io.InputStream;
+
 import javax.swing.JPanel;
+
+import org.example.controller.CollisionChecker;
 import org.example.controller.GameController;
 import org.example.controller.GameState;
 import org.example.model.Farm;
@@ -9,20 +18,18 @@ import org.example.model.Inventory;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
-import org.example.controller.CollisionChecker; // Ensure this is the correct package for CollisionChecker
 
 public class GamePanel extends JPanel {
 
     private Font customFont;
 
-    // Konfigurasi layar & dunia
     final int originalTileSize = 16;
     final int scale = 2;
-    public final int tileSize = originalTileSize * scale; // 32x32
+    public final int tileSize = originalTileSize * scale;
     public final int maxScreenCol = 20;
     public final int maxScreenRow = 18;
-    public final int screenWidth = tileSize * maxScreenCol;  // 640
-    public final int screenHeight = tileSize * maxScreenRow; // 576
+    public final int screenWidth = tileSize * maxScreenCol;
+    public final int screenHeight = tileSize * maxScreenRow;
 
     public final int maxWorldCol = 32;
     public final int maxWorldRow = 32;
@@ -40,9 +47,22 @@ public class GamePanel extends JPanel {
 
         this.tileM = new TileManager(this);
         this.gameStateUI = new GameStateUI(this);
+        loadCustomFont();
+    }
 
-        // Initialize customFont
-        this.customFont = new Font("Arial", Font.PLAIN, 12);
+    private void loadCustomFont() {
+        try {
+            InputStream is = getClass().getResourceAsStream("/font/PressStart2P.ttf");
+            if (is == null) {
+                System.out.println("Font kustom TIDAK ditemukan!");
+            }
+            customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 12f);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(customFont);
+            System.out.println("Font kustom berhasil dimuat di GamePanel.");
+        } catch (Exception e) {
+            System.out.println("Font kustom tidak ditemukan, menggunakan Arial.");
+            customFont = new Font("Arial", Font.PLAIN, 14);
+        }
     }
 
     public GameStateUI getGameStateUI() {
@@ -65,7 +85,6 @@ public class GamePanel extends JPanel {
 
         Graphics2D g2 = (Graphics2D) g;
 
-        // Ambil semua data yang dibutuhkan untuk menggambar dari Model MELALUI Controller
         Farm farmModel = gameController.getFarmModel();
         PlayerView playerView = gameController.getPlayerViewInstance();
         GameState currentGameState = gameController.getGameState();
@@ -75,13 +94,10 @@ public class GamePanel extends JPanel {
             playerInventory = farmModel.getPlayerModel().getInventory();
         }
 
-        // Urutan render: Tile -> Objek -> Player -> UI
         if (farmModel != null && playerView != null) {
-            // 1. Gambar Tile
             if (tileM != null) {
                 tileM.draw(g2, playerView, farmModel.getCurrentMap());
             }
-
 
             InteractableObject[] objectsOnCurrentMap = farmModel.getObjectsForCurrentMap();
             if (objectsOnCurrentMap != null) {
@@ -92,8 +108,10 @@ public class GamePanel extends JPanel {
                 }
             }
 
+            // 3. Gambar Player
             playerView.draw(g2, this);
 
+            // 4. Gambar Prompt Interaksi
             if (currentGameState != null && currentGameState.getGameState() == currentGameState.play) {
                 CollisionChecker cChecker = gameController.getCollisionChecker();
                 if (cChecker != null) {
@@ -121,7 +139,6 @@ public class GamePanel extends JPanel {
             g2.setColor(Color.RED);
             g2.drawString("Data game (Farm/PlayerView) belum siap.", 20, 40);
         }
-
 
         if (currentGameState != null && gameStateUI != null) {
             gameStateUI.draw(g2, currentGameState, playerInventory);

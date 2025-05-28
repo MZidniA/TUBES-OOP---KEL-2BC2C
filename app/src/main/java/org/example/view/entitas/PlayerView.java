@@ -5,7 +5,9 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Map;
+
 import javax.imageio.ImageIO;
+
 import org.example.controller.CollisionChecker;
 import org.example.controller.UtilityTool;
 import org.example.model.Player; // Player model
@@ -21,6 +23,7 @@ public class PlayerView extends Entity {
     // tempat ia akan digambar.
     public final int screenX;
     public final int screenY;
+    GamePanel gp;
 
     public PlayerView(Player playerModel, GamePanel gp) { // Tambahkan GamePanel di konstruktor
         this.playerModel = playerModel;
@@ -35,6 +38,10 @@ public class PlayerView extends Entity {
         
         setDefaultValues(gp.tileSize); // Kirim tileSize ke setDefaultValues
         getPlayerImage(gp.tileSize); // Kirim tileSize untuk scaling
+    }
+
+    public GamePanel getGamePanel(){
+        return  this.gp;
     }
 
     public void setDefaultValues(int tileSize) { // Terima tileSize

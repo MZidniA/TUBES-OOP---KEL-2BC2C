@@ -38,7 +38,7 @@ public class PlayerController {
     // GameStateUI sekarang dimiliki oleh GamePanel, jadi GameController perlu menyediakan akses
     public void selectItemFromInventory() {
         if (gameController == null) return;
-        GameStateUI ui = gameController.getGameStateUIFromPanel();// Panggil getter baru
+        GameStateUI ui = gameController.getGameStateUI();
         if (ui == null) {
             System.err.println("PlayerController Error: GameStateUI is null via GameController!");
             return;

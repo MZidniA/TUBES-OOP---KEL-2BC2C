@@ -1,104 +1,86 @@
-// package org.example.controller;
+package org.example.controller;
 
-// import java.time.LocalTime;
-// import java.util.ArrayList;
-// import java.util.List;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
-// import org.example.model.Farm;
-// import org.example.model.enums.Season;
-// import org.example.model.enums.Weather;
-// import org.example.view.TimeObserver;
+import org.example.model.Farm;
+import org.example.model.GameClock; // Import GameClock dari Model
+import org.example.model.PlayerStats; // Import PlayerStats
+import org.example.model.enums.Season;
+import org.example.model.enums.Weather;
+import org.example.view.TimeObserver;
 
-// public class TimeManager {
-//     private Thread timeThread;
-//     private boolean running;
-//     private Farm farm; 
-//     private final int REAL_SECOND_TO_GAME_MINUTE = 5; 
+public class TimeManager {
+    private Thread timeThread;
+    private boolean running;
+    private final GameClock gameClockModel; 
+    private final Farm farmModel; 
+    private final int REAL_SECOND_TO_GAME_MINUTE = 5; 
 
-//     private List<TimeObserver> observers;
+    private List<TimeObserver> observers;
 
-//     public TimeManager(Farm farm) { 
-//         this.farm = farm;
-//         this.observers = new ArrayList<>();
-//     }
+    public TimeManager(Farm farm, GameClock gameClockModel) { // Terima Farm dan GameClock
+        this.farmModel = farm;
+        this.gameClockModel = gameClockModel;
+        this.observers = new ArrayList<>();
+    }
 
-//     public void addObserver(TimeObserver observer) {
-//         observers.add(observer);
-//     }
+    public void addObserver(TimeObserver observer) {
+        observers.add(observer);
+    }
 
-//     private void notifyObservers() {
-//         for (TimeObserver observer : observers) {
-//             observer.onTimeUpdate(farm.getCurrentDay(), farm.getCurrentSeason(), farm.getCurrentWeather(), farm.getCurrentTime());
-//         }
-//     }
+    private void notifyObservers() {
 
-//     public void startTimeSystem() {
-//         if (timeThread == null || !timeThread.isAlive()) {
-//             running = true;
-//             timeThread = new Thread(() -> {
-//                 long lastTime = System.currentTimeMillis();
+        LocalTime currentTime = gameClockModel.getCurrentTime();
+        int currentDay = gameClockModel.getDay();
+        Season currentSeason = gameClockModel.getCurrentSeason();
+        Weather currentWeather = gameClockModel.getTodayWeather();
 
-//                 while (running) {
-//                     long currentTimeMillis = System.currentTimeMillis();
-//                     long elapsed = currentTimeMillis - lastTime;
+        for (TimeObserver observer : observers) {
+            observer.onTimeUpdate(currentDay, currentSeason, currentWeather, currentTime);
+        }
+    }
 
-//                     if (elapsed >= 1000) { 
-//                         updateGameTime(REAL_SECOND_TO_GAME_MINUTE);
-//                         lastTime = currentTimeMillis; 
-//                         notifyObservers();
-//                     }
+    public void startTimeSystem() {
+        if (timeThread == null || !timeThread.isAlive()) {
+            running = true;
+            timeThread = new Thread(() -> {
+                long lastTimeMillis = System.currentTimeMillis();
 
-//                     try {
-//                         Thread.sleep(100);
-//                     } catch (InterruptedException e) {
-//                         Thread.currentThread().interrupt(); 
-//                         running = false;
-//                     }
-//                 }
-//             });
-//             timeThread.setName("GameTimeThread"); 
-//             timeThread.start();
-//         }
-//     }
+                while (running) {
+                    long currentTimeMillis = System.currentTimeMillis();
+                    long elapsed = currentTimeMillis - lastTimeMillis;
 
-//     public void stopTimeSystem() {
-//         running = false;
-//         if (timeThread != null) {
-//             timeThread.interrupt();
-//         }
-//     }
+                    if (elapsed >= 1000) { 
+                        PlayerStats stats = (farmModel != null) ? farmModel.getPlayerStats() : null;
+                        gameClockModel.advanceTimeMinutes(REAL_SECOND_TO_GAME_MINUTE);
+                        
+                        lastTimeMillis = currentTimeMillis;
+                        notifyObservers(); 
+                    }
 
-//     private void updateGameTime(int minutesToAdd) {
-//         LocalTime newTime = farm.getCurrentTime().plusMinutes(minutesToAdd);
-//         farm.setCurrentTime(newTime);
+                    try {
 
-//         if (newTime.isBefore(farm.getCurrentTime())) { 
-//              farm.setCurrentDay(farm.getCurrentDay() + 1);
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        running = false;
+                        System.out.println("GameTimeThread interrupted.");
+                    }
+                }
+            });
+            timeThread.setName("GameTimeThread");
+            timeThread.start();
+            System.out.println("TimeManager: Time system started.");
+        }
+    }
 
-//             if (farm.getCurrentDay() % 10 == 1) { 
-//                 Season nextSeason = null;
-//                 switch (farm.getCurrentSeason()) {
-//                     case SPRING:
-//                         nextSeason = Season.SUMMER;
-//                         break;
-//                     case SUMMER:
-//                         nextSeason = Season.FALL;
-//                         break;
-//                     case FALL:
-//                         nextSeason = Season.WINTER;
-//                         break;
-//                     case WINTER:
-//                         nextSeason = Season.SPRING; 
-//                         break;
-//                 }
-//                 farm.setCurrentSeason(nextSeason); 
-//             }
-
-//             if (Math.random() < 0.3) { 
-//                 farm.setCurrentWeather(Weather.RAINY);
-//             } else {
-//                 farm.setCurrentWeather(Weather.SUNNY);
-//             }
-//         }
-//     }
-// }
+    public void stopTimeSystem() {
+        running = false;
+        if (timeThread != null) {
+            timeThread.interrupt();
+        }
+        System.out.println("TimeManager: Time system stopped.");
+    }
+}

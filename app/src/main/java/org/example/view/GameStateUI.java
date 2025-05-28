@@ -51,15 +51,15 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
                  }
             }
             Font baseFont = Font.createFont(Font.TRUETYPE_FONT, is);
-            stardewFont_40 = baseFont.deriveFont(40f);
-            stardewFont_30 = baseFont.deriveFont(30f);
-            stardewFont_20 = baseFont.deriveFont(20f);
+            stardewFont_40 = baseFont.deriveFont(15f);
+            stardewFont_30 = baseFont.deriveFont(10f);
+            stardewFont_20 = baseFont.deriveFont(5f);
             System.out.println("Font kustom berhasil dimuat.");
         } catch (Exception e) {
             System.err.println("Gagal memuat font kustom, menggunakan Arial. Error: " + e.getMessage());
-            stardewFont_40 = new Font("Arial", Font.BOLD, 40);
-            stardewFont_30 = new Font("Arial", Font.PLAIN, 30);
-            stardewFont_20 = new Font("Arial", Font.PLAIN, 20);
+            stardewFont_40 = new Font("Arial", Font.BOLD, 15);
+            stardewFont_30 = new Font("Arial", Font.PLAIN, 10);
+            stardewFont_20 = new Font("Arial", Font.PLAIN, 5);
         }
     }
 
@@ -122,8 +122,8 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
 
         drawSubWindow(frameX, frameY, frameWidth, frameHeight, new Color(0, 0, 0, 210));
 
-        Font titleFont = (stardewFont_40 != null ? stardewFont_40 : defaultFont.deriveFont(Font.BOLD, 40F));
-        Font optionFont = (stardewFont_30 != null ? stardewFont_30 : defaultFont.deriveFont(Font.PLAIN, 30F));
+        Font titleFont = (stardewFont_40 != null ? stardewFont_40 : defaultFont.deriveFont(Font.BOLD, 15F));
+        Font optionFont = (stardewFont_30 != null ? stardewFont_30 : defaultFont.deriveFont(Font.PLAIN, 10F));
 
         String text = "Paused";
         int x = getXforCenteredTextInWindow(text, frameX, frameWidth, titleFont);
@@ -156,7 +156,7 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
 
         drawSubWindow(frameX, frameY, frameWidth, frameHeight, new Color(101, 67, 33, 230));
 
-        Font titleFont = (stardewFont_40 != null ? stardewFont_40 : defaultFont.deriveFont(Font.BOLD, 40F));
+        Font titleFont = (stardewFont_40 != null ? stardewFont_40 : defaultFont.deriveFont(Font.BOLD, 15F));
         String text = "Inventory";
         int titleX = getXforCenteredTextInWindow(text, frameX, frameWidth, titleFont);
         int titleY = frameY + gp.tileSize;
