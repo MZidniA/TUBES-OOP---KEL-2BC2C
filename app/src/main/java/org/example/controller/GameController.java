@@ -289,11 +289,13 @@ public class GameController implements Runnable {
     public GameState getGameState() { return this.gameState; }
     public PlayerView getPlayerViewInstance() { return this.playerViewInstance; }
 
-    public int getTileSize() { return gamePanel != null ? gamePanel.tileSize : 48; } // Default jika gp null
+    public int getTileSize() { return gamePanel != null ? gamePanel.tileSize : 32; } // Default jika gp null
     public int getMaxWorldCol() { return gamePanel != null ? gamePanel.maxWorldCol : 32; }
     public int getMaxWorldRow() { return gamePanel != null ? gamePanel.maxWorldRow : 32; }
-
-    public PlayerView getPlayerViewInstance() {
-    return this.playerViewInstance;
+    public TileManager getTileManager() {
+        return tileManager;
+    }
+    public GameStateUI getGameStateUI() {
+        return gameStateUI;
     }
 }
