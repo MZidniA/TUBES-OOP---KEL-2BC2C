@@ -33,15 +33,6 @@ public class SleepingAction implements Action {
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player player = farm.getPlayerModel();
-
-        boolean hasQueenBed = player.getInventory().hasItem(ItemDatabase.getItem("Queen Bed"), 1);
-        boolean hasKingBed = player.getInventory().hasItem(ItemDatabase.getItem("King Bed"), 1);
-        if (!hasQueenBed && !hasKingBed) {
-            System.out.println("Butuh Bed untuk tidur");
-            return false;
-        }
-
         return true;
     }
 
@@ -54,10 +45,8 @@ public class SleepingAction implements Action {
         int maxEnergy = player.getMaxEnergy();
         int currentEnergy = player.getEnergy();
 
-        // Cek tipe kasur untuk efek bonus
-        boolean hasKingBed = player.getInventory().hasItem(ItemDatabase.getItem("King Bed"), 1);
 
-        System.out.println("Kamu memutuskan untuk tidur...");
+        
 
         // Logika pemulihan energi
         if (currentEnergy == 0) {
@@ -66,10 +55,7 @@ public class SleepingAction implements Action {
         } else if (currentEnergy < (0.1 * maxEnergy)) {
             player.setEnergy(maxEnergy / 2);
             System.out.println("Energi terlalu rendah. Hanya terisi setengah.");
-        } else if (hasKingBed) {
-            player.setEnergy((int) (maxEnergy * 1.1));
-            System.out.println("idur super nyenyak di King Bed. Energi jadi 110%!");
-        } else {
+        }  else {
             player.setEnergy(maxEnergy);
             System.out.println("Tidur nyenyak. Energi pulih sepenuhnya.");
         }

@@ -27,11 +27,13 @@ public class TileManager {
     public Tile[] tile;
     public int[][][] mapTileNum;
 
+
     public TileManager(org.example.view.GamePanel gp) {
         this.gp = gp;
         tile = new Tile[850];
         // Inisialisasi mapTileNum berdasarkan dimensi dari GamePanel
-        mapTileNum = new int[6][gp.maxWorldCol][gp.maxWorldRow]; // Nilai maxMap diambil dari gp
+        mapTileNum = new int[6][gp.maxWorldCol][gp.maxWorldRow];
+// Nilai maxMap diambil dari gp
         getTileImage();
         // Memuat semua peta saat inisialisasi
         loadMap("/maps/map.txt", 0);
@@ -136,8 +138,8 @@ public class TileManager {
         setup(86, "RumputCorner86", false);
         setup(87, "RumputCorner87", false);
         setup(89, "Rumput89", false);
-        setup(88, "Path", true); 
-        setup(90, "Path", true);
+        setup(88, "Path", false); 
+        setup(90, "Path", false);
 
         // Beach and Ocean Map
         setup(91, "LightSandPatch", false);
@@ -711,5 +713,15 @@ public class TileManager {
                 worldRow++;
             }
         }
+    }
+
+    public boolean setTile(int map, int col, int row, int newTileID) {
+        if (map >= 0 && map < gp.maxMap &&
+            col >= 0 && col < gp.maxWorldCol &&
+            row >= 0 && row < gp.maxWorldRow) {
+            mapTileNum[map][col][row] = newTileID;
+            return true;
+        }
+        return false;
     }
 }

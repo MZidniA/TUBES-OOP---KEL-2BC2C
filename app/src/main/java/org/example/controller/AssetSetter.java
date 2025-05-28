@@ -1,4 +1,3 @@
-
 package org.example.controller;
 
 import org.example.model.Farm;
@@ -27,6 +26,11 @@ public class AssetSetter {
         this.controller = controller;
     }
 
+    /**
+     * Mengisi array objek interaktif di dalam Model untuk map yang sedang aktif.
+     * Objek yang dibuat secara dinamis (seperti hasil cangkulan) tidak akan tertimpa
+     * jika metode ini hanya men-set objek-objek statis/awal peta.
+     */
     public void setInteractableObject() {
         Farm farmModel = controller.getFarmModel();
         if (farmModel == null) {
@@ -34,113 +38,108 @@ public class AssetSetter {
             return;
         }
 
-        InteractableObject[][] objects = farmModel.getAllObjects();
+        InteractableObject[][] allObjects = farmModel.getAllObjects();
         int tileSize = controller.getTileSize();
         if (tileSize <= 0) {
             System.err.println("AssetSetter Error: tileSize is invalid (" + tileSize + ")!");
             return;
         }
 
-        // --- Map 0 (Farm) ---
-        int mapIndex = 0;
+        int currentMapIndex = farmModel.getCurrentMap(); // Dapatkan map yang sedang aktif
 
-        InteractableObject[] farmObjects = {
-            new DoorObject(), new PlantedTileObject(), new PlantedTileObject(),
-            new PlantedTileObject(), new PlantedTileObject(), new PlantedTileObject(),
-            new PondObject(), new UnplantedTileObject(), new UnplantedTileObject(),
-            new UnplantedTileObject(), new UnplantedTileObject(), new UnplantedTileObject(),
-            new ShippingBinObject(), new MountainLakeObject()
-        };
+        // Bersihkan objek untuk peta saat ini sebelum men-set yang baru
+        // Ini penting jika Anda ingin objek peta selalu "fresh" saat peta dimuat ulang.
+        // Namun, ini juga akan menghapus objek dinamis seperti UnplantedTileObject hasil cangkulan.
+        // Pertimbangkan apakah ini perilaku yang diinginkan.
+        // farmModel.clearObjects(currentMapIndex); // OPSIONAL, tergantung kebutuhan
 
-        int[][] farmPositions = {
-            {5, 7}, {15, 18}, {16, 18}, {17, 18}, {18, 18}, {19, 18},
-            {3, 22}, {22, 18}, {23, 18}, {24, 18}, {25, 18}, {26, 18},
-            {11, 8}, {29, 10}
-        };
+        System.out.println("AssetSetter: Setting objects for map index " + currentMapIndex);
 
-        for (int i = 0; i < farmObjects.length; i++) {
-            if (farmObjects[i].image != null) {
-                farmObjects[i].image = uTool.scaleImage(farmObjects[i].image, tileSize, tileSize);
+
+        if (currentMapIndex == 0) { // --- Map 0 (Farm) ---
+            InteractableObject[] farmObjects = {
+                new DoorObject(), 
+                new PondObject(), 
+                new ShippingBinObject(), new MountainLakeObject() 
+            };
+            // Sesuaikan farmPositions jika jumlah objek berkurang
+            int[][] farmPositions = {
+                {5, 7}, 
+                {3, 22}, 
+
+                {11, 8}, {29, 10} 
+            };
+
+            for (int i = 0; i < farmObjects.length; i++) {
+                if (farmObjects[i] == null) continue; 
+                
+                if (farmObjects[i].image != null) {
+                    farmObjects[i].image = uTool.scaleImage(farmObjects[i].image, tileSize, tileSize);
+                }
+                farmObjects[i].worldX = farmPositions[i][0] * tileSize;
+                farmObjects[i].worldY = farmPositions[i][1] * tileSize;
+
+
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = farmObjects[i];
+                } else {
+                    System.err.println("AssetSetter Error: Index " + i + " out of bounds for mapIndex " + currentMapIndex);
+                }
             }
-            farmObjects[i].worldX = farmPositions[i][0] * tileSize;
-            farmObjects[i].worldY = farmPositions[i][1] * tileSize;
+        } else if (currentMapIndex == 3) { // --- Map 3 (Town) ---
+            // Objek untuk Town
+            InteractableObject[] townInteractables = {
+                new CarolineHouse(), new PerryHouse(), new MayorHouse(),
+                new EmilyStore(), new DascoHouse(), new AbigailHouse()
+            };
+            int[][] townPositions = {
+                {5, 17}, {5, 28}, {7, 7}, {23, 7}, {26, 17}, {25, 28}
+            };
 
-            if (i < objects[mapIndex].length) {
-                objects[mapIndex][i] = farmObjects[i];
+            for (int i = 0; i < townInteractables.length; i++) {
+                if (townInteractables[i] == null) continue;
+
+                if (townInteractables[i].image != null) {
+                    townInteractables[i].image = uTool.scaleImage(townInteractables[i].image, tileSize, tileSize);
+                }
+                townInteractables[i].worldX = townPositions[i][0] * tileSize;
+                townInteractables[i].worldY = townPositions[i][1] * tileSize;
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = townInteractables[i];
+                } else {
+                     System.err.println("AssetSetter Error: Index " + i + " out of bounds for mapIndex " + currentMapIndex + " (Town)");
+                }
+            }
+        } else if (currentMapIndex == 2) { // --- Map 2 (River) ---
+            RiverObject river = new RiverObject();
+            if (river.image != null) river.image = uTool.scaleImage(river.image, tileSize, tileSize);
+            river.worldX = 22 * tileSize;
+            river.worldY = 7 * tileSize;
+            if (0 < allObjects[currentMapIndex].length) { 
+                allObjects[currentMapIndex][0] = river; 
             } else {
-                System.err.println("AssetSetter Error: Index " + i + " out of bounds for mapIndex 0 (Farm)");
+                System.err.println("AssetSetter Error: No available slot for RiverObject in mapIndex " + currentMapIndex);
             }
-        }
-
-        // --- Map 3 (Town) ---
-        mapIndex = 3;
-
-        Object[][] townObjects = {
-            {new CarolineHouse(), 5, 17},
-            {new PerryHouse(), 5, 28},
-            {new MayorHouse(), 7, 7},
-            {new EmilyStore(), 23, 7},
-            {new DascoHouse(), 26, 17},
-            {new AbigailHouse(), 25, 28}
-        };
-
-        for (int i = 0; i < townObjects.length; i++) {
-            InteractableObject obj = (InteractableObject) townObjects[i][0];
-            if (obj.image != null) {
-                obj.image = uTool.scaleImage(obj.image, tileSize, tileSize);
-            }
-            obj.worldX = (int) townObjects[i][1] * tileSize;
-            obj.worldY = (int) townObjects[i][2] * tileSize;
-
-            int index = 13 + i;
-            if (index < objects[mapIndex].length) {
-                objects[mapIndex][index] = obj;
+        } else if (currentMapIndex == 1) { // --- Map 1 (Ocean) ---
+            OceanObject ocean = new OceanObject();
+            if (ocean.image != null) ocean.image = uTool.scaleImage(ocean.image, tileSize, tileSize);
+            ocean.worldX = 10 * tileSize;
+            ocean.worldY = 21 * tileSize;
+            if (0 < allObjects[currentMapIndex].length) {
+                allObjects[currentMapIndex][0] = ocean;
             } else {
-                System.err.println("AssetSetter Error: Index " + index + " out of bounds for mapIndex 3 (Town)");
+                 System.err.println("AssetSetter Error: No available slot for OceanObject in mapIndex " + currentMapIndex);
             }
-        }
-
-        // --- Map 2 (River) ---
-        mapIndex = 2;
-        RiverObject river = new RiverObject();
-        if (river.image != null) {
-            river.image = uTool.scaleImage(river.image, tileSize, tileSize);
-        }
-        river.worldX = 22 * tileSize;
-        river.worldY = 7 * tileSize;
-        if (19 < objects[mapIndex].length) {
-            objects[mapIndex][19] = river;
-        } else {
-            System.err.println("AssetSetter Error: Index 19 out of bounds for mapIndex 2 (River)");
-        }
-
-        // --- Map 1 (Ocean) ---
-        mapIndex = 1;
-        OceanObject ocean = new OceanObject();
-        if (ocean.image != null) {
-            ocean.image = uTool.scaleImage(ocean.image, tileSize, tileSize);
-        }
-        ocean.worldX = 10 * tileSize;
-        ocean.worldY = 21 * tileSize;
-        if (20 < objects[mapIndex].length) {
-            objects[mapIndex][20] = ocean;
-        } else {
-            System.err.println("AssetSetter Error: Index 20 out of bounds for mapIndex 1 (Ocean)");
-        }
-        
-        // --- Map 4 (House) ---
-        mapIndex = 4;
-        StoveObject stove = new StoveObject();
-        if (stove.image != null) {
-            stove.image = uTool.scaleImage(stove.image, tileSize, tileSize);
-        }
-        stove.worldX = 6 * tileSize;
-        stove.worldY = 3 * tileSize;
-
-        if (21 < objects[mapIndex].length) {
-            objects[mapIndex][21] = stove;
-        } else {
-            System.err.println("AssetSetter Error: Index 21 out of bounds for mapIndex 4 (House)");
+        } else if (currentMapIndex == 4) { // --- Map 4 (House) ---
+            StoveObject stove = new StoveObject();
+            if (stove.image != null) stove.image = uTool.scaleImage(stove.image, tileSize, tileSize);
+            stove.worldX = 6 * tileSize;
+            stove.worldY = 3 * tileSize;
+            if (0 < allObjects[currentMapIndex].length) {
+                allObjects[currentMapIndex][0] = stove;
+            } else {
+                System.err.println("AssetSetter Error: No available slot for StoveObject in mapIndex " + currentMapIndex);
+            }
         }
 
     }
