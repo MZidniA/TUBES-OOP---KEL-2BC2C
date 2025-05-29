@@ -1,18 +1,36 @@
 package org.example.controller;
 
 import org.example.model.Farm;
-import org.example.view.InteractableObject.*;
+import org.example.view.InteractableObject.AbigailHouse;
+import org.example.view.InteractableObject.BedObject;
+import org.example.view.InteractableObject.CarolineHouse;
+import org.example.view.InteractableObject.DascoHouse;
+import org.example.view.InteractableObject.DoorObject;
+import org.example.view.InteractableObject.EmilyStore;
+import org.example.view.InteractableObject.InteractableObject;
+import org.example.view.InteractableObject.MayorHouse;
+import org.example.view.InteractableObject.MountainLakeObject;
+import org.example.view.InteractableObject.OceanObject;
+import org.example.view.InteractableObject.PerryHouse;
+import org.example.view.InteractableObject.PlantedTileObject;
+import org.example.view.InteractableObject.PondObject;
+import org.example.view.InteractableObject.RiverObject;
+import org.example.view.InteractableObject.ShippingBinObject;
+import org.example.view.InteractableObject.StoveObject;
+import org.example.view.InteractableObject.UnplantedTileObject;
 
 public class AssetSetter {
     private final GameController controller;
-    private final UtilityTool uTool = new UtilityTool(); // Buat instance UtilityTool di sini
+    private final UtilityTool uTool = new UtilityTool();
 
     public AssetSetter(GameController controller) {
         this.controller = controller;
     }
 
     /**
-     * Mengisi array objek interaktif di dalam Model dan melakukan scaling gambar.
+     * Mengisi array objek interaktif di dalam Model untuk map yang sedang aktif.
+     * Objek yang dibuat secara dinamis (seperti hasil cangkulan) tidak akan tertimpa
+     * jika metode ini hanya men-set objek-objek statis/awal peta.
      */
     public void setInteractableObject() {
         Farm farmModel = controller.getFarmModel();
@@ -20,133 +38,133 @@ public class AssetSetter {
             System.err.println("AssetSetter Error: farmModel is null!");
             return;
         }
-        InteractableObject[][] objects = farmModel.getAllObjects();
+
+        InteractableObject[][] allObjects = farmModel.getAllObjects();
         int tileSize = controller.getTileSize();
         if (tileSize <= 0) {
-             System.err.println("AssetSetter Error: tileSize is invalid (" + tileSize + ")!");
-             return; // Hindari error jika tileSize tidak valid
+            System.err.println("AssetSetter Error: tileSize is invalid (" + tileSize + ")!");
+            return;
         }
 
-        int mapIndex = 0; // Fokus pada map 0 (FARM) untuk contoh ini
+        int currentMapIndex = farmModel.getCurrentMap(); // Dapatkan map yang sedang aktif
 
-        // --- Map 0 (FARM) ---
-        // Setiap objek dibuat, lalu gambarnya di-scale jika ada, baru dimasukkan ke array.
+        // Bersihkan objek untuk peta saat ini sebelum men-set yang baru
+        // Ini penting jika Anda ingin objek peta selalu "fresh" saat peta dimuat ulang.
+        // Namun, ini juga akan menghapus objek dinamis seperti UnplantedTileObject hasil cangkulan.
+        // Pertimbangkan apakah ini perilaku yang diinginkan.
+        // farmModel.clearObjects(currentMapIndex); // OPSIONAL, tergantung kebutuhan
 
-        DoorObject door = new DoorObject();
-        if (door.image != null) {
-            door.image = uTool.scaleImage(door.image, tileSize, tileSize);
-        }
-        door.worldX = 5 * tileSize;
-        door.worldY = 7 * tileSize;
-        objects[mapIndex][0] = door;
+        System.out.println("AssetSetter: Setting objects for map index " + currentMapIndex);
 
-        PlantedTileObject planted1 = new PlantedTileObject();
-        if (planted1.image != null) {
-            planted1.image = uTool.scaleImage(planted1.image, tileSize, tileSize);
-        }
-        planted1.worldX = 15 * tileSize;
-        planted1.worldY = 18 * tileSize;
-        objects[mapIndex][1] = planted1;
+
+        if (currentMapIndex == 0) { // --- Map 0 (Farm) ---
+            InteractableObject[] farmObjects = {
+                new DoorObject(), 
+                new PondObject(), 
+                new ShippingBinObject(), new MountainLakeObject() 
+            };
+            // Sesuaikan farmPositions jika jumlah objek berkurang
+            int[][] farmPositions = {
+                {5, 7}, 
+                {3, 22}, 
+
+                {11, 8}, {29, 10} 
+            };
+
+            for (int i = 0; i < farmObjects.length; i++) {
+                if (farmObjects[i] == null) continue; 
+                
+                if (farmObjects[i].image != null) {
+                    farmObjects[i].image = uTool.scaleImage(farmObjects[i].image, tileSize, tileSize);
+                }
+                farmObjects[i].worldX = farmPositions[i][0] * tileSize;
+                farmObjects[i].worldY = farmPositions[i][1] * tileSize;
+
+
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = farmObjects[i];
+                } else {
+                    System.err.println("AssetSetter Error: Index " + i + " out of bounds for mapIndex " + currentMapIndex);
+                }
+            }
+        } else if (currentMapIndex == 3) { // --- Map 3 (Town) ---
+            // Objek untuk Town
+            InteractableObject[] townInteractables = {
+                new CarolineHouse(), new PerryHouse(), new MayorHouse(),
+                new EmilyStore(), new DascoHouse(), new AbigailHouse()
+            };
+            int[][] townPositions = {
+                {5, 17}, {5, 28}, {7, 7}, {23, 7}, {26, 17}, {25, 28}
+            };
+
+            for (int i = 0; i < townInteractables.length; i++) {
+                if (townInteractables[i] == null) continue;
+
+                if (townInteractables[i].image != null) {
+                    townInteractables[i].image = uTool.scaleImage(townInteractables[i].image, tileSize, tileSize);
+                }
+                townInteractables[i].worldX = townPositions[i][0] * tileSize;
+                townInteractables[i].worldY = townPositions[i][1] * tileSize;
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = townInteractables[i];
+                } else {
+                     System.err.println("AssetSetter Error: Index " + i + " out of bounds for mapIndex " + currentMapIndex + " (Town)");
+                }
+            }
+        } else if (currentMapIndex == 2) { // --- Map 2 (River) ---
+            RiverObject river = new RiverObject();
+            if (river.image != null) river.image = uTool.scaleImage(river.image, tileSize, tileSize);
+            river.worldX = 22 * tileSize;
+            river.worldY = 7 * tileSize;
+            if (0 < allObjects[currentMapIndex].length) { 
+                allObjects[currentMapIndex][0] = river; 
+            } else {
+                System.err.println("AssetSetter Error: No available slot for RiverObject in mapIndex " + currentMapIndex);
+            }
+        } else if (currentMapIndex == 1) { // --- Map 1 (Ocean) ---
+            OceanObject ocean = new OceanObject();
+            if (ocean.image != null) ocean.image = uTool.scaleImage(ocean.image, tileSize, tileSize);
+            ocean.worldX = 10 * tileSize;
+            ocean.worldY = 21 * tileSize;
+            if (0 < allObjects[currentMapIndex].length) {
+                allObjects[currentMapIndex][0] = ocean;
+            } else {
+                 System.err.println("AssetSetter Error: No available slot for OceanObject in mapIndex " + currentMapIndex);
+            }
+        } else if (currentMapIndex == 4) { // --- Map 4 (House) ---
+            // Definisikan semua objek untuk rumah
+            InteractableObject[] houseObjects = {
+                new StoveObject(),
+                new BedObject()
+            };
         
-        PlantedTileObject planted2 = new PlantedTileObject();
-        if (planted2.image != null) {
-            planted2.image = uTool.scaleImage(planted2.image, tileSize, tileSize);
-        }
-        planted2.worldX = 16 * tileSize;
-        planted2.worldY = 18 * tileSize;
-        objects[mapIndex][2] = planted2;
-
-        PlantedTileObject planted3 = new PlantedTileObject();
-        if (planted3.image != null) {
-            planted3.image = uTool.scaleImage(planted3.image, tileSize, tileSize);
-        }
-        planted3.worldX = 17 * tileSize;
-        planted3.worldY = 18 * tileSize;
-        objects[mapIndex][3] = planted3;
-
-        PlantedTileObject planted4 = new PlantedTileObject();
-        if (planted4.image != null) {
-            planted4.image = uTool.scaleImage(planted4.image, tileSize, tileSize);
-        }
-        planted4.worldX = 18 * tileSize;
-        planted4.worldY = 18 * tileSize;
-        objects[mapIndex][4] = planted4;
-
-        PlantedTileObject planted5 = new PlantedTileObject();
-        if (planted5.image != null) {
-            planted5.image = uTool.scaleImage(planted5.image, tileSize, tileSize);
-        }
-        planted5.worldX = 19 * tileSize;
-        planted5.worldY = 18 * tileSize;
-        objects[mapIndex][5] = planted5;
+            // Tentukan posisi untuk setiap objek
+            int[][] housePositions = {
+                {6, 3},  // Posisi untuk StoveObject
+                {9, 10}  // Posisi untuk BedObject
+            };
         
-        PondObject pond = new PondObject();
-        if (pond.image != null) {
-            pond.image = uTool.scaleImage(pond.image, tileSize, tileSize);
-        }
-        pond.worldX = 3 * tileSize;
-        pond.worldY = 22 * tileSize;
-        objects[mapIndex][6] = pond;
-
-        UnplantedTileObject unplanted1 = new UnplantedTileObject();
-        if (unplanted1.image != null) {
-            unplanted1.image = uTool.scaleImage(unplanted1.image, tileSize, tileSize);
-        }
-        unplanted1.worldX = 22 * tileSize;
-        unplanted1.worldY = 18 * tileSize;
-        objects[mapIndex][7] = unplanted1;
+            // Loop untuk menempatkan semua objek ke dalam daftar objek utama
+            for (int i = 0; i < houseObjects.length; i++) {
+                if (houseObjects[i] == null) continue; // Lewati jika objek tidak ada
+            
+    
         
-        UnplantedTileObject unplanted2 = new UnplantedTileObject();
-        if (unplanted2.image != null) {
-            unplanted2.image = uTool.scaleImage(unplanted2.image, tileSize, tileSize);
+                // Scale gambar jika ada
+                if (houseObjects[i].image != null) {
+                    houseObjects[i].image = uTool.scaleImage(houseObjects[i].image, tileSize, tileSize);
+                }
+                houseObjects[i].worldX = housePositions[i][0] * tileSize;
+                houseObjects[i].worldY = housePositions[i][1] * tileSize;
+        
+                // --- INI BAGIAN YANG HILANG ---
+                // Masukkan objek ke dalam array allObjects agar terdeteksi oleh game
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = houseObjects[i];
+                } else {
+                    System.err.println("AssetSetter Error: Slot tidak cukup untuk objek di peta rumah.");
+                }
+            }
         }
-        unplanted2.worldX = 23 * tileSize;
-        unplanted2.worldY = 18 * tileSize;
-        objects[mapIndex][8] = unplanted2;
-
-        UnplantedTileObject unplanted3 = new UnplantedTileObject();
-        if (unplanted3.image != null) {
-            unplanted3.image = uTool.scaleImage(unplanted3.image, tileSize, tileSize);
-        }
-        unplanted3.worldX = 24 * tileSize;
-        unplanted3.worldY = 18 * tileSize;
-        objects[mapIndex][9] = unplanted3;
-
-        UnplantedTileObject unplanted4 = new UnplantedTileObject();
-        if (unplanted4.image != null) {
-            unplanted4.image = uTool.scaleImage(unplanted4.image, tileSize, tileSize);
-        }
-        unplanted4.worldX = 25 * tileSize;
-        unplanted4.worldY = 18 * tileSize;
-        objects[mapIndex][10] = unplanted4;
-
-        UnplantedTileObject unplanted5 = new UnplantedTileObject();
-        if (unplanted5.image != null) {
-            unplanted5.image = uTool.scaleImage(unplanted5.image, tileSize, tileSize);
-        }
-        unplanted5.worldX = 26 * tileSize;
-        unplanted5.worldY = 18 * tileSize;
-        objects[mapIndex][11] = unplanted5;
-
-        ShippingBinObject shippingBin = new ShippingBinObject();
-        if (shippingBin.image != null) {
-            shippingBin.image = uTool.scaleImage(shippingBin.image, tileSize, tileSize);
-        }
-        shippingBin.worldX = 11 * tileSize;
-        shippingBin.worldY = 8 * tileSize;
-        objects[mapIndex][12] = shippingBin;
-
-        // --- Map 1 (BEACH), etc. ---
-        // mapIndex = 1; 
-        // Lakukan hal yang sama untuk peta lain jika ada objeknya
-        // Contoh:
-        // if (objects.length > 1 && objects[1] != null) { // Pastikan array untuk map 1 ada
-        //    // objects[1][0] = new SomeBeachObject();
-        //    // if (objects[1][0].image != null) {
-        //    //     objects[1][0].image = uTool.scaleImage(objects[1][0].image, tileSize, tileSize);
-        //    // }
-        //    // objects[1][0].worldX = ...;
-        //    // objects[1][0].worldY = ...;
-        // }
     }
 }

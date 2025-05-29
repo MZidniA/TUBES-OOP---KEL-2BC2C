@@ -12,7 +12,9 @@ public class Player {
     private String gender;
     private int energy;
     private final int MAX_ENERGY = 100; // Tambahkan konstanta untuk energi maksimum
-    private final int MIN_ENERGY_OPERATIONAL = -20; // Energi minimum sebelum pingsan/auto-sleep
+    private final int MIN_ENERGY_OPERATIONAL = -20;
+    private boolean passedOut = false; // Energi minimum sebelum pingsan/auto-sleep
+    private boolean forceSleepByTime = false; // Flag untuk memaksa tidur
     private String farmname;
     private NPC partner;
     private int gold;
@@ -58,17 +60,32 @@ public class Player {
     }
 
     public void setEnergy(int energy) {
-        // Batasi energi antara MIN_ENERGY_OPERATIONAL dan MAX_ENERGY
         if (energy > MAX_ENERGY) {
             this.energy = MAX_ENERGY;
-        } else if (energy < MIN_ENERGY_OPERATIONAL) {
+        } else if (energy <= MIN_ENERGY_OPERATIONAL) { 
             this.energy = MIN_ENERGY_OPERATIONAL;
-            // Di sini bisa ada logika tambahan jika energi mencapai batas minimum (misalnya, pingsan)
-            // System.out.println("LOG: " + this.name + " pingsan karena kelelahan!");
-            // (Biasanya auto-sleep akan ditangani oleh game loop/controller)
+
+            this.passedOut = true; 
+            System.out.println("LOG: " + this.name + " pingsan karena kelelahan!");
         } else {
             this.energy = energy;
         }
+    }
+
+    // --- TAMBAHKAN GETTER DAN SETTER UNTUK FLAG ---
+    public boolean isPassedOut() {
+        return this.passedOut;
+    }
+
+    public void setPassedOut(boolean status) {
+        this.passedOut = status;
+    }
+    public boolean isForceSleepByTime() {
+        return this.forceSleepByTime;
+    }
+
+    public void setForceSleepByTime(boolean status) {
+        this.forceSleepByTime = status;
     }
 
     public int getMaxEnergy() { // Getter untuk MAX_ENERGY

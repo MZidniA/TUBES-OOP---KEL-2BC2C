@@ -3,90 +3,105 @@ package org.example.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import org.example.model.Farm;
+import org.example.model.GameClock;
+import org.example.model.Items.Items;
+import org.example.model.Items.Seeds;
 import org.example.model.Player;
+import org.example.model.Sound;
+import org.example.model.Inventory;
 import org.example.view.GamePanel;
 import org.example.view.GameStateUI;
-import org.example.model.Sound;
-import org.example.model.Items.Items;
+import org.example.view.MenuPanel;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
-import java.awt.Graphics2D;
+import org.example.controller.action.TillingAction;
 
 public class GameController implements Runnable {
 
-    // --- Komponen utama ---
     private final GamePanel gamePanel;
-    final Farm farm;
+    private final Farm farm;
     private final PlayerView playerViewInstance;
-    private final TileManager tileManager;
-    private final GameStateUI gameStateUI;
+    private final TileManager tileManager; 
+    private final GameStateUI gameStateUI; 
 
-    // --- Helper/logic ---
     private final KeyHandler keyHandler;
-    private final CollisionChecker collisionChecker;
-    private final AssetSetter assetSetter;
+    private final CollisionChecker cChecker;
+    private final AssetSetter aSetter;
     private final GameState gameState;
     private final Sound music;
+    private final TimeManager timeManager;
 
     private Thread gameThread;
     private final Map<String, Boolean> movementState = new HashMap<>();
+    private final int TILLABLE_AREA_MAP0_MIN_COL = 15;
+    private final int TILLABLE_AREA_MAP0_MAX_COL = 27;
+    private final int TILLABLE_AREA_MAP0_MIN_ROW = 19;
+    private final int TILLABLE_AREA_MAP0_MAX_ROW = 28;
 
     public GameController(GamePanel gamePanel, Farm farm) {
         this.gamePanel = gamePanel;
         this.farm = farm;
+
         this.gameState = new GameState();
+        
+        this.tileManager = gamePanel.tileM; 
+        this.gameStateUI = gamePanel.gameStateUI; 
 
-        // --- Inisialisasi komponen view dan logic ---
         this.playerViewInstance = new PlayerView(farm.getPlayerModel(), gamePanel);
-        this.tileManager = new TileManager(gamePanel);
-        this.gameStateUI = new GameStateUI(gamePanel);
-
-        this.collisionChecker = new CollisionChecker(this);
-        this.assetSetter = new AssetSetter(this);
+        this.cChecker = new CollisionChecker(this);
+        this.aSetter = new AssetSetter(this);
         this.keyHandler = new KeyHandler(this);
         this.music = new Sound();
+        this.music.setFile();
+        
+        if (farm.getGameClock() != null && this.gameStateUI != null) {
+            this.timeManager = new TimeManager(farm, farm.getGameClock());
+            this.timeManager.addObserver(this.gameStateUI);
+        } else {
+            this.timeManager = null; 
+            System.err.println("GameController Error: Farm, GameClock, atau GameStateUI null saat membuat TimeManager.");
+        }
 
-        // --- Integrasi KeyHandler ke panel ---
         if (this.gamePanel != null) {
             this.gamePanel.addKeyListener(this.keyHandler);
             this.gamePanel.setFocusable(true);
         }
-
-        // --- State movement awal ---
+        
         movementState.put("up", false);
         movementState.put("down", false);
         movementState.put("left", false);
         movementState.put("right", false);
-
         setupGame();
     }
+    
+    public GamePanel getGamePanel() { return gamePanel; }
+    public GameStateUI getGameStateUIFromPanel() { return gamePanel != null ? gamePanel.gameStateUI : null; }
+    public CollisionChecker getCollisionChecker() { return this.cChecker; }
+    public int getTillableAreaMinCol(int mapIndex) { return mapIndex == 0 ? TILLABLE_AREA_MAP0_MIN_COL : -1; }
+    public int getTillableAreaMaxCol(int mapIndex) { return mapIndex == 0 ? TILLABLE_AREA_MAP0_MAX_COL : -1; }
+    public int getTillableAreaMinRow(int mapIndex) { return mapIndex == 0 ? TILLABLE_AREA_MAP0_MIN_ROW : -1; }
+    public int getTillableAreaMaxRow(int mapIndex) { return mapIndex == 0 ? TILLABLE_AREA_MAP0_MAX_ROW : -1; }
 
-    public void setupGame() {
-        assetSetter.setInteractableObject();
+
+    private void setupGame() {
+        if (aSetter != null) aSetter.setInteractableObject();
         gameState.setGameState(gameState.play);
+        if (timeManager != null) timeManager.startTimeSystem();
     }
 
-    // --- Game Loop ---
     public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
         playMusic();
     }
-
-    public void playMusic() {
-        if (music != null) {
-            music.play();
-            music.loop();
-        }
-    }
-
-    public void stopMusic() {
-        if (music != null) {
-            music.stop();
-        }
-    }
+    
+    public Thread getGameThread() { return this.gameThread; }
+    public void playMusic() { if (music != null) { music.play(); music.loop(); } }
+    public void stopMusic() { if (music != null) music.stop(); }
 
     @Override
     public void run() {
@@ -94,40 +109,34 @@ public class GameController implements Runnable {
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
-        long timer = 0;
-        int drawCount = 0;
-
         while (gameThread != null) {
             currentTime = System.nanoTime();
             delta += (currentTime - lastTime) / drawInterval;
-            timer += (currentTime - lastTime);
             lastTime = currentTime;
-
             if (delta >= 1) {
                 update();
                 if (gamePanel != null) gamePanel.repaint();
                 delta--;
-                drawCount++;
-            }
-
-            if (timer >= 1000000000) {
-                // System.out.println("FPS: " + drawCount);
-                drawCount = 0;
-                timer = 0;
             }
         }
     }
 
-    // --- Update logic utama ---
-    public void update() {
-        if (playerViewInstance == null || collisionChecker == null) return;
+    private void update() {
+        if (playerViewInstance == null || cChecker == null || gameState == null) return;
+        Player playerModel = farm.getPlayerModel();
+        if (playerModel.isPassedOut()) {
+            passedOutSleep();
+            System.out.println("Kamu pingsan dan seseorang membawamu pulang...");
+        } 
+        if (playerModel.isForceSleepByTime()) {
+            passedOutSleep();
+            System.out.println("Sudah jam 02:00, kamu kelelahan dan pingsan");
+        }
         if (gameState.getGameState() == gameState.play) {
-            playerViewInstance.update(movementState, collisionChecker);
-            // Tambahkan update NPC, waktu, dsb jika perlu
+             playerViewInstance.update(movementState, cChecker);
         }
     }
 
-    // --- Input handler ---
     public void handlePlayerMove(String direction, boolean isMoving) {
         if (gameState.getGameState() == gameState.play) {
             movementState.put(direction, isMoving);
@@ -135,173 +144,226 @@ public class GameController implements Runnable {
     }
 
     public void handleInteraction() {
-        if (gameState.getGameState() == gameState.play) {
-            int objIndex = collisionChecker.checkObject(playerViewInstance);
-            if (objIndex != 999) {
-                InteractableObject[] currentObjects = farm.getObjectsForCurrentMap();
-                if (currentObjects != null && objIndex < currentObjects.length && currentObjects[objIndex] != null) {
-                    currentObjects[objIndex].interact(this);
+        if (gameState.getGameState() != gameState.play) return;
+        if (playerViewInstance == null || cChecker == null || farm == null || gamePanel == null || farm.getPlayerModel() == null) return;
+
+        Player playerModel = farm.getPlayerModel();
+        Items heldItem = playerModel.getCurrentHeldItem();
+        int tileSize = getTileSize();
+        int currentMap = farm.getCurrentMap();
+
+        int objIndex = cChecker.checkObject(playerViewInstance);
+        if (objIndex != 999) {
+            InteractableObject[] currentObjects = farm.getObjectsForCurrentMap();
+            if (currentObjects != null && objIndex < currentObjects.length && currentObjects[objIndex] != null) {
+                InteractableObject targetObject = currentObjects[objIndex];
+                if (heldItem != null && heldItem.getName().equalsIgnoreCase("Fishing Rod") && targetObject.name.equalsIgnoreCase("Pond")) {
+                    System.out.println(playerModel.getName() + " is fishing at the " + targetObject.name + "!");
+                    return;
                 }
-            } else {
-                // Teleportasi jika tidak ada objek interaktif
-                int tileSize = getTileSize();
-                int playerCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width / 2) / tileSize;
-                int playerRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y + playerViewInstance.solidArea.height / 2) / tileSize;
-                int currentMap = farm.getCurrentMap();
-                if (playerCol >= 0 && playerCol < getMaxWorldCol() && playerRow >= 0 && playerRow < getMaxWorldRow()) {
-                    // Contoh logika teleportasi
-                    if (currentMap == 0 && playerCol == 31 && playerRow == 15) {
-                        teleportPlayer(1, 1 * tileSize, 1 * tileSize);
-                    } else if (currentMap == 1 && playerCol == 0 && playerRow == 0) {
-                        teleportPlayer(0, 31 * tileSize, 15 * tileSize);
-                    }
-                    // Tambahkan logika teleportasi lain sesuai kebutuhan
+                targetObject.interact(this);
+                return;
+            }
+        }
+
+        if (heldItem != null) {
+            int targetCol = 0, targetRow = 0;
+            if (playerViewInstance.solidArea == null) return;
+            int currentSpeed = playerViewInstance.speed != 0 ? playerViewInstance.speed : 4;
+            switch (playerViewInstance.direction) {
+                case "up":
+                    targetRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y - currentSpeed) / tileSize;
+                    targetCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width / 2) / tileSize;
+                    break;
+                case "down":
+                    targetRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y + playerViewInstance.solidArea.height + currentSpeed) / tileSize;
+                    targetCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width / 2) / tileSize;
+                    break;
+                case "left":
+                    targetCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x - currentSpeed) / tileSize;
+                    targetRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y + playerViewInstance.solidArea.height / 2) / tileSize;
+                    break;
+                case "right":
+                    targetCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width + currentSpeed) / tileSize;
+                    targetRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y + playerViewInstance.solidArea.height / 2) / tileSize;
+                    break;
+                default: return;
+            }
+            if (targetCol < 0 || targetCol >= getMaxWorldCol() || targetRow < 0 || targetRow >= getMaxWorldRow()) return;
+            System.out.println("DEBUG: Target Tile for Interaction: (" + targetCol + ", " + targetRow + ")");
+
+            if (heldItem.getName().equalsIgnoreCase("Hoe")) {
+                TillingAction tilling = new TillingAction(this, targetCol, targetRow);
+                if (tilling.canExecute(farm)) {
+                    tilling.execute(farm);
+                } else {
+                    System.out.println("GameController: TillingAction cannot be executed (Hoe).");
                 }
             }
+        } else {
+            if (playerViewInstance.solidArea == null) return;
+            int playerCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width / 2) / tileSize;
+            int playerRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y + playerViewInstance.solidArea.height / 2) / tileSize;
+            if (currentMap == 0 && playerCol == 31 && playerRow == 15) { teleportPlayer(1, 1 * tileSize, 1 * tileSize); } 
+            else if (currentMap == 1 && playerCol == 1 && playerRow == 1) { teleportPlayer(0, 31 * tileSize, 15 * tileSize); } 
+            else if (currentMap == 1 && playerCol == 30 && playerRow == 1) { teleportPlayer(2, 29 * tileSize, 0 * tileSize); } 
+            else if (currentMap == 2 && playerCol == 29 && playerRow == 0) { teleportPlayer(1, 30 * tileSize, 1 * tileSize); } 
+            else if (currentMap == 2 && playerCol == 0 && playerRow == 31) { teleportPlayer(3, 15 * tileSize, 31* tileSize); } 
+            else if (currentMap == 3 && playerCol == 15 && playerRow == 31) { teleportPlayer(2, 0 * tileSize, 31 * tileSize); } 
+            else if (currentMap == 4 && playerCol == 3 && playerRow == 11) { teleportPlayer(0, 4 * tileSize, 9 * tileSize); }
         }
     }
 
     public void togglePause() {
-        if (gameState.getGameState() == gameState.play) {
-            gameState.setGameState(gameState.pause);
-        } else if (gameState.getGameState() == gameState.pause) {
-            gameState.setGameState(gameState.play);
-        }
+        if (gameState.getGameState() == gameState.play) gameState.setGameState(gameState.pause);
+        else if (gameState.getGameState() == gameState.pause) gameState.setGameState(gameState.play);
     }
-
     public void toggleInventory() {
-        if (gameState.getGameState() == gameState.play) {
-            gameState.setGameState(gameState.inventory);
-        } else if (gameState.getGameState() == gameState.inventory) {
+        if (gameState.getGameState() == gameState.play) gameState.setGameState(gameState.inventory);
+        else if (gameState.getGameState() == gameState.inventory) {
             gameState.setGameState(gameState.play);
+            resetMovementState();
         }
     }
-
-    // --- UI Navigation ---
     public void navigatePauseUI(String direction) {
-        if (gameStateUI != null) {
-            if (direction.equals("up")) {
-                gameStateUI.commandNum--;
-                if (gameStateUI.commandNum < 0) gameStateUI.commandNum = 1;
-            } else if (direction.equals("down")) {
-                gameStateUI.commandNum++;
-                if (gameStateUI.commandNum > 1) gameStateUI.commandNum = 0;
-            }
+        if (gameState.getGameState() == gameState.pause && gamePanel != null && gamePanel.gameStateUI != null) {
+            GameStateUI ui = gamePanel.gameStateUI;
+            if (direction.equals("up")) { ui.commandNum--; if (ui.commandNum < 0) ui.commandNum = 1; } 
+            else if (direction.equals("down")) { ui.commandNum++; if (ui.commandNum > 1) ui.commandNum = 0; }
         }
     }
-
     public void confirmPauseUISelection() {
-        if (gameStateUI != null) {
-            if (gameStateUI.commandNum == 0) {
-                gameState.setGameState(gameState.play);
-            } else if (gameStateUI.commandNum == 1) {
-                System.exit(0);
-            }
+        if (gameState.getGameState() == gameState.pause && gamePanel != null && gamePanel.gameStateUI != null) {
+            GameStateUI ui = gamePanel.gameStateUI;
+            if (ui.commandNum == 0) gameState.setGameState(gameState.play);
+            else if (ui.commandNum == 1) return;
         }
     }
-
     public void navigateInventoryUI(String direction) {
-        if (gameStateUI != null) {
-            int slotsPerRow = 12;
-            int totalDisplayRows = 3;
+        if (gameState.getGameState() == gameState.inventory && gamePanel != null && gamePanel.gameStateUI != null) {
+            GameStateUI ui = gamePanel.gameStateUI;
+            int slotsPerRow = 12; int totalDisplayRows = 3;
             switch (direction) {
-                case "up":
-                    gameStateUI.slotRow--;
-                    if (gameStateUI.slotRow < 0) gameStateUI.slotRow = totalDisplayRows - 1;
-                    break;
-                case "down":
-                    gameStateUI.slotRow++;
-                    if (gameStateUI.slotRow >= totalDisplayRows) gameStateUI.slotRow = 0;
-                    break;
-                case "left":
-                    gameStateUI.slotCol--;
-                    if (gameStateUI.slotCol < 0) gameStateUI.slotCol = slotsPerRow - 1;
-                    break;
-                case "right":
-                    gameStateUI.slotCol++;
-                    if (gameStateUI.slotCol >= slotsPerRow) gameStateUI.slotCol = 0;
-                    break;
+                case "up": ui.slotRow--; if (ui.slotRow < 0) ui.slotRow = totalDisplayRows - 1; break;
+                case "down": ui.slotRow++; if (ui.slotRow >= totalDisplayRows) ui.slotRow = 0; break;
+                case "left": ui.slotCol--; if (ui.slotCol < 0) ui.slotCol = slotsPerRow - 1; break;
+                case "right": ui.slotCol++; if (ui.slotCol >= slotsPerRow) ui.slotCol = 0; break;
             }
         }
     }
-
     public void confirmInventoryUISelection() {
-        if (farm != null && farm.getPlayerModel() != null && gameStateUI != null) {
+        if (gameState.getGameState() == gameState.inventory && farm != null && farm.getPlayerModel() != null && gamePanel != null && gamePanel.gameStateUI != null) {
+            GameStateUI ui = gamePanel.gameStateUI;
             Player playerModel = farm.getPlayerModel();
-            int slotIndex = gameStateUI.slotCol + (gameStateUI.slotRow * 12);
-            ArrayList<Map.Entry<Items, Integer>> inventoryList =
-                new ArrayList<>(playerModel.getInventory().getInventory().entrySet());
-
+            int slotIndex = ui.slotCol + (ui.slotRow * 12);
+            ArrayList<Map.Entry<Items, Integer>> inventoryList = new ArrayList<>(playerModel.getInventory().getInventory().entrySet());
             if (slotIndex >= 0 && slotIndex < inventoryList.size()) {
                 Items selectedItem = inventoryList.get(slotIndex).getKey();
                 playerModel.setCurrentHeldItem(selectedItem);
-                System.out.println("Selected from inventory: " + selectedItem.getName());
             } else {
                 playerModel.setCurrentHeldItem(null);
-                System.out.println("Selected empty slot or out of bounds.");
             }
             gameState.setGameState(gameState.play);
+            resetMovementState();
         }
     }
-
-    // --- Teleportasi player antar map ---
+    public void selectHotbarItem(int slotIndex) {
+        if (farm == null || farm.getPlayerModel() == null) return;
+        Player playerModel = farm.getPlayerModel();
+        Inventory inventory = playerModel.getInventory();
+        ArrayList<Map.Entry<Items, Integer>> inventoryList = new ArrayList<>(inventory.getInventory().entrySet());
+        if (slotIndex >= 0 && slotIndex < inventoryList.size()) {
+            Items selectedItem = inventoryList.get(slotIndex).getKey();
+            playerModel.setCurrentHeldItem(selectedItem);
+        } else {
+            playerModel.setCurrentHeldItem(null); 
+        }
+    }
+    
+    
+    private void resetMovementState() {
+        movementState.put("up", false); movementState.put("down", false);
+        movementState.put("left", false); movementState.put("right", false);
+    }
     public void teleportPlayer(int mapIndex, int worldX, int worldY) {
-        if (farm != null && playerViewInstance != null && tileManager != null && assetSetter != null) {
+        int musicIdx = 0; // Default music
+        teleportPlayer(mapIndex, worldX, worldY, musicIdx);
+    }
+    public void teleportPlayer(int mapIndex, int worldX, int worldY, int musicIndex) {
+        if (farm != null && playerViewInstance != null && gamePanel != null && tileManager != null && aSetter != null) {
+            stopMusic();
             farm.setCurrentMap(mapIndex);
-            playerViewInstance.worldX = worldX;
-            playerViewInstance.worldY = worldY;
-            playerViewInstance.direction = "down";
+            playerViewInstance.worldX = worldX; playerViewInstance.worldY = worldY; playerViewInstance.direction = "down";
             tileManager.loadMap(farm.getMapPathFor(mapIndex), mapIndex);
-            farm.clearObjects(mapIndex);
-            if (mapIndex == 0) {
-                assetSetter.setInteractableObject();
-            }
-            System.out.println("Player diteleportasi ke map " + mapIndex + " di (" + worldX/getTileSize() + "," + worldY/getTileSize() + ")");
+            aSetter.setInteractableObject();
+            playMusic();
         }
     }
 
-    // --- Draw method untuk GamePanel ---
-    public void draw(Graphics2D g2) {
-        // Draw tile
-        tileManager.draw(g2, playerViewInstance, farm.getCurrentMap());
-        // Draw objects
-        InteractableObject[] objects = farm.getObjectsForCurrentMap();
-        if (objects != null) {
-            for (InteractableObject obj : objects) {
-                if (obj != null) obj.draw(g2, gamePanel, playerViewInstance);
-            }
+    public void passedOutSleep() {
+        gameState.setGameState(gameState.pause); 
+    
+        
+        Player playerModel = farm.getPlayerModel();
+        GameClock gameClock = farm.getGameClock();
+        int tileSize = getTileSize();
+        
+        gameClock.nextDay(farm.getPlayerStats());
+        playerModel.setEnergy(10); 
+        playerModel.setCurrentHeldItem(null);
+        if (farm.getCurrentMap() != 4) {
+            farm.setCurrentMap(4);
+            tileManager.loadMap(farm.getMapPathFor(4), 4);
+            aSetter.setInteractableObject();
         }
-        // Draw player
-        playerViewInstance.draw(g2, gamePanel);
 
-        // Draw UI
-        if (gameStateUI != null) {
-            gameStateUI.draw(g2, gameState, farm.getPlayerModel().getInventory());
+        playerViewInstance.worldX = 7 * tileSize;
+        playerViewInstance.worldY = 10 * tileSize;
+        playerViewInstance.direction = "down";
+   
+        System.out.println("Kamu terbangun keesokan paginya. Energimu hanya pulih sedikit.");
+        System.out.println("Hari baru telah dimulai: Hari ke-" + gameClock.getDay());
+        
+
+        
+        if (playerModel.isPassedOut()) {
+            playerModel.setPassedOut(false);
         }
+        if (playerModel.isForceSleepByTime()) {
+            playerModel.setForceSleepByTime(false);
+        }
+        
+  
+        gameState.setGameState(gameState.play);
     }
 
-    // --- Getters untuk komponen lain ---
-    public KeyHandler getKeyHandler() { return keyHandler; }
-    public GameState getGameState() { return gameState; }
-    public Farm getFarmModel() { return farm; }
-    public PlayerView getPlayerView() {
-        return playerViewInstance;
-    }
+    
 
-    public CollisionChecker getCollisionChecker() {
-        return collisionChecker;
+    public void activateSetTimeTo2AMCheat() {
+        if (farm == null || farm.getGameClock() == null || timeManager == null) {
+            System.out.println("CHEAT FAILED.");
+            return;
+        }
+    
+        GameClock gameClock = farm.getGameClock();
+        gameClock.setCurrentTime(java.time.LocalTime.of(1, 45));
+        
+        this.timeManager.notifyObservers(); 
+    
+;
     }
-
-    public GameStateUI getGameStateUI() {
-        return gameStateUI;
-    }
-
-    public TileManager getTileManager() { return tileManager; }
-    public int getTileSize() { return gamePanel != null ? gamePanel.tileSize : 48; }
+    
+    public Farm getFarmModel() { return this.farm; }
+    public GameState getGameState() { return this.gameState; }
+    public PlayerView getPlayerViewInstance() { return this.playerViewInstance; }
+    public int getTileSize() { return gamePanel != null ? gamePanel.tileSize : 32; }
     public int getMaxWorldCol() { return gamePanel != null ? gamePanel.maxWorldCol : 32; }
     public int getMaxWorldRow() { return gamePanel != null ? gamePanel.maxWorldRow : 32; }
-
-    public PlayerView getPlayerViewInstance() {
-    return this.playerViewInstance;
+    public TileManager getTileManager() { return this.tileManager; }
+    public GameStateUI getGameStateUI() { 
+        return gamePanel != null ? gamePanel.gameStateUI : null; 
+    }
+    public Farm getFarm() { 
+        return this.farm; 
     }
 }
