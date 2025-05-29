@@ -65,8 +65,9 @@ public class SleepingAction implements Action {
             System.out.println("Tidur nyenyak. Energi pulih sepenuhnya.");
         }
 
-
+        
         skipToMorning(farm);
+        controller.processEndOfDayEvents();
         int spawnX = 6 * tileSize;
         int spawnY = 10 * tileSize;
         playerView.worldX = spawnX;

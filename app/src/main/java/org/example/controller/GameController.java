@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.example.controller.action.PlantingAction;
 import org.example.controller.action.RecoverLandAction;
 import org.example.controller.action.TillingAction;
 import org.example.model.Farm;
@@ -14,9 +15,14 @@ import org.example.model.GameClock;
 import org.example.model.Inventory;
 import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
+import org.example.model.Items.Seeds;
+import org.example.model.Map.FarmMap;
+import org.example.model.Map.Plantedland;
 import org.example.model.Player;
 import org.example.model.Sound;
 import org.example.model.enums.LocationType;
+import org.example.model.enums.Season;
+import org.example.model.enums.Weather;
 import org.example.view.FishingPanel;
 import org.example.view.GamePanel;
 import org.example.view.GameStateUI;
@@ -25,8 +31,10 @@ import org.example.view.InteractableObject.MountainLakeObject;
 import org.example.view.InteractableObject.OceanObject;
 import org.example.view.InteractableObject.PondObject;
 import org.example.view.InteractableObject.RiverObject;
+import org.example.view.InteractableObject.UnplantedTileObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
+import org.example.model.Map.Tile;
 
 public class GameController implements Runnable {
 
@@ -221,12 +229,24 @@ public class GameController implements Runnable {
                 } else {
                     System.out.println("Tidak bisa mencangkul di sini");
                 }
-            } else if (heldItem != null && heldItem.getName().equalsIgnoreCase("Pickaxe")) {
+            } else if (heldItem.getName().equalsIgnoreCase("Pickaxe")) {
                 RecoverLandAction recoverAction = new RecoverLandAction(this, targetCol, targetRow);
                 if (recoverAction.canExecute(farm)) {
                     recoverAction.execute(farm);
                 } else {
                     System.out.println("Tidak bisa mengembalikan tanah ini lagi");
+                }
+            } else if (heldItem instanceof Seeds) { 
+                Seeds seedBeingHeld = (Seeds) heldItem;
+                InteractableObject objectAtTargetTile = farm.getObjectAtTile(currentMap, targetCol, targetRow, tileSize);
+                if (objectAtTargetTile instanceof UnplantedTileObject) { 
+                    PlantingAction plantingAction = new PlantingAction(this, seedBeingHeld, targetCol, targetRow);
+                    if (plantingAction.canExecute(farm)) {
+                        plantingAction.execute(farm);
+                
+                    } else {
+                        System.out.println("PlantingAction tidak bisa dieksekusi.");
+                    }
                 }
             }
         } else {
@@ -348,7 +368,9 @@ public class GameController implements Runnable {
         GameClock gameClock = farm.getGameClock();
         int tileSize = getTileSize();
         
+
         gameClock.nextDay(farm.getPlayerStats());
+        processEndOfDayEvents();
         playerModel.setEnergy(10); 
         playerModel.setCurrentHeldItem(null);
         if (farm.getCurrentMap() != 4) {
@@ -462,6 +484,33 @@ public class GameController implements Runnable {
             return true;
         }
         return false;
+    }
+    public void processEndOfDayEvents() {
+        FarmMap farmMap = farm.getFarmMap();
+        if (farmMap == null || farm.getGameClock() == null) {
+            System.err.println("GameController: FarmMap atau GameClock null, tidak bisa proses pertumbuhan tanaman.");
+            return;
+        }
+
+        Season newDaySeason = farm.getGameClock().getCurrentSeason();
+        Weather newDayWeather = farm.getGameClock().getTodayWeather();
+
+        
+        // Asumsi FarmMap memiliki getSize() atau getWidth()/getHeight()
+        for (int y = 0; y < farmMap.getSize(); y++) { 
+            for (int x = 0; x < farmMap.getSize(); x++) {
+                Tile currentTile = farmMap.getTile(x, y);
+                if (currentTile instanceof Plantedland) {
+                    Plantedland plant = (Plantedland) currentTile;
+                    
+
+                    plant.dailyGrow(newDaySeason, newDayWeather);
+
+                   
+                }
+            }
+        }
+        System.out.println("===== END OF PLANT GROWTH PROCESSING =====\n");
     }
 
     

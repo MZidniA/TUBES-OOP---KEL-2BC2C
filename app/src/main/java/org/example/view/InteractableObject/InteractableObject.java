@@ -60,7 +60,7 @@ public abstract class InteractableObject {
             screenY > -gp.tileSize && screenY < gp.screenHeight) {
             
             if (image != null) {
-                g2.drawImage(image, screenX, screenY, null);
+                g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
             }
         }
     }

@@ -1,151 +1,109 @@
-// Lokasi: src/main/java/org/example/model/Map/Plantedland.java
-package org.example.model.Map; // Pastikan package ini benar
-
-import java.util.List;
+package org.example.model.Map;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import org.example.controller.action.Action;
 import org.example.model.Player;
-import org.example.model.Items.Crops;
-import org.example.model.Items.ItemDatabase; // Diperlukan untuk generateYield
-import org.example.model.Items.Seeds;    // Kelas Seeds yang sudah kita diskusikan
-import org.example.model.enums.Season;     // Enum Season
+import org.example.model.Items.Seeds;
+import org.example.model.enums.Season;
+import org.example.model.enums.Weather; 
 
-public class Plantedland extends Tile { // Nama kelas Anda Plantedland (huruf kecil 'l')
+public class Plantedland extends Tile {
     private Seeds plantedSeed;
     private int daysSincePlanted;
     private boolean wateredToday;
-    private int currentGrowthStage; // 0 = bibit, ..., N = siap panen
+    private int currentGrowthStage;
     private boolean isDead;
+    private int daysSinceLastWatering; 
 
     public Plantedland(int x, int y, Seeds seed) {
-        super(x, y, true, 's'); // Simbol awal 's' untuk seedling
-        if (seed == null) {
-            throw new IllegalArgumentException("Cannot initialize Plantedland: seed cannot be null.");
+        super(x, y, true, 's'); 
+        if (seed == null) { 
+            throw new IllegalArgumentException("Seed cannot be null");
         }
         this.plantedSeed = seed;
         this.daysSincePlanted = 0;
-        this.wateredToday = false;
-        this.currentGrowthStage = 0; // Baru ditanam
+        this.wateredToday = false; 
+        this.currentGrowthStage = 0;
         this.isDead = false;
-        // System.out.println("Planted " + seed.getName() + " at (" + x + "," + y + ")");
+        this.daysSinceLastWatering = 0; 
     }
 
-    // Getter
-    public Seeds getPlantedSeed() { return plantedSeed; }
+
     public boolean isWateredToday() { return wateredToday; }
+    public Seeds getPlantedSeed() { return plantedSeed; }
     public boolean isDead() { return isDead; }
     public int getCurrentGrowthStage() { return currentGrowthStage; }
+    public int getDaysSincePlanted() { return daysSincePlanted; }
+    public int getDaysSinceLastWatering() { return daysSinceLastWatering; }
+
 
     public void setWatered(boolean watered) {
         this.wateredToday = watered;
+        if (watered) {
+            this.daysSinceLastWatering = 0; 
+        }
     }
 
-    /**
-     * Dipanggil setiap akhir hari untuk memproses pertumbuhan tanaman.
-     * @param currentSeason Musim saat ini.
-     */
-    public void dailyGrow(Season currentSeason) {
+  
+    public void dailyGrow(Season currentSeason, Weather currentWeather) { // Tambahkan parameter Weather
         if (isDead || plantedSeed == null) {
             return;
         }
 
-        if (!plantedSeed.canPlantInSeason(currentSeason)) {
+        if (!plantedSeed.isPlantableInSeason(currentSeason)) {
             this.isDead = true;
-            // System.out.println(plantedSeed.getName() + " at (" + getX() + "," + getY() + ") died (out of season).");
-            updateSymbolByGrowth();
-            return;
+            System.out.println(plantedSeed.getName() + " di (" + getX() + "," + getY() + ") mati (di luar musim).");
+            return; 
         }
 
         boolean canGrowToday = true;
-        
+
+        if (currentWeather == Weather.SUNNY) {
+            if (!wateredToday) {
+                daysSinceLastWatering++;
+                System.out.println("Tanaman di ("+getX()+","+getY()+") tidak disiram hari ini (Sunny). daysSinceLastWatering: " + daysSinceLastWatering);
+            }
+            if (daysSinceLastWatering >= 2) {
+                canGrowToday = false;
+                System.out.println(plantedSeed.getName() + " di (" + getX() + "," + getY() + ") tidak tumbuh (kurang air - Sunny).");
+            }
+        } else if (currentWeather == Weather.RAINY) {
+
+            this.daysSinceLastWatering = 0;
+            this.wateredToday = true; // Anggap disiram oleh hujan
+            System.out.println("Tanaman di ("+getX()+","+getY()+") tersiram oleh hujan.");
+        }
+
 
         if (canGrowToday && !isHarvestable()) {
             daysSincePlanted++;
-            updateGrowthStage();
-            // System.out.println(plantedSeed.getName() + " at ("+getX()+","+getY()+") grew. Days: " + daysSincePlanted + ", Stage: " + currentGrowthStage);
+            updateGrowthStage(); 
+            System.out.println(plantedSeed.getName() + " di ("+getX()+","+getY()+") tumbuh. Total hari: " + daysSincePlanted + ", Stage: " + currentGrowthStage);
         }
-        wateredToday = false; // Reset untuk hari berikutnya
-        updateSymbolByGrowth();
+        
+        this.wateredToday = false;
     }
 
     private void updateGrowthStage() {
         if (plantedSeed == null || isDead) return;
-
         int totalDaysToGrow = plantedSeed.getDaysToHarvest();
-        if (totalDaysToGrow <= 0) { // Bibit yang tidak tumbuh atau siap instan
-            this.currentGrowthStage = isHarvestable() ? 4 : 0; // Asumsi 4 stage visual, 4 = siap panen
+        if (totalDaysToGrow <= 0) {
+            this.currentGrowthStage = (daysSincePlanted >= totalDaysToGrow) ? 4 : 0; 
             return;
         }
-
         double progress = (double) daysSincePlanted / totalDaysToGrow;
-        // Contoh pembagian menjadi 4 tahap visual sebelum siap panen (total 5 stage termasuk bibit)
-        // Stage 0: 0% (bibit)
-        // Stage 1: >0% - 33%
-        // Stage 2: >33% - 66%
-        // Stage 3: >66% - <100%
-        // Stage 4: 100% (siap panen)
-        if (progress >= 1.0) {
-            this.currentGrowthStage = 4; // Siap panen
-        } else if (progress > 0.66) {
-            this.currentGrowthStage = 3;
-        } else if (progress > 0.33) {
-            this.currentGrowthStage = 2;
-        } else if (progress > 0) { // Sudah melewati tahap bibit awal
-            this.currentGrowthStage = 1;
-        } else {
-            this.currentGrowthStage = 0; // Baru ditanam (seedling)
-        }
+        if (progress >= 1.0) this.currentGrowthStage = 4;
+        else if (progress > 0.66) this.currentGrowthStage = 3;
+        else if (progress > 0.33) this.currentGrowthStage = 2;
+        else if (progress > 0) this.currentGrowthStage = 1;
+        else this.currentGrowthStage = 0;
     }
-
 
     public boolean isHarvestable() {
-        if (isDead || plantedSeed == null) {
-            return false;
-        }
-        return daysSincePlanted >= plantedSeed.getDaysToHarvest();
-    }
-
-    /**
-     * Memanen tanaman dari tile ini.
-     * @param itemDb Referensi ke ItemDatabase untuk membuat objek Crops yang benar.
-     * @return Objek Crops hasil panen, atau null jika tidak ada yang bisa dipanen/error.
-     */
-    // public Crops harvest(ItemDatabase itemDb) {
-    //     if (isHarvestable() && plantedSeed != null) {
-    //         // Menggunakan ItemDatabase untuk mendapatkan Crops berdasarkan nama hasil panen dari seed
-    //         Crops cropYield = itemDb.createCropFromSeed(plantedSeed);
-    //         // Reset state tanaman di tile ini tidak dilakukan di sini, tapi oleh FarmMap
-    //         return cropYield;
-    //     }
-    //     return null;
-    // }
-
-    // Override getSymbol untuk merepresentasikan tahap pertumbuhan secara visual
-    @Override
-    public char getSymbol() {
-        if (isDead) return 'x'; // Tanaman mati
-        if (plantedSeed == null) return '?'; // Error state
-
-        if (isHarvestable()) return 'H'; // Siap Panen
-
-        // Simbol berdasarkan tahap pertumbuhan (contoh)
-        switch (currentGrowthStage) {
-            case 0: return 's'; // Seedling (bibit kecil)
-            case 1: return 'v'; // Vegetative small (tumbuh kecil)
-            case 2: return 'V'; // Vegetative medium (tumbuh sedang)
-            case 3: return 'F'; // Fruiting/Flowering (hampir siap)
-            default: return 'l'; // Simbol default jika tidak ada stage lain
-        }
-    }
-
-    // Panggil ini setelah setiap dailyGrow atau perubahan state signifikan
-    public void updateSymbolByGrowth() {
-        // Method ini bisa dipanggil dari dailyGrow untuk setSymbol(),
-        // atau biarkan getSymbol() yang selalu menghitungnya.
-        // Untuk efisiensi, lebih baik setSymbol() saat state berubah.
-        // Namun, getSymbol() dinamis lebih mudah dikelola.
-        // Untuk saat ini, kita biarkan getSymbol() yang menentukannya.
+        if (isDead || plantedSeed == null) return false;
+        return daysSincePlanted >= plantedSeed.getDaysToHarvest() && currentGrowthStage == 4; 
     }
 
     @Override
