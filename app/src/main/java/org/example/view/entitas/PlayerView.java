@@ -10,48 +10,43 @@ import javax.imageio.ImageIO;
 
 import org.example.controller.CollisionChecker;
 import org.example.controller.UtilityTool;
-import org.example.model.Player; // Player model
+import org.example.model.Player; 
 import org.example.model.Items.Items;
-import org.example.view.GamePanel; // Untuk konstanta seperti tileSize dan screenWidth/Height
+import org.example.view.GamePanel; 
 
 public class PlayerView extends Entity {
-    private final Player playerModel; // Referensi ke data player
-
-    // Posisi pemain di layar (selalu di tengah)
-    // GamePanel gp diperlukan di sini untuk mendapatkan dimensi layar dan tileSize
-    // Ini adalah bagian dari View, jadi wajar jika PlayerView tahu tentang GamePanel
-    // tempat ia akan digambar.
+    private final Player playerModel; 
     public final int screenX;
     public final int screenY;
     GamePanel gp;
 
-    public PlayerView(Player playerModel, GamePanel gp) { // Tambahkan GamePanel di konstruktor
+    public PlayerView(Player playerModel, GamePanel gp) { 
         this.playerModel = playerModel;
 
-        // Menggunakan gp untuk setup screenX dan screenY
+
         this.screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
         this.screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
         
-        this.solidArea = new Rectangle(8, 16, 24, 24); // Sesuaikan jika tileSize Anda bukan 48
+        this.solidArea = new Rectangle(8, 16, 24, 24); 
         this.solidAreaDefaultX = solidArea.x;
         this.solidAreaDefaultY = solidArea.y;
         
-        setDefaultValues(gp.tileSize); // Kirim tileSize ke setDefaultValues
-        getPlayerImage(gp.tileSize); // Kirim tileSize untuk scaling
+        setDefaultValues(gp.tileSize); 
+        getPlayerImage(gp.tileSize); 
     }
 
     public GamePanel getGamePanel(){
         return  this.gp;
     }
 
-    public void setDefaultValues(int tileSize) { // Terima tileSize
+    public void setDefaultValues(int tileSize) { 
         worldX = 4 * tileSize; 
         worldY = 9 * tileSize;
         speed = 4;
         direction = "down";
     }
     
-    public void getPlayerImage(int tileSize) { // Terima tileSize
+    public void getPlayerImage(int tileSize) { 
         up1 = setup("/player/boy_up_1", tileSize);
         up2 = setup("/player/boy_up_2", tileSize);
         down1 = setup("/player/boy_down_1", tileSize);
@@ -62,7 +57,7 @@ public class PlayerView extends Entity {
         right2 = setup("/player/boy_right_2", tileSize);
     }
 
-    private BufferedImage setup(String imagePath, int tileSize) { // Terima tileSize
+    private BufferedImage setup(String imagePath, int tileSize) { 
         UtilityTool uTool = new UtilityTool();
         BufferedImage image = null;
         try {
@@ -92,7 +87,6 @@ public class PlayerView extends Entity {
 
             collisionOn = false;
             cChecker.checkTile(this);
-            // Pemanggilan checkObject sekarang lebih sederhana sesuai dengan CollisionChecker yang sudah diperbaiki
             cChecker.checkObject(this); 
 
             if (!collisionOn) {
@@ -105,13 +99,12 @@ public class PlayerView extends Entity {
             }
 
             spriteCounter++;
-            if (spriteCounter > 12) { // Atur kecepatan animasi
+            if (spriteCounter > 12) { 
                 spriteNum = (spriteNum == 1) ? 2 : 1;
                 spriteCounter = 0;
             }
         } else {
-            // Reset ke sprite default jika tidak bergerak, atau biarkan frame terakhir
-             spriteNum = 1; // Opsi: kembali ke frame pertama saat diam
+             spriteNum = 1; 
         }
     }
 
@@ -130,46 +123,38 @@ public class PlayerView extends Entity {
             case "right":
                 image = (spriteNum == 1) ? right1 : right2;
                 break;
-            default: // Gambar default jika arah tidak diketahui (seharusnya tidak terjadi)
+            default: 
                 image = down1; 
                 break;
         }
         
-        // screenX dan screenY sudah final dan dihitung di konstruktor PlayerView
+
         if (image != null) {
             g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
         } else {
-            // Fallback jika gambar null (misalnya, error loading)
-            g2.setColor(java.awt.Color.MAGENTA); // Warna placeholder
-            g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
-            System.err.println("PlayerView.draw(): Gambar untuk arah " + direction + " adalah null.");
+            System.err.println(" Gambar untuk arah " + direction + " adalah null.");
         }
 
         Items heldItem = playerModel.getCurrentHeldItem();
         if (heldItem != null && heldItem.getImage() != null) {
-            BufferedImage itemImage = heldItem.getImage(); // Gambar ini HARUSNYA sudah di-scale ke ukuran ikon standar (misal 32x32) oleh Equipment.loadImage()
-            
-            // Tentukan ukuran tampilan item di tangan (mungkin lebih kecil dari tileSize pemain)
-            int itemDisplaySize = gp.tileSize / 2; // Contoh: separuh ukuran tile pemain
+            BufferedImage itemImage = heldItem.getImage(); 
+            int itemDisplaySize = gp.tileSize / 2; 
 
 
-            // Tentukan posisi item relatif terhadap pemain (PERLU EKSPERIMEN BANYAK!)
-            // Nilai offset ini sangat bergantung pada sprite pemain Anda dan bagaimana Anda ingin item terlihat.
             int itemDrawX = screenX;
             int itemDrawY = screenY;
 
-            // Contoh offset sederhana:
             if ("down".equals(direction)) {
-                itemDrawX = screenX + (gp.tileSize / 3); // Agak ke tengah
-                itemDrawY = screenY + (gp.tileSize / 2); // Di depan, sedikit ke bawah
+                itemDrawX = screenX + (gp.tileSize / 3); 
+                itemDrawY = screenY + (gp.tileSize / 2); 
             } else if ("up".equals(direction)) {
-                itemDrawX = screenX + (gp.tileSize / 3); // Agak ke tengah
-                itemDrawY = screenY + (gp.tileSize / 4) - itemDisplaySize; // Di depan, sedikit ke atas
+                itemDrawX = screenX + (gp.tileSize / 3); 
+                itemDrawY = screenY + (gp.tileSize / 4) - itemDisplaySize; 
             } else if ("left".equals(direction)) {
-                itemDrawX = screenX - (itemDisplaySize / 2) + (gp.tileSize / 4); // Di sisi kiri
+                itemDrawX = screenX - (itemDisplaySize / 2) + (gp.tileSize / 4); 
                 itemDrawY = screenY + (gp.tileSize / 2);
             } else if ("right".equals(direction)) {
-                itemDrawX = screenX + (gp.tileSize / 2) ; // Di sisi kanan
+                itemDrawX = screenX + (gp.tileSize / 2) ; 
                 itemDrawY = screenY + (gp.tileSize / 2);
             }
             
@@ -177,9 +162,7 @@ public class PlayerView extends Entity {
         }
     }
 
-    // Tambahkan getter untuk Player model jika diperlukan oleh bagian lain (misal, GamePanel untuk UI Inventory)
-    // Namun, dalam MVC yang ketat, GamePanel akan meminta data ke GameController,
-    // yang kemudian mengambil dari Farm model, yang memiliki Player model.
+
     public Player getPlayerModel() {
         return playerModel;
     }
