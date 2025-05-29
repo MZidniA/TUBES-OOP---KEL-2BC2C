@@ -12,7 +12,6 @@ public class Equipment extends Items {
         loadImage(); // Panggil loadImage() di sini untuk memuat gambar saat objek dibuat
     }
 
-    @Override
     public void loadImage() {
         String path = null;
         switch (getName().toLowerCase()) {

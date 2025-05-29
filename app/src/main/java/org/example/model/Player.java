@@ -21,7 +21,6 @@ public class Player {
     private Inventory inventory;
     private LocationType currentLocationType;// Ganti nama agar lebih jelas
     private Items currentHeldItem;// Ganti nama agar lebih jelas
-    private PlayerStats playerStats; // Tambahkan field untuk PlayerStats
 
     // Tambahkan field posisi tile player
     private int tileX = 0;
@@ -159,13 +158,5 @@ public class Player {
         } else {
             System.out.println("Hands are empty.");
         }
-    }
-
-    public PlayerStats getPlayerStats() {
-        return playerStats;
-    }
-
-    public void setPlayerStats(PlayerStats playerStats) {
-        this.playerStats = playerStats;
     }
 }

@@ -1,24 +1,20 @@
-// Lokasi: org.example.controller.GameState.java
 package org.example.controller;
 
 public class GameState {
-    public static final int PLAY = 1;
-    public static final int PAUSE = 2;
-    public static final int INVENTORY = 3;
-    public static final int COOKING_MENU = 4;
-
-
-    private int currentGameState; 
+    public int gamestate;
+    public final int play = 1;
+    public final int pause = 2;
+    public final int inventory = 3;
 
     public GameState() {
-        this.currentGameState = PLAY; 
+        this.gamestate = play;
     }
 
     public void setGameState(int state) {
-        this.currentGameState = state;
+        this.gamestate = state;
     }
 
     public int getGameState() {
-        return this.currentGameState;
+        return this.gamestate;
     }
 }

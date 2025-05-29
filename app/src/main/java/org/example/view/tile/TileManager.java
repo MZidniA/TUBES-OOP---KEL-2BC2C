@@ -5,13 +5,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
 import javax.imageio.ImageIO;
+
 import org.example.controller.UtilityTool;
 import org.example.view.GamePanel;
 import org.example.view.entitas.PlayerView;
 
-// Assuming Tile.java exists:
-// package org.example.view.tile; // Or appropriate package
+
+
+// Asumsi ada file Tile.java di package yang sama atau di-import
+// package org.example.controller;
 // import java.awt.image.BufferedImage;
 // public class Tile {
 //     public BufferedImage image;
@@ -19,33 +23,30 @@ import org.example.view.entitas.PlayerView;
 // }
 
 public class TileManager {
-    private final GamePanel gp; // Marked as final
-    public Tile[] tile; // Public for now, consider getter if encapsulation is strict
-    public int[][][] mapTileNum; // mapIndex, col, row. Public for now.
-
-    // It's good practice for maxMap to be defined or passed, not hardcoded '6' if it can vary.
-    // For now, we assume 6 is fixed based on initialization.
-    private static final int MAX_MAP_SUPPORTED = 6;
+    GamePanel gp;
+    public Tile[] tile;
+    public int[][][] mapTileNum;
 
 
-    public TileManager(GamePanel gp) {
+    public TileManager(org.example.view.GamePanel gp) {
         this.gp = gp;
-        this.tile = new Tile[850]; // Ensure this size is sufficient for all tile IDs
-        // Initialize mapTileNum based on dimensions from GamePanel and known max maps
-        this.mapTileNum = new int[MAX_MAP_SUPPORTED][gp.maxWorldCol][gp.maxWorldRow];
-
+        tile = new Tile[850];
+        // Inisialisasi mapTileNum berdasarkan dimensi dari GamePanel
+        mapTileNum = new int[6][gp.maxWorldCol][gp.maxWorldRow];
+// Nilai maxMap diambil dari gp
         getTileImage();
-        // Load all maps at initialization. Consider lazy loading if startup time is an issue.
+        // Memuat semua peta saat inisialisasi
         loadMap("/maps/map.txt", 0);
         loadMap("/maps/beachmap.txt", 1);
-        loadMap("/maps/rivermap.txt", 2);
-        loadMap("/maps/townmap.txt", 3);
+        loadMap("/maps/rivermap.txt", 2); // Mengganti rivermap dengan forest.txt sesuai GamePanel
+        loadMap("/maps/townmap.txt", 3);   // Mengganti townmap dengan lake.txt
         loadMap("/maps/housemap.txt", 4);
-        // If there's a 6th map (index 5), load it here.
     }
 
-    // This method is extremely long. For large tile sets, consider defining tile properties
-    // (image name, collision) in an external file (e.g., JSON, XML, CSV) and loading them programmatically.
+    public TileManager getTileManager() {
+        return gp.tileM;
+    }
+   
     public void getTileImage() {
         // Farm Map
         setup(0, "RumputSummer", false);
@@ -634,149 +635,98 @@ public class TileManager {
     }
 
     public void setup(int index, String imageName, boolean collision) {
-        if (index < 0 || index >= tile.length) {
-            System.err.println("Error setting up tile: Index " + index + " is out of bounds for tile array (size " + tile.length + "). Image: " + imageName);
-            return;
-        }
         UtilityTool uTool = new UtilityTool();
-        try (InputStream is = getClass().getResourceAsStream("/tiles/" + imageName + ".png")) {
-            if (is == null) {
-                System.err.println("Error loading tile image: /tiles/" + imageName + ".png not found for index " + index);
-                // Optionally, set a default "missing" tile image
-                // tile[index] = new Tile();
-                // tile[index].image = missingTextureImage; // A pre-loaded placeholder
-                // tile[index].collision = true; // Or false, depending on desired behavior
-                return;
-            }
+        try {
             tile[index] = new Tile();
-            tile[index].image = ImageIO.read(is);
+            tile[index].image = ImageIO.read(getClass().getResourceAsStream("/tiles/" + imageName + ".png"));
+            // Menggunakan gp.tileSize yang disimpan saat konstruksi
             tile[index].image = uTool.scaleImage(tile[index].image, gp.tileSize, gp.tileSize);
             tile[index].collision = collision;
         } catch (IOException e) {
-            System.err.println("IOException for tile: " + imageName + " at index " + index);
             e.printStackTrace();
-        } catch (Exception e) { // Catch any other unexpected errors during setup
-            System.err.println("General error setting up tile: " + imageName + " at index " + index);
+        } catch (Exception e) {
+            System.err.println("Error setting up tile: " + imageName + ". Make sure the image exists.");
             e.printStackTrace();
         }
     }
 
-    public void loadMap(String filePath, int mapIndex) {
-        if (mapIndex < 0 || mapIndex >= MAX_MAP_SUPPORTED) {
-            System.err.println("Error loading map: Map index " + mapIndex + " is out of bounds.");
-            return;
-        }
-        try (InputStream is = getClass().getResourceAsStream(filePath);
-             BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-
-            if (is == null) {
-                System.err.println("Error loading map file: " + filePath + " not found.");
-                return;
-            }
+    public void loadMap(String filePath, int map) {
+        try {
+            InputStream is = getClass().getResourceAsStream(filePath);
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
             int row = 0;
-            String line;
-            while ((line = br.readLine()) != null && row < gp.maxWorldRow) {
-                String[] numbers = line.trim().split("\\s+"); // Trim whitespace and split
+            // Menggunakan gp.maxWorldRow & gp.maxWorldCol yang disimpan saat konstruksi
+            while (row < gp.maxWorldRow) {
+                String line = br.readLine();
+                if (line == null) break;
+
+                String[] numbers = line.split("\\s+");
                 for (int col = 0; col < gp.maxWorldCol; col++) {
                     if (col < numbers.length) {
-                        try {
-                            int num = Integer.parseInt(numbers[col]);
-                            if (num < 0 || num >= tile.length || tile[num] == null) { // Check if tile ID is valid and loaded
-                                // System.err.println("Warning: Map " + filePath + " refers to unloaded/invalid tile ID " + num + " at (" + col + "," + row + "). Using tile 0.");
-                                mapTileNum[mapIndex][col][row] = 0; // Default to a safe tile (e.g., grass)
-                            } else {
-                                mapTileNum[mapIndex][col][row] = num;
-                            }
-                        } catch (NumberFormatException e) {
-                            System.err.println("Error parsing tile number in map " + filePath + " at (" + col + "," + row + "). Value: " + numbers[col]);
-                            mapTileNum[mapIndex][col][row] = 0; // Default on error
-                        }
-                    } else {
-                        mapTileNum[mapIndex][col][row] = 0; // Default for missing columns in map file line
+                        int num = Integer.parseInt(numbers[col]);
+                        mapTileNum[map][col][row] = num;
                     }
                 }
                 row++;
             }
-        } catch (IOException e) {
-            System.err.println("IOException loading map: " + filePath);
-            e.printStackTrace();
+            br.close();
         } catch (Exception e) {
-            System.err.println("General error loading map: " + filePath);
+            System.err.println("Error loading map: " + filePath);
             e.printStackTrace();
         }
     }
 
-    public void draw(Graphics2D g2, PlayerView playerView, int currentMapIndex) {
-        if (gp == null || playerView == null || currentMapIndex < 0 || currentMapIndex >= MAX_MAP_SUPPORTED) {
-             //System.err.println("TileManager.draw: Invalid parameters or map index.");
-            return;
-        }
-
+    public void draw(Graphics2D g2, PlayerView playerView, int currentMap) {
+        if (gp == null || playerView == null) return;
+    
         int worldWidth = gp.maxWorldCol * gp.tileSize;
         int worldHeight = gp.maxWorldRow * gp.tileSize;
-
-        // Camera centered on player
+    
+        // 1. Hitung posisi kamera yang berpusat pada pemain
         double cameraX = playerView.worldX - (gp.screenWidth / 2.0);
         double cameraY = playerView.worldY - (gp.screenHeight / 2.0);
-
-        // Clamp camera to map boundaries
+    
+        // 2. Clamp (jepit) kamera agar tidak menampilkan area di luar peta
         cameraX = Math.max(0, Math.min(cameraX, worldWidth - gp.screenWidth));
         cameraY = Math.max(0, Math.min(cameraY, worldHeight - gp.screenHeight));
+        
+        // 3. Gunakan NESTED FOR LOOP untuk menggambar semua tile
+        // Ini adalah cara yang lebih aman dan mudah dibaca daripada while loop tunggal.
+        for (int worldRow = 0; worldRow < gp.maxWorldRow; worldRow++) {
+            for (int worldCol = 0; worldCol < gp.maxWorldCol; worldCol++) {
+                
+                int tileNum = mapTileNum[currentMap][worldCol][worldRow];
+                
 
-        // Determine which tiles to render based on camera position (tile culling)
-        int startCol = (int) (cameraX / gp.tileSize);
-        int endCol = Math.min(gp.maxWorldCol, (int) ((cameraX + gp.screenWidth) / gp.tileSize) + 1);
-        int startRow = (int) (cameraY / gp.tileSize);
-        int endRow = Math.min(gp.maxWorldRow, (int) ((cameraY + gp.screenHeight) / gp.tileSize) + 1);
-
-
-        for (int worldRow = startRow; worldRow < endRow; worldRow++) {
-            for (int worldCol = startCol; worldCol < endCol; worldCol++) {
-                int tileNum = mapTileNum[currentMapIndex][worldCol][worldRow];
-
-                // Ensure tile and its image are valid before drawing
-                if (tileNum >= 0 && tileNum < tile.length && tile[tileNum] != null && tile[tileNum].image != null) {
-                    int screenX = (int) (worldCol * gp.tileSize - cameraX);
-                    int screenY = (int) (worldRow * gp.tileSize - cameraY);
+                if (tileNum >= tile.length || tile[tileNum] == null || tile[tileNum].image == null) {
+                    continue; 
+                }
+    
+                int worldX = worldCol * gp.tileSize;
+                int worldY = worldRow * gp.tileSize;
+                
+                // Hitung posisi tile di layar relatif terhadap kamera
+                int screenX = (int) (worldX - cameraX);
+                int screenY = (int) (worldY - cameraY);
+    
+                // Culling: Hanya gambar tile yang terlihat di layar untuk efisiensi
+                if (screenX > -gp.tileSize && screenX < gp.screenWidth && 
+                    screenY > -gp.tileSize && screenY < gp.screenHeight) {
+                    
                     g2.drawImage(tile[tileNum].image, screenX, screenY, null);
-                } else {
-                    // Optionally draw a placeholder for missing/invalid tiles if visual debugging is needed
-                    // g2.setColor(Color.MAGENTA);
-                    // g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
                 }
             }
         }
     }
 
-    /**
-     * Sets a tile at the specified map, column, and row to a new tile ID.
-     * Used for dynamic map changes like tilling soil.
-     * @param map The map index.
-     * @param col The column index.
-     * @param row The row index.
-     * @param newTileID The new tile ID to set.
-     * @return true if the tile was set successfully, false otherwise (e.g., out of bounds).
-     */
     public boolean setTile(int map, int col, int row, int newTileID) {
-        if (map >= 0 && map < MAX_MAP_SUPPORTED &&
+        if (map >= 0 && map < gp.maxMap &&
             col >= 0 && col < gp.maxWorldCol &&
             row >= 0 && row < gp.maxWorldRow) {
-            if (newTileID < 0 || newTileID >= tile.length || tile[newTileID] == null) {
-                System.err.println("Cannot set tile: New tile ID " + newTileID + " is invalid or not loaded.");
-                return false;
-            }
             mapTileNum[map][col][row] = newTileID;
             return true;
         }
-        System.err.println("Cannot set tile: Position (" + col + "," + row + ") on map " + map + " is out of bounds.");
         return false;
-    }
-
-    public Tile getTile(int tileID) {
-        if (tileID >= 0 && tileID < tile.length && tile[tileID] != null) {
-            return tile[tileID];
-        }
-        return null; // Or a default "error" tile
     }
 }
