@@ -286,4 +286,9 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
         g2.setColor(lightYellow);
         g2.drawString(text, x, y);
     }
+
+    public void setDialogue(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setDialogue'");
+    }
 }

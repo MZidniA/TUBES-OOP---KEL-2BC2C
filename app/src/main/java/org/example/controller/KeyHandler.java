@@ -39,6 +39,7 @@ public class KeyHandler implements KeyListener {
                 gameController.confirmPauseUISelection();
             }
         } else if (currentGameState.getGameState() == currentGameState.inventory) {
+<<<<<<< Updated upstream
             if (code == KeyEvent.VK_ESCAPE || code == KeyEvent.VK_I) {
                 gameController.toggleInventory();
             } else if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
@@ -52,7 +53,18 @@ public class KeyHandler implements KeyListener {
             } else if (code == KeyEvent.VK_ENTER) {
                 gameController.confirmInventoryUISelection();
             }
+=======
+            if (code == KeyEvent.VK_ESCAPE || code == KeyEvent.VK_I) gameController.toggleInventory();
+            else if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) gameController.navigateInventoryUI("up");
+            else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) gameController.navigateInventoryUI("down");
+            else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) gameController.navigateInventoryUI("left");
+            else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) gameController.navigateInventoryUI("right");
+            else if (code == KeyEvent.VK_ENTER) gameController.confirmInventoryUISelection();
+        } else if (currentGameState.getGameState() == currentGameState.COOKING_MENU){
+            handleCookingMenuInput(code);
+>>>>>>> Stashed changes
         }
+        
     }
 
     @Override

@@ -1,7 +1,10 @@
 package org.example.model;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.example.model.Items.Food;
 import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
 
@@ -63,5 +66,28 @@ public class Inventory {
             }
         }
         return 0;
+    }
+
+    public List<Items> removeAnyFish(int requiredQuantity) {
+        List<Items> removedFish = new ArrayList<>();
+        int removed = 0;
+        // Buat salinan agar tidak ConcurrentModificationException
+        for (Map.Entry<Items, Integer> entry : new HashMap<>(inventory).entrySet()) {
+            Items item = entry.getKey();
+            // Pastikan instanceof Food dan punya method isFish()
+            if (item instanceof Food && ((Food) item).isFish()) {
+                int available = entry.getValue();
+                int toRemove = Math.min(requiredQuantity - removed, available);
+                // Tambahkan ke list hasil
+                for (int i = 0; i < toRemove; i++) {
+                    removedFish.add(item);
+                }
+                // Kurangi dari inventory
+                removeInventory(item, toRemove);
+                removed += toRemove;
+                if (removed >= requiredQuantity) break;
+            }
+        }
+        return removedFish;
     }
 }

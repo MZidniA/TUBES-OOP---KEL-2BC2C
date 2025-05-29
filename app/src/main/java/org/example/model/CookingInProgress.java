@@ -43,4 +43,9 @@ public class CookingInProgress {
     public void setClaimed(boolean claimed) {
         isClaimed = claimed;
     }
+
+    public boolean isReadyToClaim(LocalTime currentTime) {
+        return isCompleted(currentTime) && !isClaimed;
+    }
+
 }
