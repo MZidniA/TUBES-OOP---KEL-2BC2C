@@ -1,5 +1,7 @@
 package org.example.model.Items;
 import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 public abstract class Items {
     private String name;
@@ -36,16 +38,16 @@ public abstract class Items {
     public void setBuyprice(int buyprice) {
         this.buyprice = buyprice;
     }
-    protected void loadImage() {
-        this.image = null;
-    }
+
+    public abstract void loadImage();
 
     public BufferedImage getImage() {
         return image;
     }
 
-
     public String toString() {
         return getName();
     }
+
+
 }

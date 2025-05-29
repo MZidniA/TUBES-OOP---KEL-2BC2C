@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import org.example.model.Items.Fish;
 import org.example.model.Items.Food;
 import org.example.model.Items.Items;
 
@@ -90,5 +91,52 @@ public class Recipe {
     @Override
     public int hashCode() { return Objects.hash(id); }
     // Removed duplicate toString() method to resolve the error.
+
+    public boolean canCraft(Inventory playerInventory) {
+        if (playerInventory == null) {
+            System.err.println("Recipe.canCraft: playerInventory is null.");
+            return false;
+        }
+        if (this.getIngredients() == null) { // Asumsi getIngredients() mengembalikan Map<Items, Integer>
+            System.err.println("Recipe.canCraft: Ingredients for recipe '" + this.getDisplayName() + "' is null.");
+            return false;
+        }
+
+        for (Map.Entry<Items, Integer> entry : this.getIngredients().entrySet()) {
+            Items requiredItem = entry.getKey();
+            int requiredQty = entry.getValue();
+
+            if (requiredItem == null) {
+                System.err.println("Recipe.canCraft: Recipe '" + this.getDisplayName() + "' contains a null requiredItem.");
+                return false; // Resep tidak valid
+            }
+
+            // Jika bahan adalah "Any Fish"
+            // Pastikan RecipeDatabase.ANY_FISH_INGREDIENT_NAME adalah konstanta String yang benar, contoh: "Any Fish"
+            if (RecipeDatabase.ANY_FISH_INGREDIENT_NAME != null &&
+                requiredItem.getName().equals(RecipeDatabase.ANY_FISH_INGREDIENT_NAME)) {
+
+                // Cek total ikan di inventory menggunakan instanceof Fish
+                int fishCount = 0;
+                for (Map.Entry<Items, Integer> invEntry : playerInventory.getInventory().entrySet()) {
+                    Items itemInInventory = invEntry.getKey();
+                    if (itemInInventory instanceof Fish) { // Menggunakan instanceof Fish
+                        fishCount += invEntry.getValue();
+                    }
+                }
+                if (fishCount < requiredQty) {
+                    // System.out.println("LOG (Recipe.canCraft): Not enough 'Any Fish' for " + this.getDisplayName() + ". Need: " + requiredQty + ", Have: " + fishCount);
+                    return false;
+                }
+            } else {
+                // Bahan biasa
+                if (!playerInventory.hasItem(requiredItem, requiredQty)) {
+                    // System.out.println("LOG (Recipe.canCraft): Missing ingredient " + requiredItem.getName() + " for " + this.getDisplayName() + ". Need: " + requiredQty + ", Have: " + playerInventory.getItemQuantity(requiredItem));
+                    return false;
+                }
+            }
+        }
+        return true; // Semua bahan tersedia
+    }
 
 }

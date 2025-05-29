@@ -72,4 +72,20 @@ public abstract class InteractableObject {
     public void interact(GameController controller) {
         System.out.println("Interacted with " + name);
     }
+
+    /**
+     * Determines if this object is visible on the screen based on the player's position and the current GamePanel.
+     * @param playerView The player's view object.
+     * @param panel The current GamePanel.
+     * @return true if the object is visible on the screen, false otherwise.
+     */
+    public boolean isVisibleOnScreen(org.example.view.entitas.PlayerView playerView, org.example.view.GamePanel panel) {
+        // Calculate the object's position relative to the visible screen area
+        int screenX = this.worldX - playerView.worldX + (panel.screenWidth / 2) - (panel.tileSize / 2);
+        int screenY = this.worldY - playerView.worldY + (panel.screenHeight / 2) - (panel.tileSize / 2);
+
+        // Check if the object is within the visible screen bounds
+        return screenX + panel.tileSize > 0 && screenX < panel.screenWidth &&
+               screenY + panel.tileSize > 0 && screenY < panel.screenHeight;
+    }
 }
