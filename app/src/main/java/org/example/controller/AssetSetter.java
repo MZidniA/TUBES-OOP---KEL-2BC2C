@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.model.Farm;
 import org.example.view.InteractableObject.AbigailHouse;
+import org.example.view.InteractableObject.BedObject;
 import org.example.view.InteractableObject.CarolineHouse;
 import org.example.view.InteractableObject.DascoHouse;
 import org.example.view.InteractableObject.DoorObject;
@@ -131,16 +132,39 @@ public class AssetSetter {
                  System.err.println("AssetSetter Error: No available slot for OceanObject in mapIndex " + currentMapIndex);
             }
         } else if (currentMapIndex == 4) { // --- Map 4 (House) ---
-            StoveObject stove = new StoveObject();
-            if (stove.image != null) stove.image = uTool.scaleImage(stove.image, tileSize, tileSize);
-            stove.worldX = 6 * tileSize;
-            stove.worldY = 3 * tileSize;
-            if (0 < allObjects[currentMapIndex].length) {
-                allObjects[currentMapIndex][0] = stove;
-            } else {
-                System.err.println("AssetSetter Error: No available slot for StoveObject in mapIndex " + currentMapIndex);
+            // Definisikan semua objek untuk rumah
+            InteractableObject[] houseObjects = {
+                new StoveObject(),
+                new BedObject()
+            };
+        
+            // Tentukan posisi untuk setiap objek
+            int[][] housePositions = {
+                {6, 3},  // Posisi untuk StoveObject
+                {9, 10}  // Posisi untuk BedObject
+            };
+        
+            // Loop untuk menempatkan semua objek ke dalam daftar objek utama
+            for (int i = 0; i < houseObjects.length; i++) {
+                if (houseObjects[i] == null) continue; // Lewati jika objek tidak ada
+            
+    
+        
+                // Scale gambar jika ada
+                if (houseObjects[i].image != null) {
+                    houseObjects[i].image = uTool.scaleImage(houseObjects[i].image, tileSize, tileSize);
+                }
+                houseObjects[i].worldX = housePositions[i][0] * tileSize;
+                houseObjects[i].worldY = housePositions[i][1] * tileSize;
+        
+                // --- INI BAGIAN YANG HILANG ---
+                // Masukkan objek ke dalam array allObjects agar terdeteksi oleh game
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = houseObjects[i];
+                } else {
+                    System.err.println("AssetSetter Error: Slot tidak cukup untuk objek di peta rumah.");
+                }
             }
         }
-
     }
 }

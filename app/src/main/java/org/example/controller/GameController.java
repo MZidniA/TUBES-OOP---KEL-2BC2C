@@ -274,14 +274,7 @@ public class GameController implements Runnable {
             playerModel.setCurrentHeldItem(null); 
         }
     }
-    private void stopGameThreadsAndMusic() {
-        if (gameThread != null) {
-            gameThread.interrupt();
-            try { gameThread.join(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-            gameThread = null;
-        }
-        stopMusic();
-    }
+    
     
     private void resetMovementState() {
         movementState.put("up", false); movementState.put("down", false);
@@ -297,6 +290,7 @@ public class GameController implements Runnable {
             farm.setCurrentMap(mapIndex);
             playerViewInstance.worldX = worldX; playerViewInstance.worldY = worldY; playerViewInstance.direction = "down";
             tileManager.loadMap(farm.getMapPathFor(mapIndex), mapIndex);
+            aSetter.setInteractableObject();
             playMusic();
         }
     }
@@ -308,13 +302,21 @@ public class GameController implements Runnable {
         
         Player playerModel = farm.getPlayerModel();
         GameClock gameClock = farm.getGameClock();
+        int tileSize = getTileSize();
         
-
-        playerModel.setEnergy(10); 
-        
-        // Maju ke hari berikutnya
         gameClock.nextDay(farm.getPlayerStats());
-        
+        playerModel.setEnergy(10); 
+        playerModel.setCurrentHeldItem(null);
+        if (farm.getCurrentMap() != 4) {
+            farm.setCurrentMap(4);
+            tileManager.loadMap(farm.getMapPathFor(4), 4);
+            aSetter.setInteractableObject();
+        }
+
+        playerViewInstance.worldX = 7 * tileSize;
+        playerViewInstance.worldY = 10 * tileSize;
+        playerViewInstance.direction = "down";
+   
         System.out.println("Kamu terbangun keesokan paginya. Energimu hanya pulih sedikit.");
         System.out.println("Hari baru telah dimulai: Hari ke-" + gameClock.getDay());
         
@@ -334,5 +336,8 @@ public class GameController implements Runnable {
     public TileManager getTileManager() { return this.tileManager; }
     public GameStateUI getGameStateUI() { 
         return gamePanel != null ? gamePanel.gameStateUI : null; 
+    }
+    public Farm getFarm() { 
+        return this.farm; 
     }
 }

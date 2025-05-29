@@ -3,13 +3,18 @@ package org.example.controller.action;
 
 import java.time.LocalTime;
 
+import org.example.controller.GameController;
 import org.example.model.Farm;
 import org.example.model.Player;
 import org.example.model.Items.ItemDatabase;
+import org.example.view.entitas.PlayerView;
+import org.example.controller.GameController;
 
 public class SleepingAction implements Action {
-    // Tidak ada energy cost, malah memulihkan energi
-    // Time cost adalah signifikan (skip ke pagi berikutnya)
+    private final GameController controller;
+    public SleepingAction(GameController controller) {
+        this.controller = controller;
+    }
 
     private void skipToMorning(Farm farm) {
         LocalTime now = farm.getGameClock().getCurrentTime();
@@ -39,11 +44,19 @@ public class SleepingAction implements Action {
     @Override
     public void execute(Farm farm) {
         Player player = farm.getPlayerModel();
+        PlayerView playerView = controller.getPlayerViewInstance();
+        int tileSize = controller.getTileSize();
 
         if (!canExecute(farm)) return;
 
         int maxEnergy = player.getMaxEnergy();
         int currentEnergy = player.getEnergy();
+        int spawnX = 6 * tileSize;
+        int spawnY = 10 * tileSize;
+        playerView.worldX = spawnX;
+        playerView.worldY = spawnY;
+        playerView.direction = "down";
+        player.setCurrentHeldItem(null);
 
 
         
