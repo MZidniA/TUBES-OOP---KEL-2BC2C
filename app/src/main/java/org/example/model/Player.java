@@ -148,6 +148,10 @@ public class Player {
     public void setTileY(int tileY) {
         this.tileY = tileY;
     }
+    public void setTilePosition(int tileX, int tileY) {
+        this.tileX = tileX;
+        this.tileY = tileY;
+    }
     public Items getCurrentHeldItem() {
         return currentHeldItem;
     }

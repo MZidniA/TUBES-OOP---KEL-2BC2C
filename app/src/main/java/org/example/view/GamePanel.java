@@ -13,8 +13,11 @@ import javax.swing.JPanel;
 import org.example.controller.CollisionChecker;
 import org.example.controller.GameController;
 import org.example.controller.GameState;
+import org.example.controller.action.UpdateAndShowLocationAction;
 import org.example.model.Farm;
 import org.example.model.Inventory;
+import org.example.model.Player;
+import org.example.model.enums.LocationType;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
@@ -36,6 +39,7 @@ public class GamePanel extends JPanel {
     public final int maxMap = 6;
 
     private GameController gameController;
+    private UpdateAndShowLocationAction updateLocationAction;
     public final TileManager tileM;
     public final GameStateUI gameStateUI;
 
@@ -69,8 +73,35 @@ public class GamePanel extends JPanel {
         return this.gameStateUI;
     }
 
+    public GameController getController() {
+        return this.gameController;
+    }
+
     public void setController(GameController controller) {
         this.gameController = controller;
+        // Inisialisasi di sini SETELAH controller di-set
+        if (this.gameController != null) {
+            this.updateLocationAction = new UpdateAndShowLocationAction(this.gameController);
+        }
+    }
+
+
+ 
+    public String getPlayerCurrentLocationDetail() {
+        if (this.gameController == null) return "Lokasi: Controller N/A";
+        if (this.updateLocationAction == null) { // Lazy initialization atau fallback
+            if (this.gameController != null) {
+                this.updateLocationAction = new UpdateAndShowLocationAction(this.gameController);
+            } else {
+                return "Lokasi: Action N/A";
+            }
+        }
+
+        Farm farmModel = this.gameController.getFarmModel();
+        if (farmModel != null) {
+            return this.updateLocationAction.updateAndGetDetailedLocationString(farmModel);
+        }
+        return "Lokasi: Farm N/A";
     }
 
     @Override

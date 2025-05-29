@@ -2,7 +2,7 @@ package org.example.model.enums;
 
 public enum LocationType {
         FARM,
-        RUMAH_PLAYER,
+        HOUSE,
         RUMAH_MAYOR_TADI,
         RUMAH_PERRY,
         RUMAH_DASCO,
@@ -12,5 +12,6 @@ public enum LocationType {
         MOUNTAIN_LAKE,
         FOREST_RIVER,
         STORE,
-        POND;
+        POND,
+        TOWN;
 }

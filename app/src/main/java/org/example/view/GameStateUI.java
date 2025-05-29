@@ -2,6 +2,7 @@ package org.example.view;
 
 import org.example.view.GamePanel; // Tetap dibutuhkan untuk konstanta layout
 import org.example.controller.GameState; // Import GameState dari controller
+import org.example.controller.action.UpdateAndShowLocationAction;
 import org.example.model.Inventory;
 import org.example.model.Items.Items;
 import org.example.model.enums.Season;
@@ -30,6 +31,7 @@ public class GameStateUI implements TimeObserver {
     private Season currentSeason = Season.SPRING; 
     private LocalTime currentTime = LocalTime.of(6,0);
     private Weather currentWeather = Weather.SUNNY;
+
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
 
@@ -85,26 +87,68 @@ public class GameStateUI implements TimeObserver {
     }
 
     private void drawTimeInfo() {
-        if (g2 == null || gp == null) return;
+    if (g2 == null || gp == null) return;
 
-        String seasonText = (currentSeason != null) ? currentSeason.toString() : "Musim?";
-        String weatherText = (currentWeather != null) ? currentWeather.toString() : "Cuaca?";
-        String dayText = "Hari " + currentDay;
-        String timeText = (currentTime != null) ? currentTime.format(timeFormatter) : "--:--";
-
-        Font fontUntukWaktu = (stardewFont_20 != null) ? stardewFont_20.deriveFont(16f) : new Font("Arial", Font.PLAIN, 16);
-        g2.setFont(fontUntukWaktu);
-
-        int xPosisiTeks = gp.screenWidth - 125; 
-        int yPosisiAwal = 30;
-        int spasiAntarBaris = 20;
-
-     
-        drawTextWithShadow(seasonText, xPosisiTeks, yPosisiAwal);
-        drawTextWithShadow(weatherText, xPosisiTeks, yPosisiAwal + spasiAntarBaris);
-        drawTextWithShadow(dayText, xPosisiTeks, yPosisiAwal + spasiAntarBaris*2);
-        drawTextWithShadow(timeText, xPosisiTeks, yPosisiAwal + (spasiAntarBaris * 3));
+    String seasonText = (currentSeason != null) ? currentSeason.toString() : "Musim?";
+    String weatherText = (currentWeather != null) ? currentWeather.toString() : "Cuaca?";
+    String dayText = "Hari " + currentDay;
+    String timeText = (currentTime != null) ? currentTime.format(timeFormatter) : "--:--";
+    
+    String locationInfoString = "Lokasi: N/A";
+    if (gp.getController() != null && gp.getController().getFarmModel() != null) {
+        locationInfoString = gp.getPlayerCurrentLocationDetail();
     }
+
+    Font fontWaktuUtama = (stardewFont_20 != null) ? stardewFont_20.deriveFont(16f) : new Font("Arial", Font.PLAIN, 16);
+    Font fontLokasi = (stardewFont_30 != null) ? stardewFont_30.deriveFont(14f) : new Font("Arial", Font.PLAIN, 14);
+    
+    int yPosisi = 30;
+    int spasiAntarBlokUtama = 20; 
+    int spasiAntarBarisLokasi = 16; // Spasi lebih kecil untuk baris lokasi
+    int marginKanan = 10;
+
+    g2.setFont(fontWaktuUtama);
+    java.awt.FontMetrics fmWaktu = g2.getFontMetrics();
+
+    drawTextWithShadow(seasonText, gp.screenWidth - fmWaktu.stringWidth(seasonText) - marginKanan, yPosisi);
+    yPosisi += spasiAntarBlokUtama;
+    
+    drawTextWithShadow(weatherText, gp.screenWidth - fmWaktu.stringWidth(weatherText) - marginKanan, yPosisi);
+    yPosisi += spasiAntarBlokUtama;
+    
+    drawTextWithShadow(dayText, gp.screenWidth - fmWaktu.stringWidth(dayText) - marginKanan, yPosisi);
+    yPosisi += spasiAntarBlokUtama;
+    
+    drawTextWithShadow(timeText, gp.screenWidth - fmWaktu.stringWidth(timeText) - marginKanan, yPosisi);
+    yPosisi += spasiAntarBlokUtama; 
+
+    g2.setFont(fontLokasi);
+    java.awt.FontMetrics fmLokasi = g2.getFontMetrics();
+    
+    String namaLokasiSaja = locationInfoString;
+    String koordinat = "";
+
+    if (locationInfoString.contains("(")) {
+        namaLokasiSaja = locationInfoString.substring(0, locationInfoString.lastIndexOf("(")).trim();
+        koordinat = locationInfoString.substring(locationInfoString.lastIndexOf("("));
+    }
+    
+    String[] kataKataNamaLokasi = namaLokasiSaja.split(" ");
+
+    for (String kataBagianNama : kataKataNamaLokasi) {
+        if (kataBagianNama.isEmpty()) continue;
+        int lebarKata = fmLokasi.stringWidth(kataBagianNama);
+        int xKata = gp.screenWidth - lebarKata - marginKanan;
+        drawTextWithShadow(kataBagianNama, xKata, yPosisi);
+        yPosisi += spasiAntarBarisLokasi; 
+    }
+
+    if (!koordinat.isEmpty()) {
+        int lebarKoordinat = fmLokasi.stringWidth(koordinat);
+        int xKoordinat = gp.screenWidth - lebarKoordinat - marginKanan;
+        drawTextWithShadow(koordinat, xKoordinat, yPosisi);
+    }
+}
 
     private void drawPauseScreen() {
         int frameX = gp.tileSize * 4;

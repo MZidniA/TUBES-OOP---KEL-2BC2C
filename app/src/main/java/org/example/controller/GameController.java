@@ -9,6 +9,7 @@ import org.example.model.Farm;
 import org.example.model.GameClock;
 import org.example.model.Items.Items;
 import org.example.model.Items.Seeds;
+import org.example.model.enums.LocationType;
 import org.example.model.Player;
 import org.example.model.Sound;
 import org.example.model.Inventory;
@@ -134,6 +135,9 @@ public class GameController implements Runnable {
         }
         if (gameState.getGameState() == gameState.play) {
              playerViewInstance.update(movementState, cChecker);
+             if (playerModel != null && playerViewInstance != null) {
+                playerModel.setTilePosition(playerViewInstance.worldX / getTileSize(), playerViewInstance.worldY / getTileSize());
+            }
         }
     }
 
@@ -293,7 +297,18 @@ public class GameController implements Runnable {
         if (farm != null && playerViewInstance != null && gamePanel != null && tileManager != null && aSetter != null) {
             stopMusic();
             farm.setCurrentMap(mapIndex);
+            Player player = farm.getPlayerModel();
             playerViewInstance.worldX = worldX; playerViewInstance.worldY = worldY; playerViewInstance.direction = "down";
+            if (player != null) {
+                switch (mapIndex) {
+                    case 0: player.setCurrentLocationType(LocationType.FARM); break;
+                    case 1: player.setCurrentLocationType(LocationType.OCEAN); break;
+                    case 2: player.setCurrentLocationType(LocationType.FOREST_RIVER); break;
+                    case 3: player.setCurrentLocationType(LocationType.TOWN); break;
+                    case 4: player.setCurrentLocationType(LocationType.HOUSE); break;
+                    default: player.setCurrentLocationType(LocationType.FARM); break; 
+                }
+            }
             tileManager.loadMap(farm.getMapPathFor(mapIndex), mapIndex);
             aSetter.setInteractableObject();
             playMusic();
