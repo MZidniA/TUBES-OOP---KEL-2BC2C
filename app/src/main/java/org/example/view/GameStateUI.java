@@ -99,56 +99,55 @@ public class GameStateUI implements TimeObserver {
         locationInfoString = gp.getPlayerCurrentLocationDetail();
     }
 
-    Font fontWaktuUtama = (stardewFont_20 != null) ? stardewFont_20.deriveFont(16f) : new Font("Arial", Font.PLAIN, 16);
-    Font fontLokasi = (stardewFont_30 != null) ? stardewFont_30.deriveFont(14f) : new Font("Arial", Font.PLAIN, 14);
+    Font mainFont = (stardewFont_20 != null) ? stardewFont_20.deriveFont(16f) : new Font("Arial", Font.PLAIN, 16);
+    Font LocationFont = (stardewFont_30 != null) ? stardewFont_30.deriveFont(14f) : new Font("Arial", Font.PLAIN, 14);
     
     int yPosisi = 30;
-    int spasiAntarBlokUtama = 20; 
-    int spasiAntarBarisLokasi = 16; // Spasi lebih kecil untuk baris lokasi
+    int blockSpace = 20; 
     int marginKanan = 10;
 
-    g2.setFont(fontWaktuUtama);
+    g2.setFont(mainFont);
     java.awt.FontMetrics fmWaktu = g2.getFontMetrics();
 
     drawTextWithShadow(seasonText, gp.screenWidth - fmWaktu.stringWidth(seasonText) - marginKanan, yPosisi);
-    yPosisi += spasiAntarBlokUtama;
+    yPosisi += blockSpace;
     
     drawTextWithShadow(weatherText, gp.screenWidth - fmWaktu.stringWidth(weatherText) - marginKanan, yPosisi);
-    yPosisi += spasiAntarBlokUtama;
+    yPosisi += blockSpace;
     
     drawTextWithShadow(dayText, gp.screenWidth - fmWaktu.stringWidth(dayText) - marginKanan, yPosisi);
-    yPosisi += spasiAntarBlokUtama;
+    yPosisi += blockSpace;
     
     drawTextWithShadow(timeText, gp.screenWidth - fmWaktu.stringWidth(timeText) - marginKanan, yPosisi);
-    yPosisi += spasiAntarBlokUtama; 
+    yPosisi += blockSpace; 
 
-    g2.setFont(fontLokasi);
-    java.awt.FontMetrics fmLokasi = g2.getFontMetrics();
+    g2.setFont(LocationFont);
+    java.awt.FontMetrics fmlocation = g2.getFontMetrics();
     
-    String namaLokasiSaja = locationInfoString;
-    String koordinat = "";
+    String locationName = locationInfoString;
+    String coordinates = "";
 
     if (locationInfoString.contains("(")) {
-        namaLokasiSaja = locationInfoString.substring(0, locationInfoString.lastIndexOf("(")).trim();
-        koordinat = locationInfoString.substring(locationInfoString.lastIndexOf("("));
+        locationName = locationInfoString.substring(0, locationInfoString.lastIndexOf("(")).trim();
+        coordinates = locationInfoString.substring(locationInfoString.lastIndexOf("("));
     }
     
-    String[] kataKataNamaLokasi = namaLokasiSaja.split(" ");
+    String[] locationWord = locationName.split(" ");
 
-    for (String kataBagianNama : kataKataNamaLokasi) {
-        if (kataBagianNama.isEmpty()) continue;
-        int lebarKata = fmLokasi.stringWidth(kataBagianNama);
+    for (String name : locationWord) {
+        if (name.isEmpty()) continue;
+        int lebarKata = fmlocation.stringWidth(name);
         int xKata = gp.screenWidth - lebarKata - marginKanan;
-        drawTextWithShadow(kataBagianNama, xKata, yPosisi);
-        yPosisi += spasiAntarBarisLokasi; 
+        drawTextWithShadow(name, xKata, yPosisi);
+        yPosisi += blockSpace;
     }
 
-    if (!koordinat.isEmpty()) {
-        int lebarKoordinat = fmLokasi.stringWidth(koordinat);
-        int xKoordinat = gp.screenWidth - lebarKoordinat - marginKanan;
-        drawTextWithShadow(koordinat, xKoordinat, yPosisi);
+        if (!coordinates.isEmpty()) {
+            int lebarcoordinates = fmlocation.stringWidth(coordinates);
+            int xcoordinates = gp.screenWidth - lebarcoordinates - marginKanan;
+            drawTextWithShadow(coordinates, xcoordinates, yPosisi);
+        }
     }
-}
 
     private void drawPauseScreen() {
         int frameX = gp.tileSize * 4;
@@ -237,7 +236,7 @@ public class GameStateUI implements TimeObserver {
             }
 
 
-            g2.setColor(new Color(80, 40, 0, 200)); // Warna dasar slot
+            g2.setColor(new Color(80, 40, 0, 200)); 
             g2.fillRoundRect(currentSlotX, currentSlotY, slotSize, slotSize, 8, 8);
             g2.setColor(borderColor);
             g2.setStroke(new BasicStroke(2));
@@ -264,7 +263,6 @@ public class GameStateUI implements TimeObserver {
                     g2.setFont(quantityFont);
                     String qtyText = String.valueOf(quantity);
                     int qtyTextWidth = g2.getFontMetrics().stringWidth(qtyText);
-                    // Posisi kanan bawah di dalam slot
                     int qtyX = currentSlotX + slotSize - qtyTextWidth - 4;
                     int qtyY = currentSlotY + slotSize - 4;
                     drawTextWithShadow(qtyText, qtyX, qtyY, quantityFont); 
@@ -272,7 +270,7 @@ public class GameStateUI implements TimeObserver {
             }
         }
         
-        // Gambar kursor seleksi
+
         int cursorX = slotXStart + (slotSize + slotGap) * slotCol;
         int cursorY = slotYStart + (slotSize + slotGap) * slotRow;
         g2.setColor(Color.YELLOW);
@@ -314,7 +312,7 @@ public class GameStateUI implements TimeObserver {
         if (font != null) g2.setFont(originalFont);
     }
 
-    // Overload untuk drawTextWithShadow jika font sudah di-set pada g2
+
     private void drawTextWithShadow(String text, int x, int y) {
         g2.setColor(darkTextShadow);
         g2.drawString(text, x + 2, y + 2);

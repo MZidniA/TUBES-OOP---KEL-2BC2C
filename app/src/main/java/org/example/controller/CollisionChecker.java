@@ -14,7 +14,7 @@ public class CollisionChecker {
     }
 
     public void checkTile(Entity entity) {
-        // Mengambil semua data yang dibutuhkan dari controller
+
         int tileSize = controller.getTileSize();
         int maxWorldCol = controller.getMaxWorldCol();
         int maxWorldRow = controller.getMaxWorldRow();
@@ -89,12 +89,11 @@ public class CollisionChecker {
     public int checkObject(Entity entity) {
         int index = 999;
 
-        // Ambil data objek dan peta saat ini dari Model melalui Controller
         Farm farmModel = controller.getFarmModel();
         InteractableObject[][] allObjects = farmModel.getAllObjects();
         int currentMap = farmModel.getCurrentMap();
         
-        // Loop melalui objek hanya untuk peta saat ini
+
         for (int i = 0; i < allObjects[currentMap].length; i++) {
             if (allObjects[currentMap][i] != null) {
                 entity.solidArea.x = entity.worldX + entity.solidArea.x;
@@ -114,7 +113,7 @@ public class CollisionChecker {
                     if (allObjects[currentMap][i].collision) {
                         entity.collisionOn = true;
                     }
-                    if (entity instanceof PlayerView) { // Hanya player yang bisa dapat index untuk interaksi
+                    if (entity instanceof PlayerView) { 
                         index = i;
                     }
                 }

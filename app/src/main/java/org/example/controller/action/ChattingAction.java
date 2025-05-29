@@ -47,16 +47,15 @@ public class ChattingAction implements Action{
 
         if (!canExecute(farm)) return;
 
-        // Kurangi energi
+
         player.decreaseEnergy(ENERGY_COST);
 
-        // Tambah waktu
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
 
-        // Tambah heart point ke NPC
+
         targetNpc.setHeartPoints(targetNpc.getHeartPoints() + HEART_POINT_GAIN);
 
-        // Output
+  
         System.out.println("Kamu ngobrol hangat dengan " + targetNpc.getName() + ".");
         System.out.println("HeartPoint +10 (sekarang: " + targetNpc.getHeartPoints() + ")");
         System.out.println("Energi -10. Waktu maju 10 menit.");

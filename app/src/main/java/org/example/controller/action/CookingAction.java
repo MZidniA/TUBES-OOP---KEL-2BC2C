@@ -51,11 +51,11 @@ public class CookingAction implements Action {
     @Override
     public boolean canExecute(Farm farm) {
         if (recipeToCook == null) {
-            System.out.println("LOG: Cannot cook. No recipe has been set.");
+            //System.out.println("LOG: Cannot cook. No recipe has been set.");
             return false;
         }
         if (fuelToUse == null) {
-            System.out.println("LOG: Cannot cook. No fuel has been set.");
+            //System.out.println("LOG: Cannot cook. No fuel has been set.");
             return false;
         }
 
@@ -65,27 +65,24 @@ public class CookingAction implements Action {
             return false;
         }
         Inventory inventory = player.getInventory();
-        PlayerStats playerStats = farm.getPlayerStats(); // Ambil PlayerStats
+        PlayerStats playerStats = farm.getPlayerStats(); 
 
-        // 1. Cek Energi Player
         if (player.getEnergy() < ENERGY_COST_PER_COOKING_ATTEMPT) {
             System.out.println("LOG: Not enough energy to cook " + recipeToCook.getDisplayName() +
                                ". Need " + ENERGY_COST_PER_COOKING_ATTEMPT + ", has " + player.getEnergy() + ".");
             return false;
         }
 
-        // 2. Cek Resep Sudah Unlocked (BARU DIAKTIFKAN)
+     
         if (playerStats != null && !recipeToCook.isUnlocked(playerStats)) {
             System.out.println("LOG: Recipe " + recipeToCook.getDisplayName() + " is not unlocked yet.");
             return false;
         } else if (playerStats == null) {
             System.err.println("WARNING: PlayerStats is null in Farm, cannot check recipe unlock status for " + recipeToCook.getDisplayName());
-            // Anda bisa memutuskan apakah ini kondisi gagal atau lanjut dengan asumsi unlocked
-            // return false; // Jika PlayerStats wajib ada
+            return false;
         }
 
 
-        // 3. Cek Bahan Baku (Sama seperti sebelumnya)
         for (Map.Entry<Items, Integer> entry : recipeToCook.getIngredients().entrySet()) {
             Items requiredItem = entry.getKey();
             int requiredQuantity = entry.getValue();
@@ -98,14 +95,14 @@ public class CookingAction implements Action {
                 }
             } else if (requiredItem != null) {
                 if (!inventory.hasItem(requiredItem, requiredQuantity)) {
-                    System.out.println("LOG: Missing ingredient: " + requiredQuantity + "x " + requiredItem.getName() +
-                                       " for " + recipeToCook.getDisplayName());
+                    System.out.println("LOG: Missing ingredient: " + requiredQuantity + "x " + requiredItem.getName() + " for " + recipeToCook.getDisplayName());
                     return false;
                 }
-            } else { /* ... (penanganan error null ingredient) ... */ return false;}
+            } else { 
+                 return false;}
         }
 
-        // 4. Cek Bahan Bakar (Sama seperti sebelumnya)
+
         if (!inventory.hasItem(fuelToUse, 1)) {
             System.out.println("LOG: Not enough " + fuelToUse.getName() + " to use as fuel.");
             return false;
@@ -116,31 +113,28 @@ public class CookingAction implements Action {
 
     @Override
     public void execute(Farm farm) {
-        // canExecute() idealnya sudah dipanggil sebelum ini.
-        // Namun, sebagai pengaman, bisa panggil lagi atau pastikan state masih valid.
-        if (!canExecute(farm)) { // Panggil canExecute lagi sebagai double check jika perlu
+        
+        if (!canExecute(farm)) { 
              System.out.println("LOG: Pre-condition for cooking not met in execute(). Action aborted.");
              return;
         }
 
         Player player = farm.getPlayerModel();
         Inventory inventory = player.getInventory();
-        GameClock gameClock = farm.getGameClock(); // Untuk mendapatkan waktu mulai memasak
+        GameClock gameClock = farm.getGameClock(); 
 
         System.out.println(player.getName() + " started cooking " + recipeToCook.getDisplayName() + " using " + fuelToUse.getName() + ". It will take " + COOKING_DURATION_HOURS + " hour(s).");
 
-        // 1. Kurangi Energi Pemain (Langsung)
         player.decreaseEnergy(ENERGY_COST_PER_COOKING_ATTEMPT);
         System.out.println("- Energy consumed: " + ENERGY_COST_PER_COOKING_ATTEMPT);
 
-        // 2. Kurangi Bahan Baku dari Inventory (Langsung)
         for (Map.Entry<Items, Integer> entry : recipeToCook.getIngredients().entrySet()) {
             Items requiredItem = entry.getKey();
             int requiredQuantity = entry.getValue();
             if (requiredItem != null && RecipeDatabase.ANY_FISH_INGREDIENT_NAME.equals(requiredItem.getName())) {
-                List<Items> fishToConsume = RecipeDatabase.getFishIngredientsFromInventory(inventory, requiredQuantity); // Ambil lagi untuk konsumsi
+                List<Items> fishToConsume = RecipeDatabase.getFishIngredientsFromInventory(inventory, requiredQuantity); 
                 for (Items fish : fishToConsume) {
-                    inventory.removeInventory(fish, 1); // Menggunakan removeInventory dari Inventory Anda
+                    inventory.removeInventory(fish, 1); 
                     System.out.println("- Consumed 1x " + fish.getName());
                 }
             } else if (requiredItem != null) {
@@ -149,17 +143,13 @@ public class CookingAction implements Action {
             }
         }
 
-        // 3. Kurangi Bahan Bakar (Langsung)
+ 
         inventory.removeInventory(fuelToUse, 1); // Menggunakan removeInventory
         System.out.println("- Consumed 1x " + fuelToUse.getName() + " as fuel.");
 
-        // 4. Tentukan jumlah hidangan yang dihasilkan (default 1, bisa diubah sesuai kebutuhan)
-        int dishesProduced = 1;
-        // Jika ada logika khusus untuk menentukan jumlah hidangan, tambahkan di sini
-        // Contoh: jika ada bonus tertentu, bisa tambahkan logika di sini
-        // dishesProduced = 2;
 
-        // 5. BUAT TUGAS MEMASAK PASIF, JANGAN TAMBAHKAN MAKANAN KE INV LANGSUNG
+        int dishesProduced = 1;
+     
         Food dish = recipeToCook.getResultingDish();
         if (dish != null && gameClock != null) {
             CookingInProgress cookingTask = new CookingInProgress(dish, dishesProduced, gameClock.getCurrentTime(), COOKING_DURATION_HOURS);
@@ -168,8 +158,5 @@ public class CookingAction implements Action {
             System.err.println("ERROR: Resulting dish or gameClock is null. Cannot start cooking task.");
         }
 
-        // 6. JANGAN MAJUKAN WAKTU GAME SECARA LANGSUNG DI SINI
-        // Waktu akan berjalan normal, dan farm.checkCompletedCookings() akan menangani hasilnya.
-        // System.out.println("Game time advanced by " + COOKING_DURATION_HOURS + " hour(s)."); // HAPUS INI
     }
 }

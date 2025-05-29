@@ -85,9 +85,15 @@ public class GameController implements Runnable {
         setupGame();
     }
     
-    public GamePanel getGamePanel() { return gamePanel; }
-    public GameStateUI getGameStateUIFromPanel() { return gamePanel != null ? gamePanel.gameStateUI : null; }
-    public CollisionChecker getCollisionChecker() { return this.cChecker; }
+    public GamePanel getGamePanel() { 
+        return gamePanel; 
+    }
+    public GameStateUI getGameStateUIFromPanel() { 
+        return gamePanel != null ? gamePanel.gameStateUI : null; }
+    public CollisionChecker getCollisionChecker() { return this.cChecker; 
+    }
+
+
     public int getTillableAreaMinCol(int mapIndex) { return mapIndex == 0 ? TILLABLE_AREA_MAP0_MIN_COL : -1; }
     public int getTillableAreaMaxCol(int mapIndex) { return mapIndex == 0 ? TILLABLE_AREA_MAP0_MAX_COL : -1; }
     public int getTillableAreaMinRow(int mapIndex) { return mapIndex == 0 ? TILLABLE_AREA_MAP0_MIN_ROW : -1; }
@@ -107,8 +113,14 @@ public class GameController implements Runnable {
     }
     
     public Thread getGameThread() { return this.gameThread; }
-    public void playMusic() { if (music != null) { music.play(); music.loop(); } }
-    public void stopMusic() { if (music != null) music.stop(); }
+    public void playMusic() { 
+        if (music != null) { 
+            music.play(); music.loop(); 
+        } 
+    }
+    public void stopMusic() { 
+        if (music != null) music.stop(); 
+    }
 
     @Override
     public void run() {
@@ -167,10 +179,10 @@ public class GameController implements Runnable {
             InteractableObject[] currentObjects = farm.getObjectsForCurrentMap();
             if (currentObjects != null && objIndex < currentObjects.length && currentObjects[objIndex] != null) {
                 InteractableObject targetObject = currentObjects[objIndex];
-                if (heldItem != null && heldItem.getName().equalsIgnoreCase("Fishing Rod") && targetObject.name.equalsIgnoreCase("Pond")) {
-                    System.out.println(playerModel.getName() + " is fishing at the " + targetObject.name + "!");
-                    return;
-                }
+                // if (heldItem != null && heldItem.getName().equalsIgnoreCase("Fishing Rod") && targetObject.name.equalsIgnoreCase("Pond")) {
+                //     System.out.println(playerModel.getName() + " is fishing at the " + targetObject.name + "!");
+                //     return;
+                // }
                 targetObject.interact(this);
                 return;
             }
@@ -200,14 +212,13 @@ public class GameController implements Runnable {
                 default: return;
             }
             if (targetCol < 0 || targetCol >= getMaxWorldCol() || targetRow < 0 || targetRow >= getMaxWorldRow()) return;
-            System.out.println("DEBUG: Target Tile for Interaction: (" + targetCol + ", " + targetRow + ")");
 
             if (heldItem.getName().equalsIgnoreCase("Hoe")) {
                 TillingAction tilling = new TillingAction(this, targetCol, targetRow);
                 if (tilling.canExecute(farm)) {
                     tilling.execute(farm);
                 } else {
-                    System.out.println("GameController: TillingAction cannot be executed (Hoe).");
+                    System.out.println("Tidak bisa mencangkul di sini.");
                 }
             }
         } else {

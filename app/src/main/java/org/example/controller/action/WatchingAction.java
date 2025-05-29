@@ -19,13 +19,13 @@ public class WatchingAction implements Action{
     public boolean canExecute(Farm farm) {
         Player player = farm.getPlayerModel();
 
-        // Cek lokasi harus di rumah (FARM)
+
         if (player.getCurrentLocationType() != LocationType.FARM) {
             System.out.println("Menonton TV hanya bisa dilakukan di rumah.");
             return false;
         }
 
-        // Cek punya TV
+
         boolean hasTV = player.getInventory().hasItem(ItemDatabase.getItem("TV"), 1);
 
         if (!hasTV) {
@@ -33,7 +33,7 @@ public class WatchingAction implements Action{
             return false;
         }
 
-        // Cek energi cukup
+
         if (player.getEnergy() < ENERGY_COST) {
             System.out.println("Energi tidak cukup untuk menonton TV.");
             return false;

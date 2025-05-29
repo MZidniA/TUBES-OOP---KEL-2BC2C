@@ -5,10 +5,8 @@ import org.example.model.Player;
 import org.example.model.enums.LocationType;
 import org.example.controller.GameController;
 
-// Mengganti nama kelas menjadi sesuatu yang lebih deskriptif seperti UpdateAndShowLocationAction
-// atau jika hanya mengupdate dan mengembalikan string: UpdateAndGetLocationAction
-public class UpdateAndShowLocationAction implements Action { // Asumsi masih ada interface Action
 
+public class UpdateAndShowLocationAction implements Action { 
     private GameController controller;
 
     public UpdateAndShowLocationAction(GameController controller) {
@@ -103,16 +101,14 @@ public class UpdateAndShowLocationAction implements Action { // Asumsi masih ada
             System.out.println("UpdateAndShowLocationAction: Player location UPDATED from " + currentActualLocationInPlayerModel + " to " + newDeterminedLocation);
         }
     
-        return newDeterminedLocation.toString().replace("_", " ") +
-               " (" + playerTileX + ", " + playerTileY + ")";
+        return newDeterminedLocation.toString().replace("_", " ") + " (" + playerTileX + ", " + playerTileY + ")";
     }
     
     @Override
     public void execute(Farm farm) { 
         String detailedLocation = updateAndGetDetailedLocationString(farm); 
-        System.out.println("--- Lokasi Saat Ini ---");
         System.out.println("Lokasi: " + detailedLocation);
-        System.out.println("-----------------------");
+        
     }
     @Override
     public String getActionName() {

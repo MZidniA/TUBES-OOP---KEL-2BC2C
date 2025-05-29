@@ -55,7 +55,7 @@ public class SleepingAction implements Action {
 
         
 
-        // Logika pemulihan energi
+
         if (currentEnergy == 0) {
             player.setEnergy(10);
             System.out.println("Energi habis total. Tidur hanya memulihkan 10 poin.");
@@ -67,7 +67,7 @@ public class SleepingAction implements Action {
             System.out.println("Tidur nyenyak. Energi pulih sepenuhnya.");
         }
 
-        // Time skip ke jam 06.00
+
         skipToMorning(farm);
         int spawnX = 6 * tileSize;
         int spawnY = 10 * tileSize;
@@ -77,9 +77,8 @@ public class SleepingAction implements Action {
         player.setCurrentHeldItem(null);
 
 
-        // Lanjut ke hari berikutnya
+
         farm.getGameClock().nextDay(null);
-        System.out.println("Selamat pagi! Hari ke-" + farm.getGameClock().getDay()
-                + ", pukul " + farm.getGameClock().getCurrentTime());
+        System.out.println("Selamat pagi! Hari ke-" + farm.getGameClock().getDay() + ", pukul " + farm.getGameClock().getCurrentTime());
     }
 }
