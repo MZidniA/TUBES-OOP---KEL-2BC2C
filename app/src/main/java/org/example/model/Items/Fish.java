@@ -1,6 +1,7 @@
 package org.example.model.Items;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import org.example.model.GameTime;
 import org.example.model.enums.FishType;
@@ -8,55 +9,61 @@ import org.example.model.enums.LocationType;
 import org.example.model.enums.Season;
 import org.example.model.enums.Weather;
 
-
 public class Fish extends Items implements EdibleItem {
     private EnumSet<Season> season;
     private EnumSet<FishType> fishType;
     private EnumSet<Weather> weather;
     private EnumSet<LocationType> locationType;
-    private GameTime time;
-    private int energyRestored; // Tambahkan field ini
+    private List<GameTime> timeRanges; // GANTI: dari GameTime jadi List<GameTime>
+    private int energyRestored;
 
-    public Fish(String name, int sellprice, int buyprice, EnumSet<Season> season, EnumSet<FishType> fishType, EnumSet<Weather> weather, EnumSet<LocationType> locationTypeParam, GameTime time, int energyRestored) {
+    public Fish(String name, int sellprice, int buyprice,
+                EnumSet<Season> season, EnumSet<FishType> fishType,
+                EnumSet<Weather> weather, EnumSet<LocationType> locationType,
+                List<GameTime> timeRanges, int energyRestored) {
         super(name, sellprice, buyprice);
         this.season = season;
         this.fishType = fishType;
         this.weather = weather;
-        this.locationType = locationTypeParam;
-        this.time = time;
-        this.energyRestored = energyRestored; // Set nilai energi
+        this.locationType = locationType;
+        this.timeRanges = timeRanges;
+        this.energyRestored = energyRestored;
     }
 
-   
+    // Untuk kompatibilitas lama (jika masih ada)
+    public Fish(String name, int sellprice, int buyprice,
+                EnumSet<Season> season, EnumSet<FishType> fishType,
+                EnumSet<Weather> weather, EnumSet<LocationType> locationType,
+                GameTime time, int energyRestored) {
+        this(name, sellprice, buyprice, season, fishType, weather, locationType, List.of(time), energyRestored);
+    }
+
+    public boolean isAvailableAt(java.time.LocalTime currentTime) {
+        return timeRanges.stream().anyMatch(t -> t.isWithin(currentTime));
+    }
+
     public EnumSet<Season> getSeason() {
         return season;
     }
-    public void setSeason(EnumSet<Season> season) {
-        this.season = season;
-    }
+
     public EnumSet<FishType> getFishType() {
         return fishType;
     }
-    public void setFishType(EnumSet<FishType> fishType) {
-        this.fishType = fishType;
-    }
+
     public EnumSet<Weather> getWeather() {
         return weather;
     }
-    public void setWeather(EnumSet<Weather> weather) {
-        this.weather = weather;
-    }
+
     public EnumSet<LocationType> getLocationType() {
         return locationType;
     }
-    public void setLocationType(EnumSet<LocationType> locationType) {
-        this.locationType = locationType;
+
+    public List<GameTime> getTimeRanges() {
+        return timeRanges;
     }
-    public GameTime getTime() {
-        return time;
-    }
-    public void setTime(GameTime time) { 
-        this.time = time;
+
+    public void setTimeRanges(List<GameTime> timeRanges) {
+        this.timeRanges = timeRanges;
     }
 
     @Override

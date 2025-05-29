@@ -105,6 +105,10 @@ public class GameController implements Runnable {
         if (aSetter != null) aSetter.setInteractableObject();
         gameState.setGameState(gameState.play);
         if (timeManager != null) timeManager.startTimeSystem();
+        if (farm != null && farm.getGameClock() != null) {
+            farm.setCurrentSeason(farm.getGameClock().getCurrentSeason());
+            farm.setCurrentWeather(farm.getGameClock().getTodayWeather());
+        }
     }
 
     public void startGameThread() {
@@ -213,6 +217,8 @@ public class GameController implements Runnable {
                 default: return;
             }
             if (targetCol < 0 || targetCol >= getMaxWorldCol() || targetRow < 0 || targetRow >= getMaxWorldRow()) return;
+
+            System.out.println("DEBUG: Target Tile for Interaction: (" + targetCol + ", " + targetRow + ")");
 
             if (heldItem.getName().equalsIgnoreCase("Hoe")) {
                 TillingAction tilling = new TillingAction(this, targetCol, targetRow);
@@ -331,6 +337,7 @@ public class GameController implements Runnable {
                     case 2: player.setCurrentLocationType(LocationType.FOREST_RIVER); break;
                     case 3: player.setCurrentLocationType(LocationType.TOWN); break;
                     case 4: player.setCurrentLocationType(LocationType.HOUSE); break;
+                    case 5: player.setCurrentLocationType(LocationType.POND); break; 
                     default: player.setCurrentLocationType(LocationType.FARM); break; 
                 }
             }

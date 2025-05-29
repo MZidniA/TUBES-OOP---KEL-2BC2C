@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.List;
@@ -16,14 +15,12 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 
 import org.example.controller.GameController;
 import org.example.model.Farm;
@@ -50,6 +47,7 @@ public class FishingPanel extends JPanel {
     private Image background;
     private Font pixelFont;
     private final Color brownText = new Color(92, 64, 51);
+    private JLabel fishImageLabel;
 
     public FishingPanel(Farm farm, GameController controller) {
         this.farm = farm;
@@ -143,17 +141,17 @@ public class FishingPanel extends JPanel {
 
         backButton = createCustomButton("Return");
         backButton.setBounds(20, 20, 120, 30);
-        backButton.addActionListener((ActionEvent e) -> {
-            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            frame.setContentPane(controller.getGamePanel());
-            frame.revalidate();
-            frame.repaint();
-            controller.getGamePanel().requestFocusInWindow();
+        backButton.addActionListener(e -> {
+            controller.returnToGamePanel();
         });
         add(backButton);
 
         guessButton.setEnabled(false);
         guessField.setEnabled(false);
+
+        fishImageLabel = new JLabel();
+        fishImageLabel.setBounds(200, 400, 64, 64);
+        add(fishImageLabel);
     }
 
     private void updatePlayerInfo() {
@@ -212,6 +210,14 @@ public class FishingPanel extends JPanel {
         if (guess == targetNumber) {
             appendToLog("Success! You caught: " + currentFish.getName());
             farm.getPlayerModel().getInventory().addInventory(currentFish, 1);
+
+            try {
+                Image fishImage = ImageIO.read(getClass().getResource("/fish/" + currentFish.getName() + ".png"));
+                fishImageLabel.setIcon(new ImageIcon(fishImage.getScaledInstance(64, 64, Image.SCALE_SMOOTH)));
+            } catch (IOException e) {
+                System.err.println("Gagal muat gambar ikan: " + currentFish.getName());
+            }
+
             endFishing(true);
         } else {
             appendToLog(guess < targetNumber ? "Too low." : "Too high.");
@@ -248,10 +254,13 @@ public class FishingPanel extends JPanel {
         return ItemDatabase.getItemsByCategory("Fish").stream()
                 .filter(i -> i instanceof Fish)
                 .map(i -> (Fish) i)
-                .filter(f -> f.getSeason().contains(farm.getCurrentSeason()))
-                .filter(f -> f.getWeather().contains(farm.getCurrentWeather()))
-                .filter(f -> f.getLocationType().contains(farm.getPlayerModel().getCurrentLocationType()))
-                .filter(f -> f.getTime().isWithin(now))
+                .filter(f -> {
+                    boolean seasonMatch = f.getSeason().contains(farm.getCurrentSeason());
+                    boolean weatherMatch = f.getWeather().contains(farm.getCurrentWeather());
+                    boolean locationMatch = f.getLocationType().contains(farm.getPlayerModel().getCurrentLocationType());
+                    boolean timeMatch = f.getTimeRanges().stream().anyMatch(t -> t.isWithin(now));
+                    return seasonMatch && weatherMatch && locationMatch && timeMatch;
+                })
                 .collect(Collectors.toList());
     }
 
