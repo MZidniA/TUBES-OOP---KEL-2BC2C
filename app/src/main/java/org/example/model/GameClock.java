@@ -74,6 +74,16 @@ public class GameClock {
         }
     }
 
+    public Weather getWeatherForecast() {
+        // Placeholder sederhana: 70% cerah, 30% hujan untuk hari berikutnya.
+        // Ganti dengan logika prediksi cuaca Anda yang sebenarnya.
+        if (Math.random() < 0.7) {
+            return Weather.SUNNY;
+        } else {
+            return Weather.RAINY;
+        }
+    }
+
     public boolean isDayTime() {
         return !currentTime.isBefore(LocalTime.of(6, 0)) && currentTime.isBefore(LocalTime.of(18, 0));
     }

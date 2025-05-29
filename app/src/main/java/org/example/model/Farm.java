@@ -2,7 +2,9 @@ package org.example.model;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Iterator;
 
+import org.example.model.Items.Items;
 import org.example.model.Map.FarmMap;
 import org.example.model.enums.Season;
 import org.example.model.enums.Weather;
@@ -73,13 +75,6 @@ public class Farm {
         return gameClock;
     }
 
-        // Method untuk menambahkan CookingInProgress ke list
-    public void addActiveCooking(CookingInProgress cookingTask) {
-        if (cookingTask != null) {
-            activeCookings.add(cookingTask);
-        }
-    }
-
         // (Pastikan ada getter jika dibutuhkan di tempat lain)
     public List<CookingInProgress> getActiveCookings() {
         return activeCookings;
@@ -121,4 +116,131 @@ public class Farm {
     public void setCurrentWeather(Weather nextWeather) {
         this.currentWeather = nextWeather;
     }
+<<<<<<< Updated upstream
+=======
+
+
+    public InteractableObject getObjectAtTile(int mapIndex, int col, int row, int tileSize) {
+        if (mapIndex < 0 || mapIndex >= objects.length) return null;
+        for (InteractableObject obj : objects[mapIndex]) {
+            if (obj != null) {
+                int objCol = obj.worldX / tileSize;
+                int objRow = obj.worldY / tileSize;
+                if (objCol == col && objRow == row) {
+                    return obj;
+                }
+            }
+        }
+        return null;
+    }
+
+   
+    public boolean removeObjectAtTile(int mapIndex, int col, int row, int tileSize) {
+        if (mapIndex < 0 || mapIndex >= objects.length) return false;
+        for (int i = 0; i < objects[mapIndex].length; i++) {
+            InteractableObject obj = objects[mapIndex][i];
+            if (obj != null) {
+                int objCol = obj.worldX / tileSize;
+                int objRow = obj.worldY / tileSize;
+                if (objCol == col && objRow == row) {
+                    objects[mapIndex][i] = null; 
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+
+    // --- Logika untuk Cooking (Memasak Pasif) ---
+    public void addActiveCooking(CookingInProgress cookingTask) {
+        if (cookingTask != null) {
+            this.activeCookings.add(cookingTask);
+            System.out.println("LOG (Farm.addActiveCooking): New cooking task added - " +
+                               cookingTask.getCookedDish().getName() + " x" + cookingTask.getQuantityProduced());
+        } else {
+            System.err.println("ERROR (Farm.addActiveCooking): Attempted to add a null cooking task.");
+        }
+    }
+
+    /**
+     * Memperbarui status semua masakan yang sedang berlangsung.
+     * Metode ini harus dipanggil secara periodik oleh game loop (misalnya, setiap update utama atau setiap beberapa detik game).
+     */
+    public void updateCookingProgress() {
+        if (activeCookings.isEmpty() || this.gameClock == null || this.playerModel == null || this.playerModel.getInventory() == null) {
+            return; // Tidak ada yang diproses atau komponen penting null
+        }
+
+        LocalTime currentTime = this.gameClock.getCurrentTime();
+        Iterator<CookingInProgress> iterator = activeCookings.iterator();
+
+        while (iterator.hasNext()) {
+            CookingInProgress task = iterator.next();
+            if (task == null) { // Pemeriksaan keamanan
+                iterator.remove();
+                continue;
+            }
+
+            if (task.isClaimed()) {
+                // Jika Anda ingin membersihkan task yang sudah diklaim dari daftar secara otomatis (bukan hanya saat klaim manual)
+                // iterator.remove(); // Opsional: hapus jika tidak ingin menumpuk task yang sudah diklaim
+                continue;
+            }
+
+            if (task.isReadyToClaim(currentTime)) {
+                // OPSI SAAT INI: Otomatis tambahkan ke inventory pemain dan tandai sebagai diklaim.
+                // Pastikan getCookedDish() mengembalikan objek Items (atau Food) yang benar
+                Items dishToAdd = task.getCookedDish();
+                int quantityProduced = task.getQuantityProduced();
+
+                this.playerModel.getInventory().addInventory(dishToAdd, quantityProduced);
+                task.setClaimed(true); // Tandai sudah diklaim (dan otomatis masuk inventory)
+
+                System.out.println("LOG (Farm.updateCookingProgress): Dish '" + dishToAdd.getName() +
+                                   "' x" + quantityProduced + " is cooked and automatically added to inventory for " +
+                                   this.playerModel.getName() + "!");
+                // UI bisa memberikan notifikasi berdasarkan ini.
+                iterator.remove(); // Hapus dari daftar aktif setelah ditambahkan ke inventory
+            }
+        }
+    }
+
+    /**
+     * Metode untuk pemain mengklaim masakan pertama yang sudah selesai dari kompor secara manual.
+     * Dipanggil saat pemain berinteraksi dengan kompor dan ada masakan yang siap.
+     * @return CookingInProgress yang berhasil diklaim, atau null jika tidak ada atau gagal.
+     */
+    public CookingInProgress claimFirstReadyDish() {
+        if (activeCookings.isEmpty() || this.gameClock == null || this.playerModel == null || this.playerModel.getInventory() == null) {
+            System.err.println("LOG (Farm.claimFirstReadyDish): Cannot claim dish - essential components are null or no active cookings.");
+            return null;
+        }
+
+        LocalTime currentTime = this.gameClock.getCurrentTime();
+        CookingInProgress claimedTask = null;
+        Iterator<CookingInProgress> iterator = activeCookings.iterator();
+
+        while (iterator.hasNext()) {
+            CookingInProgress task = iterator.next();
+            if (task != null && task.isReadyToClaim(currentTime) && !task.isClaimed()) {
+                Items dishToClaim = task.getCookedDish();
+                int quantityToClaim = task.getQuantityProduced();
+
+                this.playerModel.getInventory().addInventory(dishToClaim, quantityToClaim);
+                task.setClaimed(true);
+                claimedTask = task;
+
+                System.out.println("LOG (Farm.claimFirstReadyDish): Player " + this.playerModel.getName() + " claimed " +
+                                   quantityToClaim + "x " + dishToClaim.getName() + ".");
+                iterator.remove(); // Hapus dari daftar aktif setelah diklaim
+                break; // Hanya klaim satu per interaksi untuk metode ini
+            }
+        }
+        if (claimedTask == null) {
+            System.out.println("LOG (Farm.claimFirstReadyDish): No dishes ready to be claimed at the moment.");
+        }
+        return claimedTask;
+    }
+>>>>>>> Stashed changes
 }

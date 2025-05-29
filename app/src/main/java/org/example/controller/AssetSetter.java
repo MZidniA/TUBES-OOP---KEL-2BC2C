@@ -17,7 +17,11 @@ import org.example.view.InteractableObject.PondObject;
 import org.example.view.InteractableObject.RiverObject;
 import org.example.view.InteractableObject.ShippingBinObject;
 import org.example.view.InteractableObject.StoveObject;
+<<<<<<< Updated upstream
 import org.example.view.InteractableObject.UnplantedTileObject;
+=======
+import org.example.view.InteractableObject.TVObject;
+>>>>>>> Stashed changes
 
 public class AssetSetter {
     private final GameController controller;
@@ -135,13 +139,20 @@ public class AssetSetter {
             // Definisikan semua objek untuk rumah
             InteractableObject[] houseObjects = {
                 new StoveObject(),
-                new BedObject()
+                new BedObject(), 
+                new TVObject()
             };
         
             // Tentukan posisi untuk setiap objek
             int[][] housePositions = {
+<<<<<<< Updated upstream
                 {6, 3},  // Posisi untuk StoveObject
                 {9, 10}  // Posisi untuk BedObject
+=======
+                {6, 3},  // stove
+                {9, 3},  // bed
+                {3, 3}   // TV
+>>>>>>> Stashed changes
             };
         
             // Loop untuk menempatkan semua objek ke dalam daftar objek utama

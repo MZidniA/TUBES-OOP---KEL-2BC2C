@@ -285,4 +285,20 @@ public class RecipeDatabase {
     public static boolean isInitialized() {
     return isInitialized;
     }
+
+    public static List<Recipe> getAvailableRecipes(Player playerModel) {
+        if (!isInitialized) initialize();
+        List<Recipe> available = new ArrayList<>();
+        if (playerModel == null) return available;
+
+        // Ambil statistik pemain jika diperlukan untuk unlock
+        PlayerStats stats = playerModel.getPlayerStats();
+
+        for (Recipe recipe : recipes.values()) {
+            if (recipe.isUnlocked(stats)) {
+                available.add(recipe);
+            }
+        }
+        return available;
+    }
 }

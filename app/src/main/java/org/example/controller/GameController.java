@@ -5,20 +5,49 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+<<<<<<< Updated upstream
+=======
+
+import org.example.controller.action.PlantingAction;
+import org.example.controller.action.RecoverLandAction;
+import org.example.controller.action.TillingAction;
+>>>>>>> Stashed changes
 import org.example.model.Farm;
 import org.example.model.GameClock;
 import org.example.model.Items.Items;
 import org.example.model.Items.Seeds;
+<<<<<<< Updated upstream
 import org.example.model.Player;
 import org.example.model.Sound;
 import org.example.model.Inventory;
+=======
+import org.example.model.Map.FarmMap;
+import org.example.model.Map.Plantedland;
+import org.example.model.Player;
+import org.example.model.Sound;
+import org.example.model.enums.LocationType;
+import org.example.model.enums.Season;
+import org.example.model.enums.Weather;
+import org.example.view.FishingPanel;
+>>>>>>> Stashed changes
 import org.example.view.GamePanel;
 import org.example.view.GameStateUI;
 import org.example.view.MenuPanel;
 import org.example.view.InteractableObject.InteractableObject;
+<<<<<<< Updated upstream
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
 import org.example.controller.action.TillingAction;
+=======
+import org.example.view.InteractableObject.MountainLakeObject;
+import org.example.view.InteractableObject.OceanObject;
+import org.example.view.InteractableObject.PondObject;
+import org.example.view.InteractableObject.RiverObject;
+import org.example.view.InteractableObject.UnplantedTileObject;
+import org.example.view.entitas.PlayerView;
+import org.example.view.tile.TileManager;
+import org.example.model.Map.Tile;
+>>>>>>> Stashed changes
 
 public class GameController implements Runnable {
 
@@ -91,6 +120,10 @@ public class GameController implements Runnable {
         if (aSetter != null) aSetter.setInteractableObject();
         gameState.setGameState(gameState.play);
         if (timeManager != null) timeManager.startTimeSystem();
+        if (farm != null && farm.getGameClock() != null) {
+            farm.setCurrentSeason(farm.getGameClock().getCurrentSeason());
+            farm.setCurrentWeather(farm.getGameClock().getTodayWeather());
+        }
     }
 
     public void startGameThread() {
@@ -192,12 +225,37 @@ public class GameController implements Runnable {
             if (targetCol < 0 || targetCol >= getMaxWorldCol() || targetRow < 0 || targetRow >= getMaxWorldRow()) return;
             System.out.println("DEBUG: Target Tile for Interaction: (" + targetCol + ", " + targetRow + ")");
 
+            System.out.println("DEBUG: Target Tile for Interaction: (" + targetCol + ", " + targetRow + ")");
+
             if (heldItem.getName().equalsIgnoreCase("Hoe")) {
                 TillingAction tilling = new TillingAction(this, targetCol, targetRow);
                 if (tilling.canExecute(farm)) {
                     tilling.execute(farm);
                 } else {
+<<<<<<< Updated upstream
                     System.out.println("GameController: TillingAction cannot be executed (Hoe).");
+=======
+                    System.out.println("Tidak bisa mencangkul di sini");
+                }
+            } else if (heldItem.getName().equalsIgnoreCase("Pickaxe")) {
+                RecoverLandAction recoverAction = new RecoverLandAction(this, targetCol, targetRow);
+                if (recoverAction.canExecute(farm)) {
+                    recoverAction.execute(farm);
+                } else {
+                    System.out.println("Tidak bisa mengembalikan tanah ini lagi");
+>>>>>>> Stashed changes
+                }
+            } else if (heldItem instanceof Seeds) { 
+                Seeds seedBeingHeld = (Seeds) heldItem;
+                InteractableObject objectAtTargetTile = farm.getObjectAtTile(currentMap, targetCol, targetRow, tileSize);
+                if (objectAtTargetTile instanceof UnplantedTileObject) { 
+                    PlantingAction plantingAction = new PlantingAction(this, seedBeingHeld, targetCol, targetRow);
+                    if (plantingAction.canExecute(farm)) {
+                        plantingAction.execute(farm);
+                
+                    } else {
+                        System.out.println("PlantingAction tidak bisa dieksekusi.");
+                    }
                 }
             }
         } else {
@@ -294,6 +352,20 @@ public class GameController implements Runnable {
             stopMusic();
             farm.setCurrentMap(mapIndex);
             playerViewInstance.worldX = worldX; playerViewInstance.worldY = worldY; playerViewInstance.direction = "down";
+<<<<<<< Updated upstream
+=======
+            if (player != null) {
+                switch (mapIndex) {
+                    case 0: player.setCurrentLocationType(LocationType.FARM); break;
+                    case 1: player.setCurrentLocationType(LocationType.OCEAN); break;
+                    case 2: player.setCurrentLocationType(LocationType.FOREST_RIVER); break;
+                    case 3: player.setCurrentLocationType(LocationType.TOWN); break;
+                    case 4: player.setCurrentLocationType(LocationType.HOUSE); break;
+                    case 5: player.setCurrentLocationType(LocationType.POND); break; 
+                    default: player.setCurrentLocationType(LocationType.FARM); break; 
+                }
+            }
+>>>>>>> Stashed changes
             tileManager.loadMap(farm.getMapPathFor(mapIndex), mapIndex);
             aSetter.setInteractableObject();
             playMusic();
@@ -308,7 +380,9 @@ public class GameController implements Runnable {
         GameClock gameClock = farm.getGameClock();
         int tileSize = getTileSize();
         
+
         gameClock.nextDay(farm.getPlayerStats());
+        processEndOfDayEvents();
         playerModel.setEnergy(10); 
         playerModel.setCurrentHeldItem(null);
         if (farm.getCurrentMap() != 4) {
@@ -366,4 +440,93 @@ public class GameController implements Runnable {
     public Farm getFarm() { 
         return this.farm; 
     }
+<<<<<<< Updated upstream
+=======
+
+    public JFrame getMainFrame() {
+        return (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
+    }
+
+    public void openFishingPanel() {
+        FishingPanel fishingPanel = new FishingPanel(farm, this);
+        JFrame frame = getMainFrame();
+        frame.setContentPane(fishingPanel);
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    public void returnToGamePanel() {
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
+        frame.setContentPane(gamePanel);
+        frame.revalidate();
+        frame.repaint();
+        gamePanel.requestFocusInWindow();
+    }
+
+    public InteractableObject getNearestInteractableTile(Player player) {
+        InteractableObject[] objects = farm.getObjectsForCurrentMap();
+        int tileSize = getTileSize();
+
+        int playerX = playerViewInstance.worldX / tileSize;
+        int playerY = playerViewInstance.worldY / tileSize;
+
+        for (InteractableObject obj : objects) {
+            if (obj == null) continue;
+            int objX = obj.getWorldX() / tileSize;
+            int objY = obj.getWorldY() / tileSize;
+
+            int dx = Math.abs(playerX - objX);
+            int dy = Math.abs(playerY - objY);
+
+            if ((dx + dy) == 1) {
+                return obj;
+            }
+        }
+        return null;
+    }
+
+    public boolean handleFishingIfNearby() {
+        Player player = getFarmModel().getPlayerModel();
+        InteractableObject obj = getNearestInteractableTile(player);
+        if (obj instanceof PondObject || obj instanceof RiverObject ||
+            obj instanceof MountainLakeObject || obj instanceof OceanObject) {
+            if (player.getInventory().hasItem(ItemDatabase.getItem("Fishing Rod"), 1)) {
+                openFishingPanel();
+            } else {
+                System.out.println("Butuh Fishing Rod untuk memancing.");
+            }
+            return true;
+        }
+        return false;
+    }
+    public void processEndOfDayEvents() {
+        FarmMap farmMap = farm.getFarmMap();
+        if (farmMap == null || farm.getGameClock() == null) {
+            System.err.println("GameController: FarmMap atau GameClock null, tidak bisa proses pertumbuhan tanaman.");
+            return;
+        }
+
+        Season newDaySeason = farm.getGameClock().getCurrentSeason();
+        Weather newDayWeather = farm.getGameClock().getTodayWeather();
+
+        
+        // Asumsi FarmMap memiliki getSize() atau getWidth()/getHeight()
+        for (int y = 0; y < farmMap.getSize(); y++) { 
+            for (int x = 0; x < farmMap.getSize(); x++) {
+                Tile currentTile = farmMap.getTile(x, y);
+                if (currentTile instanceof Plantedland) {
+                    Plantedland plant = (Plantedland) currentTile;
+                    
+
+                    plant.dailyGrow(newDaySeason, newDayWeather);
+
+                   
+                }
+            }
+        }
+        System.out.println("===== END OF PLANT GROWTH PROCESSING =====\n");
+    }
+
+    
+>>>>>>> Stashed changes
 }

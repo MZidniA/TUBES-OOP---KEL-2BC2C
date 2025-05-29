@@ -21,6 +21,7 @@ public class Player {
     private Inventory inventory;
     private LocationType currentLocationType;// Ganti nama agar lebih jelas
     private Items currentHeldItem;// Ganti nama agar lebih jelas
+    private PlayerStats playerStats = new PlayerStats(); // Inisialisasi PlayerStats
 
     // Tambahkan field posisi tile player
     private int tileX = 0;
@@ -143,6 +144,14 @@ public class Player {
 
     public int getTileY() {
         return tileY;
+    }
+
+    public PlayerStats getPlayerStats() {
+        return playerStats;
+    }
+
+    public void setPlayerStats(PlayerStats playerStats) {
+        this.playerStats = playerStats;
     }
 
     public void setTileY(int tileY) {

@@ -3,6 +3,7 @@ package org.example.view;
 import org.example.view.GamePanel; // Tetap dibutuhkan untuk konstanta layout
 import org.example.controller.GameState; // Import GameState dari controller
 import org.example.model.Inventory;
+import org.example.model.Recipe;
 import org.example.model.Items.Items;
 import org.example.model.enums.Season;
 import java.time.LocalTime;
@@ -15,6 +16,7 @@ import java.awt.Graphics2D;
 import java.awt.BasicStroke;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class GameStateUI implements TimeObserver { 
@@ -32,6 +34,14 @@ public class GameStateUI implements TimeObserver {
     private Weather currentWeather = Weather.SUNNY;
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
+    // Cooking Menu State
+    private int selectedRecipeIndex = 0;
+    private int selectedFuelIndex = 0;
+    private int cookingMenuCommandNum = 0; // 0: Cook, 1: Cancel
+    private List<Recipe> availableRecipesForUI;
+    private List<Items> availableFuelsForUI;
+    private String uiMessage = null;
+    private boolean clearUiMessageNextFrame = false;
 
     // Warna tema
     Color woodBrown = new Color(139, 69, 19);
@@ -278,8 +288,31 @@ public class GameStateUI implements TimeObserver {
         g2.drawString(text, x, y);
     }
 
+<<<<<<< Updated upstream
     public void setDialogue(String string) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'setDialogue'");
+=======
+
+    public void resetCookingMenuState() {
+        selectedRecipeIndex = 0;
+        selectedFuelIndex = 0;
+        cookingMenuCommandNum = 0;
+        availableRecipesForUI = null; // Will be repopulated on next menu open
+        uiMessage = null;
+        clearUiMessageNextFrame = false;
+    }
+
+
+    public void setDialogue(String message) {
+        this.uiMessage = message;
+        this.clearUiMessageNextFrame = false;
+    }
+
+
+    public void showTemporaryMessage(String message) {
+        this.uiMessage = message;
+        this.clearUiMessageNextFrame = true;
+>>>>>>> Stashed changes
     }
 }
