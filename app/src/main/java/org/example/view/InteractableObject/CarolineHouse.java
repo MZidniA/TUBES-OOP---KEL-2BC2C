@@ -32,10 +32,10 @@ public class CarolineHouse extends InteractableObject {
         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(controller.getGamePanel());
 
         JDialog dialog = new JDialog(frame, "Interaction", true);
-        dialog.setUndecorated(true); // Biar latar belakang keliatan
+        dialog.setUndecorated(true);
         NPCInteractionPanel panel = new NPCInteractionPanel(frame, "Caroline");
-        dialog.setContentPane(panel); // Ganti isi dialog dengan panel yang punya latar
-        dialog.pack(); // Biarkan ukurannya ikut ukuran panel
+        dialog.setContentPane(panel); 
+        dialog.pack(); 
         dialog.setLocationRelativeTo(frame);
         dialog.setVisible(true);
     }

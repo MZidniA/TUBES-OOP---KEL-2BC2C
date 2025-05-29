@@ -1,11 +1,10 @@
-// Lokasi: org.example.model.PlayerStats.java
 package org.example.model;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set; // IMPORT BARU
-import java.util.HashSet; // IMPORT BARU
+import java.util.Set; 
 
 import org.example.model.NPC.NPC;
 import org.example.model.enums.FishType;
@@ -14,14 +13,13 @@ public class PlayerStats {
     private int totalIncome;
     private int totalGoldSpent;
     private int totalCropsHarvested;
-    private Map<FishType, Integer> TotalFishCaught; // Variabel Anda diawali huruf besar, biasanya lowercase
+    private Map<FishType, Integer> TotalFishCaught; 
     private int totalDaysPlayed;
 
     private Map<String, Integer> npcFriendshipPoints;
     private Map<String, Integer> npcTotalChat;
     private Map<String, Integer> npcTotalGift;
 
-    // BARU: Menyimpan ID resep yang sudah unlocked
     private Set<String> unlockedRecipeIds;
 
     public PlayerStats() {
@@ -46,7 +44,7 @@ public class PlayerStats {
 
     public void unlockRecipe(String recipeId) {
         if (recipeId != null && !recipeId.isEmpty()) {
-            if (this.unlockedRecipeIds.add(recipeId)) { // .add() mengembalikan true jika set diubah
+            if (this.unlockedRecipeIds.add(recipeId)) { 
                 System.out.println("PlayerStats LOG: Recipe '" + recipeId + "' unlocked!");
             } else {
                 System.out.println("PlayerStats LOG: Recipe '" + recipeId + "' already unlocked.");
@@ -54,19 +52,15 @@ public class PlayerStats {
         }
     }
 
-
     public boolean isRecipeUnlocked(String recipeId) {
         if (recipeId == null) return false;
-        return this.unlockedRecipeIds.contains(recipeId);
+     return this.unlockedRecipeIds.contains(recipeId);
     }
 
-   
     public Set<String> getUnlockedRecipeIds() {
         return new HashSet<>(this.unlockedRecipeIds); 
     }
  
-
-
     public void recordIncome(int amount) {
         if (amount > 0) this.totalIncome += amount;
     }
@@ -107,7 +101,7 @@ public class PlayerStats {
         }
     }
 
-    public void updateAllNpcFriendshipPoints(List<NPC> npcListParam) { // Ganti nama parameter agar tidak sama dengan field
+    public void updateAllNpcFriendshipPoints(List<NPC> npcListParam) { 
         if (npcListParam == null) return;
         for (NPC npc : npcListParam) {
             if (npc != null) { 
@@ -115,7 +109,6 @@ public class PlayerStats {
             }
         }
     }
-
 
     public int getTotalIncome() { return totalIncome; }
     public int gettotalGoldSpent() { return totalGoldSpent; } 

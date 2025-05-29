@@ -46,12 +46,8 @@ public class FarmMap {
 
     public boolean plantSeedOnTile(int col, int row, Seeds seed) {
         if (col >= 0 && col < getSize() && row >= 0 && row < getSize() && seed != null) {
-            // Pastikan tile yang akan ditanami adalah Tilledland (atau tipe yang sesuai)
-            // Atau, Anda bisa mengizinkan penanaman di atas Tillableland jika TillingAction hanya mengubah tile dasar
-            // dan tidak membuat objek UnplantedTileObject.
-            // Untuk saat ini, kita asumsikan TillingAction sudah membuat Tilledland (sebagai Tile data).
-            if (map[col][row] instanceof Tilledland) { // Atau tipe tile dasar tanah yang sudah dicangkul
-                map[col][row] = new Plantedland(col, row, seed); // Ganti tile lama dengan Plantedland baru
+            if (map[col][row] instanceof Tilledland) { 
+                map[col][row] = new Plantedland(col, row, seed); 
                 System.out.println("FarmMap: Benih '" + seed.getName() + "' ditanam di tile data (" + col + "," + row + "). Tipe tile sekarang: Plantedland.");
                 return true;
             } else {
@@ -63,19 +59,12 @@ public class FarmMap {
         return false;
     }
 
-    /**
-     * Mengembalikan tile ke kondisi Tillableland setelah panen atau tanaman mati.
-     * @param col Kolom tile.
-     * @param row Baris tile.
-     */
     public void setTileToTillable(int col, int row) {
         if (col >= 0 && col < getSize() && row >= 0 && row < getSize()) {
-            map[col][row] = new Tillableland(col, row); // Ganti dengan Tillableland baru
+            map[col][row] = new Tillableland(col, row);
             System.out.println("FarmMap: Tile (" + col + "," + row + ") diubah kembali menjadi Tillableland.");
         }
     }
-
-
 
     private void initializeMap() {
         Random random = new Random();

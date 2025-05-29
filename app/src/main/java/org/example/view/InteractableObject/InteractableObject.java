@@ -19,33 +19,18 @@ public abstract class InteractableObject {
     public int solidAreaDefaultY = 0;
     protected static final UtilityTool uTool = new UtilityTool();
 
-    /**
-     * Konstruktor dasar untuk objek interaktif.
-     * @param name Nama objek.
-     */
     public InteractableObject(String name) {
         this.name = name;
     }
 
-    /**
-     * Metode abstrak yang harus diimplementasikan oleh subclass
-     * untuk memuat gambar spesifik mereka (belum di-scale).
-     */
     protected abstract void loadImage();
 
-    /**
-     * Menggambar objek ke layar.
-     * @param g2 Graphics context.
-     * @param gp GamePanel untuk mendapatkan konstanta seperti tileSize dan dimensi layar.
-     * @param playerView PlayerView untuk mendapatkan posisi kamera.
-     */
     public void draw(Graphics2D g2, GamePanel gp, PlayerView playerView) {
         if (playerView == null || gp == null) return; 
     
         int worldWidth = gp.maxWorldCol * gp.tileSize;
         int worldHeight = gp.maxWorldRow * gp.tileSize;
         
-        // Logika kamera yang sama dengan TileManager
         double cameraX = playerView.worldX - (gp.screenWidth / 2.0);
         double cameraY = playerView.worldY - (gp.screenHeight / 2.0);
         
@@ -55,7 +40,6 @@ public abstract class InteractableObject {
         int screenX = (int) (this.worldX - cameraX);
         int screenY = (int) (this.worldY - cameraY);
         
-        // Culling dan gambar objek
         if (screenX > -gp.tileSize && screenX < gp.screenWidth && 
             screenY > -gp.tileSize && screenY < gp.screenHeight) {
             
@@ -65,10 +49,6 @@ public abstract class InteractableObject {
         }
     }
 
-    /**
-     * Logika interaksi default. Bisa di-override oleh subclass.
-     * @param controller GameController untuk memungkinkan objek memicu aksi game.
-     */
     public void interact(GameController controller) {
         System.out.println("Interacted with " + name);
     }

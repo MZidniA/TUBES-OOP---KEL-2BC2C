@@ -8,7 +8,13 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.io.InputStream;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class NPCInteractionPanel extends JPanel {
     private Image backgroundImage;
@@ -45,21 +51,19 @@ public class NPCInteractionPanel extends JPanel {
             add(btn);
         }
 
-        // Tambah tombol Back di paling bawah
         JButton backButton = new JButton("Back");
         backButton.setFont(pixelFont);
         backButton.setForeground(Color.WHITE);
         backButton.setFocusPainted(false);
-        backButton.setBackground(new Color(153, 102, 102)); // warna normal
+        backButton.setBackground(new Color(153, 102, 102)); 
         backButton.setOpaque(true);
         backButton.setBorder(BorderFactory.createLineBorder(new Color(90, 60, 60), 2));
 
-        // Hover effect
         backButton.getModel().addChangeListener(e -> {
             if (backButton.getModel().isRollover()) {
-                backButton.setBackground(new Color(119, 68, 68)); // warna hover
+                backButton.setBackground(new Color(119, 68, 68)); 
             } else {
-                backButton.setBackground(new Color(153, 102, 102)); // warna default
+                backButton.setBackground(new Color(153, 102, 102)); 
             }
         });
 

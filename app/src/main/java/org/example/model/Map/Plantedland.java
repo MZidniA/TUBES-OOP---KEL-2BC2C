@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.example.controller.action.Action;
-import org.example.model.Player;
 import org.example.model.Items.Seeds;
+import org.example.model.Player;
 import org.example.model.enums.Season;
 import org.example.model.enums.Weather; 
 
@@ -47,7 +47,7 @@ public class Plantedland extends Tile {
     }
 
   
-    public void dailyGrow(Season currentSeason, Weather currentWeather) { // Tambahkan parameter Weather
+    public void dailyGrow(Season currentSeason, Weather currentWeather) { 
         if (isDead || plantedSeed == null) {
             return;
         }
@@ -72,7 +72,7 @@ public class Plantedland extends Tile {
         } else if (currentWeather == Weather.RAINY) {
 
             this.daysSinceLastWatering = 0;
-            this.wateredToday = true; // Anggap disiram oleh hujan
+            this.wateredToday = true; 
             System.out.println("Tanaman di ("+getX()+","+getY()+") tersiram oleh hujan.");
         }
 

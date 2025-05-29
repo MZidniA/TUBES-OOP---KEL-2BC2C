@@ -1,9 +1,8 @@
 package org.example.model;
 
 import java.util.EnumSet;
-// import org.example.model.items.Items; // Import the Items class
-// Ensure the Items class exists in the correct package or update the import path
-import org.example.model.Items.Items; 
+ 
+import org.example.model.Items.Items;
 import org.example.model.NPC.NPC;
 import org.example.model.enums.LocationType;
 
@@ -11,32 +10,29 @@ public class Player {
     private String name;
     private String gender;
     private int energy;
-    private final int MAX_ENERGY = 100; // Tambahkan konstanta untuk energi maksimum
+    private final int MAX_ENERGY = 100;
     private final int MIN_ENERGY_OPERATIONAL = -20;
-    private boolean passedOut = false; // Energi minimum sebelum pingsan/auto-sleep
-    private boolean forceSleepByTime = false; // Flag untuk memaksa tidur
+    private boolean passedOut = false;
+    private boolean forceSleepByTime = false; 
     private String farmname;
     private NPC partner;
     private int gold;
     private Inventory inventory;
-    private LocationType currentLocationType;// Ganti nama agar lebih jelas
-    private Items currentHeldItem;// Ganti nama agar lebih jelas
+    private LocationType currentLocationType;
+    private Items currentHeldItem;
 
-    // Tambahkan field posisi tile player
     private int tileX = 0;
     private int tileY = 0;
 
-    // Constructor
-    public Player(String name, String gender, String farmname /*, NPC partner, Inventory inventory */) {
+    public Player(String name, String gender, String farmname) {
         this.name = name;
         this.gender = gender;
-        this.energy = MAX_ENERGY; // Energi awal penuh
+        this.energy = MAX_ENERGY;
         this.farmname = farmname;
-        // this.partner = partner; // Bisa di-set nanti
-        this.gold = 500; // Modal awal, sesuaikan
-        this.inventory = new Inventory(); // Inisialisasi inventory kosong atau default
+        this.gold = 500;
+        this.inventory = new Inventory(); 
         this.currentLocationType = LocationType.FARM; 
-        this.currentHeldItem = null;// Lokasi awal
+        this.currentHeldItem = null;
     }
 
     public String getName() {
@@ -72,7 +68,6 @@ public class Player {
         }
     }
 
-    // --- TAMBAHKAN GETTER DAN SETTER UNTUK FLAG ---
     public boolean isPassedOut() {
         return this.passedOut;
     }
@@ -88,7 +83,7 @@ public class Player {
         this.forceSleepByTime = status;
     }
 
-    public int getMaxEnergy() { // Getter untuk MAX_ENERGY
+    public int getMaxEnergy() {
         return MAX_ENERGY;
     }
      public int getMinEnergyOperational() {

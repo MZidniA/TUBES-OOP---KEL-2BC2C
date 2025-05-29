@@ -27,6 +27,6 @@ public class Food extends Items implements EdibleItem {
     }
 
     public void initialize() {
-        // Optional: implementasi jika diperlukan
+        
     }
 }

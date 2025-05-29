@@ -9,7 +9,7 @@ import org.example.controller.action.SleepingAction;
 public class BedObject extends InteractableObject {
     public BedObject() { 
         super("Bed"); 
-        this.collision = true; // Assuming BedObject should have collision
+        this.collision = true; 
         loadImage(); 
     }
 
@@ -28,6 +28,5 @@ public class BedObject extends InteractableObject {
         SleepingAction sleepingAction = new SleepingAction(controller);
         sleepingAction.execute(controller.getFarm());
     }
-    
 }
 

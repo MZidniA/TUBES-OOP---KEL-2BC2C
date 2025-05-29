@@ -2,7 +2,7 @@ package org.example.model.Items;
 
 public class Crops extends Items implements EdibleItem {
     private int jumlahcropperpanen;
-    private int energyRestored; // Tambahkan field untuk energi yang dipulihkan
+    private int energyRestored; 
 
     public Crops(String name, int sellprice, int buyprice, int jumlahcropperpanen, int energyRestored) {
         super(name, sellprice, buyprice);

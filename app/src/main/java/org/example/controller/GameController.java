@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 import org.example.controller.action.PlantingAction;
 import org.example.controller.action.RecoverLandAction;
@@ -18,6 +17,7 @@ import org.example.model.Items.Items;
 import org.example.model.Items.Seeds;
 import org.example.model.Map.FarmMap;
 import org.example.model.Map.Plantedland;
+import org.example.model.Map.Tile;
 import org.example.model.Player;
 import org.example.model.Sound;
 import org.example.model.enums.LocationType;
@@ -34,7 +34,6 @@ import org.example.view.InteractableObject.RiverObject;
 import org.example.view.InteractableObject.UnplantedTileObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
-import org.example.model.Map.Tile;
 
 public class GameController implements Runnable {
 
@@ -43,7 +42,7 @@ public class GameController implements Runnable {
     private final PlayerView playerViewInstance;
     private final TileManager tileManager; 
     private final GameStateUI gameStateUI; 
-    private final JFrame mainFrame; // Untuk akses JFrame utama jika diperlukan
+    private final JFrame mainFrame; 
 
     private final KeyHandler keyHandler;
     private final CollisionChecker cChecker;
@@ -62,7 +61,7 @@ public class GameController implements Runnable {
     public GameController(JFrame frame,GamePanel gamePanel, Farm farm) {
         this.gamePanel = gamePanel;
         this.farm = farm;
-        this.mainFrame = frame; // Simpan referensi JFrame utama
+        this.mainFrame = frame; 
 
         this.gameState = new GameState();
         
@@ -194,10 +193,6 @@ public class GameController implements Runnable {
             InteractableObject[] currentObjects = farm.getObjectsForCurrentMap();
             if (currentObjects != null && objIndex < currentObjects.length && currentObjects[objIndex] != null) {
                 InteractableObject targetObject = currentObjects[objIndex];
-                // if (heldItem != null && heldItem.getName().equalsIgnoreCase("Fishing Rod") && targetObject.name.equalsIgnoreCase("Pond")) {
-                //     System.out.println(playerModel.getName() + " is fishing at the " + targetObject.name + "!");
-                //     return;
-                // }
                 targetObject.interact(this);
                 return;
             }
@@ -343,7 +338,7 @@ public class GameController implements Runnable {
         movementState.put("left", false); movementState.put("right", false);
     }
     public void teleportPlayer(int mapIndex, int worldX, int worldY) {
-        int musicIdx = 0; // Default music
+        int musicIdx = 0; 
         teleportPlayer(mapIndex, worldX, worldY, musicIdx);
     }
     public void teleportPlayer(int mapIndex, int worldX, int worldY, int musicIndex) {
@@ -456,9 +451,8 @@ public class GameController implements Runnable {
             this.mainFrame.setContentPane(this.gamePanel);
             this.mainFrame.revalidate();
             this.mainFrame.repaint();
-            this.gamePanel.requestFocusInWindow(); // Penting untuk input keyboard
-            
-            // Pastikan game state kembali ke play jika sebelumnya bukan
+            this.gamePanel.requestFocusInWindow(); 
+
             if (gameState.getGameState() != gameState.play) {
                 gameState.setGameState(gameState.play);
             }
@@ -518,8 +512,6 @@ public class GameController implements Runnable {
         Season newDaySeason = farm.getGameClock().getCurrentSeason();
         Weather newDayWeather = farm.getGameClock().getTodayWeather();
 
-        
-        // Asumsi FarmMap memiliki getSize() atau getWidth()/getHeight()
         for (int y = 0; y < farmMap.getSize(); y++) { 
             for (int x = 0; x < farmMap.getSize(); x++) {
                 Tile currentTile = farmMap.getTile(x, y);
