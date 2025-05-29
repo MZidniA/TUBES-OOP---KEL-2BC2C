@@ -9,6 +9,7 @@ import java.awt.GraphicsEnvironment;
 import java.io.InputStream;
 
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import org.example.controller.CollisionChecker;
 import org.example.controller.GameController;
@@ -16,8 +17,6 @@ import org.example.controller.GameState;
 import org.example.controller.action.UpdateAndShowLocationAction;
 import org.example.model.Farm;
 import org.example.model.Inventory;
-import org.example.model.Player;
-import org.example.model.enums.LocationType;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
@@ -43,6 +42,8 @@ public class GamePanel extends JPanel {
     public final TileManager tileM;
     public final GameStateUI gameStateUI;
 
+    private JPanel miniGamePanel = null;
+
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.BLACK);
@@ -52,6 +53,8 @@ public class GamePanel extends JPanel {
         this.tileM = new TileManager(this);
         this.gameStateUI = new GameStateUI(this);
         loadCustomFont();
+
+        new Timer(16, e -> repaint()).start();
     }
 
     private void loadCustomFont() {
@@ -79,17 +82,33 @@ public class GamePanel extends JPanel {
 
     public void setController(GameController controller) {
         this.gameController = controller;
-        // Inisialisasi di sini SETELAH controller di-set
         if (this.gameController != null) {
             this.updateLocationAction = new UpdateAndShowLocationAction(this.gameController);
         }
     }
 
+    public void setMiniGamePanel(JPanel panel) {
+        if (miniGamePanel != null) {
+            this.remove(miniGamePanel);
+        }
+        this.miniGamePanel = panel;
+        this.add(panel);
+        this.revalidate();
+        this.repaint();
+    }
 
- 
+    public void removeMiniGamePanel() {
+        if (miniGamePanel != null) {
+            this.remove(miniGamePanel);
+            this.miniGamePanel = null;
+            this.revalidate();
+            this.repaint();
+        }
+    }
+
     public String getPlayerCurrentLocationDetail() {
         if (this.gameController == null) return "Lokasi: Controller N/A";
-        if (this.updateLocationAction == null) { // Lazy initialization atau fallback
+        if (this.updateLocationAction == null) {
             if (this.gameController != null) {
                 this.updateLocationAction = new UpdateAndShowLocationAction(this.gameController);
             } else {
@@ -122,7 +141,6 @@ public class GamePanel extends JPanel {
         GameState currentGameState = gameController.getGameState();
         Inventory playerInventory = farmModel.getPlayerModel().getInventory();
 
-        // Gambar Tiles dan Objek (sekarang mereka menangani kamera sendiri)
         if (farmModel != null && playerView != null) {
             tileM.draw(g2, playerView, farmModel.getCurrentMap());
 
@@ -132,38 +150,35 @@ public class GamePanel extends JPanel {
                     obj.draw(g2, this, playerView);
                 }
             }
-            
 
             int playerScreenX = screenWidth / 2 - (tileSize / 2);
             int playerScreenY = screenHeight / 2 - (tileSize / 2);
-
             int worldWidth = maxWorldCol * tileSize;
             int worldHeight = maxWorldRow * tileSize;
-            
 
             if (playerView.worldX < screenWidth / 2) {
                 playerScreenX = playerView.worldX;
             } else if (playerView.worldX > worldWidth - screenWidth / 2) {
                 playerScreenX = playerView.worldX - (worldWidth - screenWidth);
             }
-            
-            // Clamp posisi pemain di layar sumbu Y
+
             if (playerView.worldY < screenHeight / 2) {
                 playerScreenY = playerView.worldY;
             } else if (playerView.worldY > worldHeight - screenHeight / 2) {
                 playerScreenY = playerView.worldY - (worldHeight - screenHeight);
             }
-            // Panggil metode draw PlayerView yang baru
-            playerView.draw(g2, gp,  playerScreenX, playerScreenY);
-            // ---------------------------------------------
 
-            // Gambar Prompt Interaksi (logika ini tetap sama)
+            playerView.draw(g2, gp, playerScreenX, playerScreenY);
+
             if (currentGameState.getGameState() == currentGameState.play) {
                 CollisionChecker cChecker = gameController.getCollisionChecker();
                 if (cChecker != null) {
                     int objIndex = cChecker.checkObject(playerView);
 
-                    if (objIndex != 999 && objectsOnCurrentMap != null && objIndex < objectsOnCurrentMap.length && objectsOnCurrentMap[objIndex] != null) {
+                    if (objIndex != 999 && objectsOnCurrentMap != null &&
+                        objIndex < objectsOnCurrentMap.length &&
+                        objectsOnCurrentMap[objIndex] != null) {
+
                         g2.setColor(Color.WHITE);
                         Font interactFont = (this.customFont != null) ? this.customFont.deriveFont(16f) : new Font("Arial", Font.BOLD, 16);
                         g2.setFont(interactFont);
@@ -180,8 +195,8 @@ public class GamePanel extends JPanel {
                         g2.drawString(text, x, y);
                     }
                 }
-            }   
-        }  else {
+            }
+        } else {
             g2.setColor(Color.RED);
             g2.drawString("Data game (Farm/PlayerView) belum siap.", 20, 40);
         }

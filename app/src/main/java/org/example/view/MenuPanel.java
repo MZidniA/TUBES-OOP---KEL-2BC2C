@@ -101,7 +101,6 @@ public class MenuPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == startButton) {
-            // ⬇️ GANTI ke TransitionPanel dulu
             frame.getContentPane().removeAll();
             TransitionPanel transitionPanel = new TransitionPanel(frame);
             frame.setContentPane(transitionPanel);

@@ -72,4 +72,12 @@ public abstract class InteractableObject {
     public void interact(GameController controller) {
         System.out.println("Interacted with " + name);
     }
+
+    public int getWorldX() {
+        return this.worldX;
+    }
+
+    public int getWorldY() {
+        return this.worldY;
+    }
 }

@@ -3,23 +3,29 @@ package org.example.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+
+import org.example.controller.action.TillingAction;
 import org.example.model.Farm;
 import org.example.model.GameClock;
+import org.example.model.Inventory;
+import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
-import org.example.model.Items.Seeds;
-import org.example.model.enums.LocationType;
 import org.example.model.Player;
 import org.example.model.Sound;
-import org.example.model.Inventory;
+import org.example.model.enums.LocationType;
+import org.example.view.FishingPanel;
 import org.example.view.GamePanel;
 import org.example.view.GameStateUI;
-import org.example.view.MenuPanel;
 import org.example.view.InteractableObject.InteractableObject;
+import org.example.view.InteractableObject.MountainLakeObject;
+import org.example.view.InteractableObject.OceanObject;
+import org.example.view.InteractableObject.PondObject;
+import org.example.view.InteractableObject.RiverObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
-import org.example.controller.action.TillingAction;
 
 public class GameController implements Runnable {
 
@@ -380,5 +386,62 @@ public class GameController implements Runnable {
     }
     public Farm getFarm() { 
         return this.farm; 
+    }
+
+    public JFrame getMainFrame() {
+        return (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
+    }
+
+    public void openFishingPanel() {
+        FishingPanel fishingPanel = new FishingPanel(farm, this);
+        JFrame frame = getMainFrame();
+        frame.setContentPane(fishingPanel);
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    public void returnToGamePanel() {
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
+        frame.setContentPane(gamePanel);
+        frame.revalidate();
+        frame.repaint();
+        gamePanel.requestFocusInWindow();
+    }
+
+    public InteractableObject getNearestInteractableTile(Player player) {
+        InteractableObject[] objects = farm.getObjectsForCurrentMap();
+        int tileSize = getTileSize();
+
+        int playerX = playerViewInstance.worldX / tileSize;
+        int playerY = playerViewInstance.worldY / tileSize;
+
+        for (InteractableObject obj : objects) {
+            if (obj == null) continue;
+            int objX = obj.getWorldX() / tileSize;
+            int objY = obj.getWorldY() / tileSize;
+
+            int dx = Math.abs(playerX - objX);
+            int dy = Math.abs(playerY - objY);
+
+            if ((dx + dy) == 1) {
+                return obj;
+            }
+        }
+        return null;
+    }
+
+    public boolean handleFishingIfNearby() {
+        Player player = getFarmModel().getPlayerModel();
+        InteractableObject obj = getNearestInteractableTile(player);
+        if (obj instanceof PondObject || obj instanceof RiverObject ||
+            obj instanceof MountainLakeObject || obj instanceof OceanObject) {
+            if (player.getInventory().hasItem(ItemDatabase.getItem("Fishing Rod"), 1)) {
+                openFishingPanel();
+            } else {
+                System.out.println("Butuh Fishing Rod untuk memancing.");
+            }
+            return true;
+        }
+        return false;
     }
 }

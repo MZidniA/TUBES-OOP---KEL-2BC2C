@@ -1,17 +1,20 @@
 package org.example.view.InteractableObject;
 
-import java.io.IOException; 
+import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
 import org.example.controller.GameController;
+import org.example.model.Items.ItemDatabase;
+import org.example.model.Player;
+import org.example.model.enums.LocationType;
 
 public class RiverObject extends InteractableObject {
 
-    public RiverObject() { 
+    public RiverObject() {
         super("River");
-        this.collision = true; 
-        loadImage(); 
+        this.collision = false;
+        loadImage();
     }
 
     @Override
@@ -20,12 +23,20 @@ public class RiverObject extends InteractableObject {
             this.image = ImageIO.read(getClass().getResourceAsStream("/InteractableObject/River.png"));
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Error loading River.png for RiverObject");
         }
     }
 
     @Override
     public void interact(GameController controller) {
         System.out.println("You are interacting with the River.");
+        Player player = controller.getFarmModel().getPlayerModel();
+
+        player.setCurrentLocationType(LocationType.FOREST_RIVER);
+
+        if (player.getInventory().hasItem(ItemDatabase.getItem("Fishing Rod"), 1)) {
+            controller.openFishingPanel();
+        } else {
+            System.out.println("You need a Fishing Rod to fish.");
+        }
     }
 }
