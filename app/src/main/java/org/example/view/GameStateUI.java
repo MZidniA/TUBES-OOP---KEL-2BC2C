@@ -6,7 +6,8 @@ import org.example.model.Inventory;
 import org.example.model.Items.Items;
 import org.example.model.enums.Season;
 import java.time.LocalTime;
-import org.example.model.enums.Weather; // Meskipun tidak digunakan di drawTimeInfo, mungkin berguna nanti
+import org.example.model.GameClock; 
+import org.example.model.enums.Weather; 
 
 import java.awt.Color;
 import java.awt.Font;
@@ -16,19 +17,19 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class GameStateUI implements TimeObserver { // Pastikan implement TimeObserver
-    GamePanel gp; // Untuk konstanta layout dan dimensi
-    Graphics2D g2; // Diset di metode draw utama
+public class GameStateUI implements TimeObserver { 
+    GamePanel gp; 
+    Graphics2D g2;
+    GameClock gameClock; 
     Font stardewFont_40, stardewFont_30, stardewFont_20, defaultFont;
-    public int commandNum = 0; // State internal untuk navigasi menu pause
-    public int slotCol = 0;    // State internal untuk navigasi inventory
+    public int commandNum = 0; 
+    public int slotCol = 0;
     public int slotRow = 0;
 
-    // State untuk TimeInfo, diperbarui oleh onTimeUpdate
     private int currentDay = 1;
-    private Season currentSeason = Season.SPRING;
+    private Season currentSeason = Season.SPRING; 
     private LocalTime currentTime = LocalTime.of(6,0);
-    private Weather currentWeather = Weather.SUNNY; // Default cuaca, bisa diubah sesuai game state
+    private Weather currentWeather = Weather.SUNNY;
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
 
@@ -40,12 +41,12 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
 
     public GameStateUI(GamePanel gp) {
         this.gp = gp;
-        defaultFont = new Font("Arial", Font.PLAIN, 12); // Fallback font
+        defaultFont = new Font("Arial", Font.PLAIN, 12);
 
         try {
-            InputStream is = getClass().getResourceAsStream("/font/slkscr.ttf"); // Ganti dengan path font Anda
+            InputStream is = getClass().getResourceAsStream("/font/slkscr.ttf"); 
             if (is == null) {
-                is = getClass().getResourceAsStream("/font/PressStart2P.ttf"); // Fallback ke font lain jika ada
+                is = getClass().getResourceAsStream("/font/PressStart2P.ttf"); 
                  if (is == null) {
                     throw new Exception("File font tidak ditemukan: /font/slkscr.ttf atau /font/PressStart2P.ttf");
                  }
@@ -63,32 +64,23 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
         }
     }
 
-    /**
-     * Metode utama untuk menggambar semua elemen UI.
-     * @param g2 Graphics context.
-     * @param currentGameState State game saat ini (misalnya, PLAY, PAUSE, INVENTORY).
-     * @param playerInventory Inventory pemain (hanya dibutuhkan jika state adalah INVENTORY).
-     */
+  
     public void draw(Graphics2D g2, GameState currentGameState, Inventory playerInventory) {
-        this.g2 = g2; // Simpan graphics context untuk helper methods
-
-        // Selalu tampilkan info waktu di pojok kanan atas
+        this.g2 = g2; 
         drawTimeInfo();
-
-        // Tampilkan UI spesifik berdasarkan state game
         if (currentGameState.getGameState() == currentGameState.pause) {
             drawPauseScreen();
         } else if (currentGameState.getGameState() == currentGameState.inventory) {
-            drawInventoryScreen(playerInventory); // Kirim inventory ke metode ini
+            drawInventoryScreen(playerInventory); 
         }
-        // Tambahkan state lain jika ada (misalnya, DIALOGUE, SHOP_MENU, dll.)
+
     }
 
     @Override
     public void onTimeUpdate(int day, Season season, Weather weather, LocalTime time) {
         this.currentDay = day;
         this.currentSeason = season;
-        this.currentWeather = weather; // Anda bisa uncomment jika ingin menampilkan cuaca juga
+        this.currentWeather = weather; 
         this.currentTime = time;
     }
 
@@ -103,11 +95,11 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
         Font fontUntukWaktu = (stardewFont_20 != null) ? stardewFont_20.deriveFont(16f) : new Font("Arial", Font.PLAIN, 16);
         g2.setFont(fontUntukWaktu);
 
-        int xPosisiTeks = gp.screenWidth - 150; // Sesuaikan agar pas
+        int xPosisiTeks = gp.screenWidth - 125; 
         int yPosisiAwal = 30;
         int spasiAntarBaris = 20;
 
-        // Menggambar teks dengan bayangan untuk keterbacaan
+     
         drawTextWithShadow(seasonText, xPosisiTeks, yPosisiAwal);
         drawTextWithShadow(weatherText, xPosisiTeks, yPosisiAwal + spasiAntarBaris);
         drawTextWithShadow(dayText, xPosisiTeks, yPosisiAwal + spasiAntarBaris*2);
@@ -130,7 +122,7 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
         int y = frameY + gp.tileSize + gp.tileSize / 2;
         drawTextWithShadow(text, x, y, titleFont);
 
-        g2.setFont(optionFont); // Set font untuk opsi
+        g2.setFont(optionFont); 
         text = "Continue";
         x = getXforCenteredTextInWindow(text, frameX, frameWidth, optionFont);
         y += gp.tileSize * 2;
@@ -152,7 +144,7 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
         final int frameX = gp.tileSize;
         final int frameY = gp.tileSize;
         final int frameWidth = gp.screenWidth - (gp.tileSize * 2);
-        final int frameHeight = gp.tileSize * 8; // Sesuaikan tinggi jika perlu
+        final int frameHeight = gp.tileSize * 8; 
 
         drawSubWindow(frameX, frameY, frameWidth, frameHeight, new Color(101, 67, 33, 230));
 
@@ -163,16 +155,16 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
         drawTextWithShadow(text, titleX, titleY, titleFont);
 
         final int slotsPerRow = 12;
-        final int totalDisplayRows = 3; // Jumlah baris slot yang ingin ditampilkan
+        final int totalDisplayRows = 3; 
         final int slotSize = gp.tileSize + 6;
         final int slotGap = 4;
         final int maxSlotsToDisplay = slotsPerRow * totalDisplayRows;
 
         final int gridWidth = (slotsPerRow * slotSize) + ((slotsPerRow - 1) * slotGap);
         final int slotXStart = frameX + (frameWidth - gridWidth) / 2;
-        final int slotYStart = titleY + gp.tileSize + (gp.tileSize / 2); // Sedikit ruang setelah judul
+        final int slotYStart = titleY + gp.tileSize + (gp.tileSize / 2); 
 
-        // Mengambil daftar item dari inventory yang diberikan
+     
         ArrayList<Map.Entry<Items, Integer>> inventoryList = new ArrayList<>(inventory.getInventory().entrySet());
 
         Font itemPlaceholderFont = (stardewFont_20 != null ? stardewFont_20.deriveFont(10F) : defaultFont.deriveFont(10F));
@@ -186,8 +178,8 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
             int currentSlotX = slotXStart + col * (slotSize + slotGap);
             int currentSlotY = slotYStart + row * (slotSize + slotGap);
             
-            // Gambar nomor hotkey di atas slot baris pertama
-            if (row == 0 && i < 12) { // Hanya untuk 12 slot pertama (hotbar)
+        
+            if (row == 0 && i < 12) { 
                  String hotkeyNum = "";
                  if (i < 9) hotkeyNum = String.valueOf(i + 1);
                  else if (i == 9) hotkeyNum = "0";
@@ -211,18 +203,17 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
                 Items item = inventoryList.get(i).getKey();
                 Integer quantity = inventoryList.get(i).getValue();
 
-                // Di sini idealnya Anda akan menggambar ikon item jika ada.
-                // Untuk sekarang, kita gambar nama item (dipotong jika terlalu panjang).
+           
                 g2.setFont(itemPlaceholderFont);
                 g2.setColor(lightYellow);
                 String itemName = item.getName();
-                int maxNameLengthInSlot = 7; // Sesuaikan agar muat
+                int maxNameLengthInSlot = 7; 
                 if (itemName.length() > maxNameLengthInSlot) {
                     itemName = itemName.substring(0, Math.min(itemName.length(), maxNameLengthInSlot - 2)) + "..";
                 }
                 int textWidth = g2.getFontMetrics().stringWidth(itemName);
                 int textX = currentSlotX + (slotSize - textWidth) / 2;
-                int textY = currentSlotY + (slotSize / 2) + (g2.getFontMetrics().getAscent() / 3); // Pusatkan vertikal
+                int textY = currentSlotY + (slotSize / 2) + (g2.getFontMetrics().getAscent() / 3); 
                 g2.drawString(itemName, textX, textY);
 
                 if (quantity > 1) {
@@ -232,7 +223,7 @@ public class GameStateUI implements TimeObserver { // Pastikan implement TimeObs
                     // Posisi kanan bawah di dalam slot
                     int qtyX = currentSlotX + slotSize - qtyTextWidth - 4;
                     int qtyY = currentSlotY + slotSize - 4;
-                    drawTextWithShadow(qtyText, qtyX, qtyY, quantityFont); // Gunakan helper untuk shadow
+                    drawTextWithShadow(qtyText, qtyX, qtyY, quantityFont); 
                 }
             }
         }

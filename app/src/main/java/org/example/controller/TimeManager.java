@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.example.model.Farm;
 import org.example.model.GameClock; // Import GameClock dari Model
+import org.example.model.Player;
 import org.example.model.PlayerStats; // Import PlayerStats
 import org.example.model.enums.Season;
 import org.example.model.enums.Weather;
@@ -30,7 +31,7 @@ public class TimeManager {
         observers.add(observer);
     }
 
-    private void notifyObservers() {
+    public void notifyObservers() {
 
         LocalTime currentTime = gameClockModel.getCurrentTime();
         int currentDay = gameClockModel.getDay();
@@ -47,32 +48,44 @@ public class TimeManager {
             running = true;
             timeThread = new Thread(() -> {
                 long lastTimeMillis = System.currentTimeMillis();
+                LocalTime twoAM = LocalTime.of(2, 0); 
+                LocalTime sixAM = LocalTime.of(6, 0); 
+
 
                 while (running) {
                     long currentTimeMillis = System.currentTimeMillis();
                     long elapsed = currentTimeMillis - lastTimeMillis;
 
                     if (elapsed >= 1000) { 
-                        PlayerStats stats = (farmModel != null) ? farmModel.getPlayerStats() : null;
                         gameClockModel.advanceTimeMinutes(REAL_SECOND_TO_GAME_MINUTE);
-                        
                         lastTimeMillis = currentTimeMillis;
                         notifyObservers(); 
+
+
+                        Player playerModel = farmModel.getPlayerModel();
+                        LocalTime currentGameTime = gameClockModel.getCurrentTime();
+
+                        
+                        if (playerModel != null && 
+                            (!currentGameTime.isBefore(twoAM) && currentGameTime.isBefore(sixAM)) &&
+                            !playerModel.isForceSleepByTime() && !playerModel.isPassedOut() ) {
+                            
+                            System.out.println("TimeManager: Waktu sudah jam 02:00 atau lebih, memaksa pemain tidur.");
+                            playerModel.setForceSleepByTime(true);
+                        }
+                        // -----------------------------------------
                     }
 
                     try {
-
-                        Thread.sleep(100);
+                        Thread.sleep(100); 
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                         running = false;
-                        System.out.println("GameTimeThread interrupted.");
                     }
                 }
             });
             timeThread.setName("GameTimeThread");
             timeThread.start();
-            System.out.println("TimeManager: Time system started.");
         }
     }
 

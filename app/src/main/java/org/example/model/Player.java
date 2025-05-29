@@ -14,6 +14,7 @@ public class Player {
     private final int MAX_ENERGY = 100; // Tambahkan konstanta untuk energi maksimum
     private final int MIN_ENERGY_OPERATIONAL = -20;
     private boolean passedOut = false; // Energi minimum sebelum pingsan/auto-sleep
+    private boolean forceSleepByTime = false; // Flag untuk memaksa tidur
     private String farmname;
     private NPC partner;
     private int gold;
@@ -78,6 +79,13 @@ public class Player {
 
     public void setPassedOut(boolean status) {
         this.passedOut = status;
+    }
+    public boolean isForceSleepByTime() {
+        return this.forceSleepByTime;
+    }
+
+    public void setForceSleepByTime(boolean status) {
+        this.forceSleepByTime = status;
     }
 
     public int getMaxEnergy() { // Getter untuk MAX_ENERGY

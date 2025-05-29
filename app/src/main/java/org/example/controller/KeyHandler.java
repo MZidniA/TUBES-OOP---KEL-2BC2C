@@ -28,18 +28,7 @@ public class KeyHandler implements KeyListener {
                 case KeyEvent.VK_F: gameController.handleInteraction(); break;
                 case KeyEvent.VK_ESCAPE: gameController.togglePause(); break;
                 case KeyEvent.VK_I: gameController.toggleInventory(); break;
-                case KeyEvent.VK_1: gameController.selectHotbarItem(0); break;
-                case KeyEvent.VK_2: gameController.selectHotbarItem(1); break;
-                case KeyEvent.VK_3: gameController.selectHotbarItem(2); break;
-                case KeyEvent.VK_4: gameController.selectHotbarItem(3); break;
-                case KeyEvent.VK_5: gameController.selectHotbarItem(4); break;
-                case KeyEvent.VK_6: gameController.selectHotbarItem(5); break;
-                case KeyEvent.VK_7: gameController.selectHotbarItem(6); break;
-                case KeyEvent.VK_8: gameController.selectHotbarItem(7); break;
-                case KeyEvent.VK_9: gameController.selectHotbarItem(8); break;
-                case KeyEvent.VK_0: gameController.selectHotbarItem(9); break;
-                case KeyEvent.VK_MINUS: gameController.selectHotbarItem(10); break;
-                case KeyEvent.VK_EQUALS: gameController.selectHotbarItem(11); break;
+                case KeyEvent.VK_CONTROL: gameController.activateSetTimeTo2AMCheat();; break;
             }
         } else if (currentGameState.getGameState() == currentGameState.pause) {
             if (code == KeyEvent.VK_ESCAPE) gameController.togglePause();

@@ -126,7 +126,12 @@ public class GameController implements Runnable {
         Player playerModel = farm.getPlayerModel();
         if (playerModel.isPassedOut()) {
             passedOutSleep();
+            System.out.println("Kamu pingsan dan seseorang membawamu pulang...");
         } 
+        if (playerModel.isForceSleepByTime()) {
+            passedOutSleep();
+            System.out.println("Sudah jam 02:00, kamu kelelahan dan pingsan");
+        }
         if (gameState.getGameState() == gameState.play) {
              playerViewInstance.update(movementState, cChecker);
         }
@@ -298,7 +303,6 @@ public class GameController implements Runnable {
     public void passedOutSleep() {
         gameState.setGameState(gameState.pause); 
     
-        System.out.println("Kamu pingsan dan seseorang membawamu pulang...");
         
         Player playerModel = farm.getPlayerModel();
         GameClock gameClock = farm.getGameClock();
@@ -321,10 +325,32 @@ public class GameController implements Runnable {
         System.out.println("Hari baru telah dimulai: Hari ke-" + gameClock.getDay());
         
 
-        playerModel.setPassedOut(false);
+        
+        if (playerModel.isPassedOut()) {
+            playerModel.setPassedOut(false);
+        }
+        if (playerModel.isForceSleepByTime()) {
+            playerModel.setForceSleepByTime(false);
+        }
         
   
         gameState.setGameState(gameState.play);
+    }
+
+    
+
+    public void activateSetTimeTo2AMCheat() {
+        if (farm == null || farm.getGameClock() == null || timeManager == null) {
+            System.out.println("CHEAT FAILED.");
+            return;
+        }
+    
+        GameClock gameClock = farm.getGameClock();
+        gameClock.setCurrentTime(java.time.LocalTime.of(1, 45));
+        
+        this.timeManager.notifyObservers(); 
+    
+;
     }
     
     public Farm getFarmModel() { return this.farm; }
