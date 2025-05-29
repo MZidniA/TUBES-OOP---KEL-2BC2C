@@ -3,51 +3,39 @@ package org.example.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-<<<<<<< Updated upstream
-=======
+
 
 import org.example.controller.action.PlantingAction;
 import org.example.controller.action.RecoverLandAction;
 import org.example.controller.action.TillingAction;
->>>>>>> Stashed changes
 import org.example.model.Farm;
 import org.example.model.GameClock;
+import org.example.model.Inventory;
+import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
 import org.example.model.Items.Seeds;
-<<<<<<< Updated upstream
 import org.example.model.Player;
 import org.example.model.Sound;
-import org.example.model.Inventory;
-=======
 import org.example.model.Map.FarmMap;
 import org.example.model.Map.Plantedland;
-import org.example.model.Player;
-import org.example.model.Sound;
 import org.example.model.enums.LocationType;
 import org.example.model.enums.Season;
 import org.example.model.enums.Weather;
 import org.example.view.FishingPanel;
->>>>>>> Stashed changes
 import org.example.view.GamePanel;
 import org.example.view.GameStateUI;
-import org.example.view.MenuPanel;
 import org.example.view.InteractableObject.InteractableObject;
-<<<<<<< Updated upstream
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
-import org.example.controller.action.TillingAction;
-=======
 import org.example.view.InteractableObject.MountainLakeObject;
 import org.example.view.InteractableObject.OceanObject;
 import org.example.view.InteractableObject.PondObject;
 import org.example.view.InteractableObject.RiverObject;
 import org.example.view.InteractableObject.UnplantedTileObject;
-import org.example.view.entitas.PlayerView;
-import org.example.view.tile.TileManager;
 import org.example.model.Map.Tile;
->>>>>>> Stashed changes
 
 public class GameController implements Runnable {
 
@@ -107,9 +95,15 @@ public class GameController implements Runnable {
         setupGame();
     }
     
-    public GamePanel getGamePanel() { return gamePanel; }
-    public GameStateUI getGameStateUIFromPanel() { return gamePanel != null ? gamePanel.gameStateUI : null; }
-    public CollisionChecker getCollisionChecker() { return this.cChecker; }
+    public GamePanel getGamePanel() { 
+        return gamePanel; 
+    }
+    public GameStateUI getGameStateUIFromPanel() { 
+        return gamePanel != null ? gamePanel.gameStateUI : null; }
+    public CollisionChecker getCollisionChecker() { return this.cChecker; 
+    }
+
+
     public int getTillableAreaMinCol(int mapIndex) { return mapIndex == 0 ? TILLABLE_AREA_MAP0_MIN_COL : -1; }
     public int getTillableAreaMaxCol(int mapIndex) { return mapIndex == 0 ? TILLABLE_AREA_MAP0_MAX_COL : -1; }
     public int getTillableAreaMinRow(int mapIndex) { return mapIndex == 0 ? TILLABLE_AREA_MAP0_MIN_ROW : -1; }
@@ -133,8 +127,14 @@ public class GameController implements Runnable {
     }
     
     public Thread getGameThread() { return this.gameThread; }
-    public void playMusic() { if (music != null) { music.play(); music.loop(); } }
-    public void stopMusic() { if (music != null) music.stop(); }
+    public void playMusic() { 
+        if (music != null) { 
+            music.play(); music.loop(); 
+        } 
+    }
+    public void stopMusic() { 
+        if (music != null) music.stop(); 
+    }
 
     @Override
     public void run() {
@@ -167,6 +167,9 @@ public class GameController implements Runnable {
         }
         if (gameState.getGameState() == gameState.play) {
              playerViewInstance.update(movementState, cChecker);
+             if (playerModel != null && playerViewInstance != null) {
+                playerModel.setTilePosition(playerViewInstance.worldX / getTileSize(), playerViewInstance.worldY / getTileSize());
+            }
         }
     }
 
@@ -190,10 +193,10 @@ public class GameController implements Runnable {
             InteractableObject[] currentObjects = farm.getObjectsForCurrentMap();
             if (currentObjects != null && objIndex < currentObjects.length && currentObjects[objIndex] != null) {
                 InteractableObject targetObject = currentObjects[objIndex];
-                if (heldItem != null && heldItem.getName().equalsIgnoreCase("Fishing Rod") && targetObject.name.equalsIgnoreCase("Pond")) {
-                    System.out.println(playerModel.getName() + " is fishing at the " + targetObject.name + "!");
-                    return;
-                }
+                // if (heldItem != null && heldItem.getName().equalsIgnoreCase("Fishing Rod") && targetObject.name.equalsIgnoreCase("Pond")) {
+                //     System.out.println(playerModel.getName() + " is fishing at the " + targetObject.name + "!");
+                //     return;
+                // }
                 targetObject.interact(this);
                 return;
             }
@@ -223,18 +226,15 @@ public class GameController implements Runnable {
                 default: return;
             }
             if (targetCol < 0 || targetCol >= getMaxWorldCol() || targetRow < 0 || targetRow >= getMaxWorldRow()) return;
-            System.out.println("DEBUG: Target Tile for Interaction: (" + targetCol + ", " + targetRow + ")");
 
             System.out.println("DEBUG: Target Tile for Interaction: (" + targetCol + ", " + targetRow + ")");
+
 
             if (heldItem.getName().equalsIgnoreCase("Hoe")) {
                 TillingAction tilling = new TillingAction(this, targetCol, targetRow);
                 if (tilling.canExecute(farm)) {
                     tilling.execute(farm);
                 } else {
-<<<<<<< Updated upstream
-                    System.out.println("GameController: TillingAction cannot be executed (Hoe).");
-=======
                     System.out.println("Tidak bisa mencangkul di sini");
                 }
             } else if (heldItem.getName().equalsIgnoreCase("Pickaxe")) {
@@ -243,7 +243,6 @@ public class GameController implements Runnable {
                     recoverAction.execute(farm);
                 } else {
                     System.out.println("Tidak bisa mengembalikan tanah ini lagi");
->>>>>>> Stashed changes
                 }
             } else if (heldItem instanceof Seeds) { 
                 Seeds seedBeingHeld = (Seeds) heldItem;
@@ -351,9 +350,9 @@ public class GameController implements Runnable {
         if (farm != null && playerViewInstance != null && gamePanel != null && tileManager != null && aSetter != null) {
             stopMusic();
             farm.setCurrentMap(mapIndex);
+            Player player = farm.getPlayerModel();
             playerViewInstance.worldX = worldX; playerViewInstance.worldY = worldY; playerViewInstance.direction = "down";
-<<<<<<< Updated upstream
-=======
+
             if (player != null) {
                 switch (mapIndex) {
                     case 0: player.setCurrentLocationType(LocationType.FARM); break;
@@ -365,7 +364,7 @@ public class GameController implements Runnable {
                     default: player.setCurrentLocationType(LocationType.FARM); break; 
                 }
             }
->>>>>>> Stashed changes
+
             tileManager.loadMap(farm.getMapPathFor(mapIndex), mapIndex);
             aSetter.setInteractableObject();
             playMusic();
@@ -440,8 +439,6 @@ public class GameController implements Runnable {
     public Farm getFarm() { 
         return this.farm; 
     }
-<<<<<<< Updated upstream
-=======
 
     public JFrame getMainFrame() {
         return (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
@@ -526,7 +523,4 @@ public class GameController implements Runnable {
         }
         System.out.println("===== END OF PLANT GROWTH PROCESSING =====\n");
     }
-
-    
->>>>>>> Stashed changes
 }

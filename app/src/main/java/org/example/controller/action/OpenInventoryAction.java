@@ -33,7 +33,6 @@ public class OpenInventoryAction implements Action {
                 i++;
             }
         }
-        System.out.println("------------------------------------");
     }
 
     @Override

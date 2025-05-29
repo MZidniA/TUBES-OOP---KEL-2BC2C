@@ -2,45 +2,43 @@ package org.example.controller.action;
 
 import org.example.controller.GameController;
 import org.example.view.tile.TileManager;
-import org.example.controller.UtilityTool; // Import UtilityTool
 import org.example.model.Farm;
+import org.example.model.GameClock;
 import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
 import org.example.model.Player;
 import org.example.view.InteractableObject.InteractableObject;
-import org.example.view.InteractableObject.UnplantedTileObject; // Pastikan diimport
+import org.example.view.InteractableObject.UnplantedTileObject; 
+import org.example.model.Map.Tile;
+import org.example.model.Map.Tillableland;
+import org.example.model.Map.Tilledland;
+import org.example.model.Map.FarmMap;
 
 public class TillingAction implements Action {
     private static final int ENERGY_COST = 5;
     private static final int TIME_COST_MINUTES = 5;
 
-    private final GameController gameController;
+    private final GameController controller;
     private final int targetCol;
     private final int targetRow;
 
     public TillingAction(GameController controller, int targetCol, int targetRow) {
-        this.gameController = controller;
+        this.controller = controller;
         this.targetCol = targetCol;
         this.targetRow = targetRow;
     }
 
     @Override
     public String getActionName() {
-        return "Membajak Tanah (Till)";
+        return "TillingAction";
     }
 
     @Override
     public boolean canExecute(Farm farm) {
-        // --- Logika canExecute() tetap sama seperti versi terakhir yang memvalidasi: ---
-        // 1. Energi pemain
-        // 2. Pemain memegang Hoe dan ada di inventory
-        // 3. Target koordinat valid
-        // 4. Target berada dalam area cangkul yang diizinkan (untuk map 0)
-        // 5. Tile target adalah TILE_ID_BISA_DICANGKUL_UTAMA (ID 90)
-        // 6. Tidak ada objek lain (terutama yang solid) di atas tile target
-
-        if (farm == null || gameController == null) return false;
         Player player = farm.getPlayerModel();
+        FarmMap farmMap = farm.getFarmMap();
+        if (farm == null || controller == null || farmMap == null) return false;
+        
         if (player == null) return false;
 
         if (player.getEnergy() <= player.getMinEnergyOperational()) {
@@ -56,41 +54,45 @@ public class TillingAction implements Action {
             System.out.println("TillingAction: Hoe tidak ada di inventory.");
             return false;
         }
-        if (targetCol < 0 || targetCol >= gameController.getMaxWorldCol() || 
-            targetRow < 0 || targetRow >= gameController.getMaxWorldRow()) {
+        if (targetCol < 0 || targetCol >= controller.getMaxWorldCol() || 
+            targetRow < 0 || targetRow >= controller.getMaxWorldRow()) {
             System.out.println("LOG: Target cangkul di luar peta.");
             return false; 
         }
+        Tile targetDataTile = farmMap.getTile(targetCol, targetRow);
+        if (!(targetDataTile instanceof Tillableland)) {
+            System.out.println("TillingAction: Tile di (" + targetCol + "," + targetRow + ") tidak bisa dicangkul. Tipe: " + (targetDataTile != null ? targetDataTile.getClass().getSimpleName() : "null"));
+            return false;
+        }
         int currentMap = farm.getCurrentMap();
         if (currentMap == 0) {
-            final int MIN_COL = gameController.getTillableAreaMinCol(currentMap);
-            final int MAX_COL = gameController.getTillableAreaMaxCol(currentMap);
-            final int MIN_ROW = gameController.getTillableAreaMinRow(currentMap);
-            final int MAX_ROW = gameController.getTillableAreaMaxRow(currentMap);
+            final int MIN_COL = controller.getTillableAreaMinCol(currentMap);
+            final int MAX_COL = controller.getTillableAreaMaxCol(currentMap);
+            final int MIN_ROW = controller.getTillableAreaMinRow(currentMap);
+            final int MAX_ROW = controller.getTillableAreaMaxRow(currentMap);
             if (!(targetCol >= MIN_COL && targetCol <= MAX_COL && targetRow >= MIN_ROW && targetRow <= MAX_ROW)) {
-                System.out.println("DEBUG: Tilling target ("+targetCol+","+targetRow+") OUTSIDE defined area ["+MIN_COL+"-"+MAX_COL+", "+MIN_ROW+"-"+MAX_ROW+"]");
+                //System.out.println("DEBUG: Tilling target ("+targetCol+","+targetRow+") OUTSIDE defined area ["+MIN_COL+"-"+MAX_COL+", "+MIN_ROW+"-"+MAX_ROW+"]");
                 return false;
             }
         } else { 
             // System.out.println("TillingAction: Mencangkul hanya diizinkan di Farm (map 0).");
             return false; 
         }
-        TileManager tileM = gameController.getTileManager();
+        TileManager tileM = controller.getTileManager();
         if (tileM == null) return false;
-        int tileIDTarget = tileM.mapTileNum[currentMap][targetCol][targetRow];
         
         InteractableObject[] objectsOnMap = farm.getObjectsForCurrentMap();
         if (objectsOnMap != null) {
             for (InteractableObject objCheck : objectsOnMap) {
                 if (objCheck != null &&
-                    (objCheck.worldX / gameController.getTileSize() == targetCol) && 
-                    (objCheck.worldY / gameController.getTileSize() == targetRow)) {
+                    (objCheck.worldX / controller.getTileSize() == targetCol) && 
+                    (objCheck.worldY / controller.getTileSize() == targetRow)) {
                     // System.out.println("TillingAction: Sudah ada objek (" + objCheck.name + ") di tile target.");
                     return false;
                 }
             }
         }
-        return true; // Jika semua pengecekan lolos
+        return true; 
     }
 
     @Override
@@ -100,54 +102,48 @@ public class TillingAction implements Action {
         }
 
         Player player = farm.getPlayerModel();
+        GameClock gameClock = farm.getGameClock();
+        FarmMap farmMap = farm.getFarmMap(); // Dapatkan FarmMap
         int currentMap = farm.getCurrentMap();
-        int tileSize = gameController.getTileSize();
+        int tileSize = controller.getTileSize();
 
+        // 1. Kurangi energi
         player.decreaseEnergy(ENERGY_COST);
-        if (player.getEnergy() <= player.getMinEnergyOperational()) {
-            player.setPassedOut(true); // Jika energi habis, lakukan sleeping action
-            return; 
-        }
 
-        InteractableObject[][] allFarmObjects = farm.getAllObjects();
+        // 2. UBAH TILE DATA DI FARMMAP MENJADI TILLEDLAND
+        // Ini adalah langkah yang mungkin hilang atau salah sebelumnya.
+        farmMap.setTile(targetCol, targetRow, new Tilledland(targetCol, targetRow));
+        System.out.println("TillingAction: Tile data di (" + targetCol + "," + targetRow + ") diubah menjadi Tilledland.");
+
+        // 3. Buat dan tempatkan objek visual UnplantedTileObject
+        InteractableObject[][] allObjects = farm.getAllObjects();
         int emptySlotIndex = -1;
-        for (int i = 0; i < allFarmObjects[currentMap].length; i++) {
-            if (allFarmObjects[currentMap][i] == null) {
+        for (int i = 0; i < allObjects[currentMap].length; i++) {
+            if (allObjects[currentMap][i] == null) {
                 emptySlotIndex = i;
                 break;
             }
         }
 
         if (emptySlotIndex != -1) {
-            UnplantedTileObject tilledObject = new UnplantedTileObject(); // Membuat objek baru
+            UnplantedTileObject tilledVisual = new UnplantedTileObject(); 
+           
+
+            tilledVisual.worldX = targetCol * tileSize;
+            tilledVisual.worldY = targetRow * tileSize;
             
-            if (tilledObject.image != null) { // Gambar sudah di-load oleh konstruktor UnplantedTileObject
-                UtilityTool uTool = new UtilityTool();
-                // Lakukan scaling gambar UnplantedTileObject di sini
-                tilledObject.image = uTool.scaleImage(tilledObject.image, tileSize, tileSize);
-            } else {
-                System.err.println("TillingAction: Gambar untuk UnplantedTileObject gagal dimuat!");
-            }
-            
-            tilledObject.worldX = targetCol * tileSize;
-            tilledObject.worldY = targetRow * tileSize;
-            tilledObject.collision = false; // Tanah tercangkul biasanya tidak solid
-
-            allFarmObjects[currentMap][emptySlotIndex] = tilledObject; // Tambahkan objek ke Model
-
-            // Opsional: Mengubah tile di bawah UnplantedTileObject (di TileManager) menjadi tanah dasar
-            // TileManager tileM = gameController.getTileManager();
-            // if (tileM != null && tileM.TILE_ID_TANAH_DASAR_SETELAH_CANGKUL > 0) { // Pastikan ID valid
-            //     tileM.setTile(currentMap, targetCol, targetRow, tileM.TILE_ID_TANAH_DASAR_SETELAH_CANGKUL);
-            // }
-
-            if (farm.getGameClock() != null) {
-                farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
-            }
-            System.out.println(player.getName() + " berhasil membuat UnplantedTileObject di (" + targetCol + ", " + targetRow + ")");
+            allObjects[currentMap][emptySlotIndex] = tilledVisual;
+            System.out.println(player.getName() + " mencangkul tanah di (" + targetCol + ", " + targetRow + "). Objek visual UnplantedTileObject dibuat.");
         } else {
-            System.err.println("TillingAction: Tidak ada slot objek kosong di map " + currentMap);
-            player.increaseEnergy(ENERGY_COST); 
+            System.err.println("TillingAction: Tidak ada slot objek kosong di map " + currentMap + " untuk UnplantedTileObject.");
+            player.increaseEnergy(ENERGY_COST); // Kembalikan energi jika gagal
+            farmMap.setTile(targetCol, targetRow, new Tillableland(targetCol, targetRow)); // Rollback perubahan tile data
+            return;
+        }
+
+        // 4. Majukan waktu
+        if (gameClock != null) {
+            gameClock.advanceTimeMinutes(TIME_COST_MINUTES);
         }
     }
 }

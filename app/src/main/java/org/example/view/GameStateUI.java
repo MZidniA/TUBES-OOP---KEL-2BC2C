@@ -1,7 +1,7 @@
 package org.example.view;
 
-import org.example.view.GamePanel; // Tetap dibutuhkan untuk konstanta layout
-import org.example.controller.GameState; // Import GameState dari controller
+
+import org.example.controller.GameState; 
 import org.example.model.Inventory;
 import org.example.model.Recipe;
 import org.example.model.Items.Items;
@@ -32,6 +32,7 @@ public class GameStateUI implements TimeObserver {
     private Season currentSeason = Season.SPRING; 
     private LocalTime currentTime = LocalTime.of(6,0);
     private Weather currentWeather = Weather.SUNNY;
+
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
     // Cooking Menu State
@@ -43,7 +44,7 @@ public class GameStateUI implements TimeObserver {
     private String uiMessage = null;
     private boolean clearUiMessageNextFrame = false;
 
-    // Warna tema
+
     Color woodBrown = new Color(139, 69, 19);
     Color lightYellow = new Color(255, 253, 208);
     Color darkTextShadow = new Color(80, 40, 0, 150);
@@ -95,25 +96,66 @@ public class GameStateUI implements TimeObserver {
     }
 
     private void drawTimeInfo() {
-        if (g2 == null || gp == null) return;
+    if (g2 == null || gp == null) return;
 
-        String seasonText = (currentSeason != null) ? currentSeason.toString() : "Musim?";
-        String weatherText = (currentWeather != null) ? currentWeather.toString() : "Cuaca?";
-        String dayText = "Hari " + currentDay;
-        String timeText = (currentTime != null) ? currentTime.format(timeFormatter) : "--:--";
+    String seasonText = (currentSeason != null) ? currentSeason.toString() : "Musim?";
+    String weatherText = (currentWeather != null) ? currentWeather.toString() : "Cuaca?";
+    String dayText = "Hari " + currentDay;
+    String timeText = (currentTime != null) ? currentTime.format(timeFormatter) : "--:--";
+    
+    String locationInfoString = "Lokasi: N/A";
+    if (gp.getController() != null && gp.getController().getFarmModel() != null) {
+        locationInfoString = gp.getPlayerCurrentLocationDetail();
+    }
 
-        Font fontUntukWaktu = (stardewFont_20 != null) ? stardewFont_20.deriveFont(16f) : new Font("Arial", Font.PLAIN, 16);
-        g2.setFont(fontUntukWaktu);
+    Font mainFont = (stardewFont_20 != null) ? stardewFont_20.deriveFont(16f) : new Font("Arial", Font.PLAIN, 16);
+    Font LocationFont = (stardewFont_30 != null) ? stardewFont_30.deriveFont(14f) : new Font("Arial", Font.PLAIN, 14);
+    
+    int yPosisi = 30;
+    int blockSpace = 20; 
+    int marginKanan = 10;
 
-        int xPosisiTeks = gp.screenWidth - 125; 
-        int yPosisiAwal = 30;
-        int spasiAntarBaris = 20;
+    g2.setFont(mainFont);
+    java.awt.FontMetrics fmWaktu = g2.getFontMetrics();
 
-     
-        drawTextWithShadow(seasonText, xPosisiTeks, yPosisiAwal);
-        drawTextWithShadow(weatherText, xPosisiTeks, yPosisiAwal + spasiAntarBaris);
-        drawTextWithShadow(dayText, xPosisiTeks, yPosisiAwal + spasiAntarBaris*2);
-        drawTextWithShadow(timeText, xPosisiTeks, yPosisiAwal + (spasiAntarBaris * 3));
+    drawTextWithShadow(seasonText, gp.screenWidth - fmWaktu.stringWidth(seasonText) - marginKanan, yPosisi);
+    yPosisi += blockSpace;
+    
+    drawTextWithShadow(weatherText, gp.screenWidth - fmWaktu.stringWidth(weatherText) - marginKanan, yPosisi);
+    yPosisi += blockSpace;
+    
+    drawTextWithShadow(dayText, gp.screenWidth - fmWaktu.stringWidth(dayText) - marginKanan, yPosisi);
+    yPosisi += blockSpace;
+    
+    drawTextWithShadow(timeText, gp.screenWidth - fmWaktu.stringWidth(timeText) - marginKanan, yPosisi);
+    yPosisi += blockSpace; 
+
+    g2.setFont(LocationFont);
+    java.awt.FontMetrics fmlocation = g2.getFontMetrics();
+    
+    String locationName = locationInfoString;
+    String coordinates = "";
+
+    if (locationInfoString.contains("(")) {
+        locationName = locationInfoString.substring(0, locationInfoString.lastIndexOf("(")).trim();
+        coordinates = locationInfoString.substring(locationInfoString.lastIndexOf("("));
+    }
+    
+    String[] locationWord = locationName.split(" ");
+
+    for (String name : locationWord) {
+        if (name.isEmpty()) continue;
+        int lebarKata = fmlocation.stringWidth(name);
+        int xKata = gp.screenWidth - lebarKata - marginKanan;
+        drawTextWithShadow(name, xKata, yPosisi);
+        yPosisi += blockSpace;
+    }
+
+        if (!coordinates.isEmpty()) {
+            int lebarcoordinates = fmlocation.stringWidth(coordinates);
+            int xcoordinates = gp.screenWidth - lebarcoordinates - marginKanan;
+            drawTextWithShadow(coordinates, xcoordinates, yPosisi);
+        }
     }
 
     private void drawPauseScreen() {
@@ -203,7 +245,7 @@ public class GameStateUI implements TimeObserver {
             }
 
 
-            g2.setColor(new Color(80, 40, 0, 200)); // Warna dasar slot
+            g2.setColor(new Color(80, 40, 0, 200)); 
             g2.fillRoundRect(currentSlotX, currentSlotY, slotSize, slotSize, 8, 8);
             g2.setColor(borderColor);
             g2.setStroke(new BasicStroke(2));
@@ -230,7 +272,6 @@ public class GameStateUI implements TimeObserver {
                     g2.setFont(quantityFont);
                     String qtyText = String.valueOf(quantity);
                     int qtyTextWidth = g2.getFontMetrics().stringWidth(qtyText);
-                    // Posisi kanan bawah di dalam slot
                     int qtyX = currentSlotX + slotSize - qtyTextWidth - 4;
                     int qtyY = currentSlotY + slotSize - 4;
                     drawTextWithShadow(qtyText, qtyX, qtyY, quantityFont); 
@@ -238,7 +279,7 @@ public class GameStateUI implements TimeObserver {
             }
         }
         
-        // Gambar kursor seleksi
+
         int cursorX = slotXStart + (slotSize + slotGap) * slotCol;
         int cursorY = slotYStart + (slotSize + slotGap) * slotRow;
         g2.setColor(Color.YELLOW);
@@ -280,7 +321,7 @@ public class GameStateUI implements TimeObserver {
         if (font != null) g2.setFont(originalFont);
     }
 
-    // Overload untuk drawTextWithShadow jika font sudah di-set pada g2
+
     private void drawTextWithShadow(String text, int x, int y) {
         g2.setColor(darkTextShadow);
         g2.drawString(text, x + 2, y + 2);

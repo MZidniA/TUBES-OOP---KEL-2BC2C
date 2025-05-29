@@ -2,6 +2,8 @@ package org.example.controller.action;
 
 import org.example.model.Farm;
 import org.example.model.Player;
+import org.example.model.Items.ItemDatabase;
+import org.example.model.enums.LocationType;
 
 public class WatchingAction implements Action {
 
@@ -20,31 +22,21 @@ public class WatchingAction implements Action {
         }
         Player player = farm.getPlayerModel();
 
-<<<<<<< Updated upstream
-        // Cek lokasi harus di rumah (FARM)
+        // OPSI 1: Cek lokasi dengan LocationType (lebih fleksibel)
         if (player.getCurrentLocationType() != LocationType.FARM) {
             System.out.println("Menonton TV hanya bisa dilakukan di rumah.");
             return false;
         }
 
-        // Cek punya TV
-        boolean hasTV = player.getInventory().hasItem(ItemDatabase.getItem("TV"), 1);
 
+        boolean hasTV = player.getInventory().hasItem(ItemDatabase.getItem("TV"), 1);
         if (!hasTV) {
             System.out.println("Kamu membutuhkan TV untuk menonton.");
             return false;
         }
 
-        // Cek energi cukup
-=======
-        // Kondisi 1: Pemain harus berada di dalam rumah (misal, map indeks 4)
-        if (farm.getCurrentMap() != 4) {
-            return false;
-        }
-
-        // Kondisi 2: Pemain harus memiliki energi yang cukup
->>>>>>> Stashed changes
         if (player.getEnergy() < ENERGY_COST) {
+            System.out.println("Energi tidak cukup untuk menonton TV.");
             return false;
         }
         return true;
@@ -57,5 +49,6 @@ public class WatchingAction implements Action {
         if (farm.getGameClock() != null) {
             farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
         }
+        System.out.println("Kamu menonton TV dan menghabiskan " + ENERGY_COST + " energi serta " + TIME_COST_MINUTES + " menit.");
     }
 }

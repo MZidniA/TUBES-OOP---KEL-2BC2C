@@ -1,15 +1,20 @@
 package org.example.view.InteractableObject;
 
-import java.io.IOException; 
 
 import javax.imageio.ImageIO;
-
+import java.io.IOException;
 import org.example.controller.GameController;
 
+import java.awt.Rectangle;
+
 public class PlantedTileObject extends InteractableObject {
-    public PlantedTileObject() { 
-        super("Planted Tile"); 
-        loadImage(); 
+    public PlantedTileObject(String seedName, int worldX, int worldY, GameController controller) {
+        super("Tanaman " + seedName); 
+        this.worldX = worldX;
+        this.worldY = worldY;
+        this.collision = false; 
+        this.solidArea = new Rectangle(0, 0,5,5);
+        loadImage();
     }
 
     @Override

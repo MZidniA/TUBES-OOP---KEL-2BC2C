@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.example.model.Farm;
-import org.example.model.GameClock; // Import GameClock dari Model
+import org.example.model.GameClock;
 import org.example.model.Player;
-import org.example.model.PlayerStats; // Import PlayerStats
 import org.example.model.enums.Season;
 import org.example.model.enums.Weather;
 import org.example.view.TimeObserver;
@@ -73,7 +72,6 @@ public class TimeManager {
                             System.out.println("TimeManager: Waktu sudah jam 02:00 atau lebih, memaksa pemain tidur.");
                             playerModel.setForceSleepByTime(true);
                         }
-                        // -----------------------------------------
                     }
 
                     try {

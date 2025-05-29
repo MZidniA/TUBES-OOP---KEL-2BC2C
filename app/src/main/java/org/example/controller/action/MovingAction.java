@@ -28,7 +28,6 @@ public class MovingAction implements Action{
             return false;
         }
 
-        // (Optional) Tambahkan validasi agar tidak keluar dari batas map
 
         return true;
     }

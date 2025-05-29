@@ -1,71 +1,37 @@
 // Lokasi: org.example.model.Items.Seeds.java
 package org.example.model.Items;
 
+import java.io.IOException;
+import java.util.EnumSet;
+
+import javax.imageio.ImageIO;
+
+import org.example.controller.UtilityTool;
 import org.example.model.enums.Season;
 import javax.imageio.ImageIO; // Import yang mungkin dibutuhkan
 import java.io.IOException;   // Import yang mungkin dibutuhkan
 import org.example.controller.UtilityTool; // Jika ingin scaling
 
 public class Seeds extends Items {
-    private Season plantableSeason; // Mengganti nama variabel agar lebih jelas
-    private int daysToHarvest;
-    private String producesCropName; // Nama crop yang dihasilkan (String)
+    private EnumSet<Season> season;
+    private int daysToHarvest; 
+    private Season plantableSeason;
 
-    public Seeds(String name, int sellPrice, int buyPrice, Season plantableSeason, int daysToHarvest, String producesCropName) {
-        super(name, sellPrice, buyPrice);
-        this.plantableSeason = plantableSeason;
+
+    public Seeds(String name, int sellprice, int buyprice, EnumSet<Season> season, int daysToHarvest) {
+        super(name, sellprice, buyprice);
+        this.season = season;
         this.daysToHarvest = daysToHarvest;
-        this.producesCropName = producesCropName;
-        loadImage(); // Panggil loadImage di konstruktor
+        loadImage();
     }
 
-    @Override
-    public void loadImage() {
-        // String path = null;
-        // // Contoh: jika nama file seed sama dengan nama itemnya (setelah normalisasi)
-        // // String imageName = getName().replaceAll("\\s+", "") + "_Seeds.png"; // Misal "Parsnip Seeds" -> "Parsnip_Seeds.png"
-        // // path = "/seeds/" + imageName; // Asumsi ada folder /seeds/
-
-        // // Karena tidak ada path spesifik, kita set null atau gambar placeholder
-        // // Contoh switch jika Anda punya beberapa gambar seed:
-        // UtilityTool uTool = new UtilityTool();
-        // switch (getName().toLowerCase()) {
-        //     case "parsnip seeds":
-        //         path = "/seeds/ParsnipSeeds.png"; // Ganti dengan path aktual jika ada
-        //         break;
-        //     case "cauliflower seeds":
-        //         path = "/seeds/CauliflowerSeeds.png";
-        //         break;
-        //     // Tambahkan case untuk seed lain
-        //     default:
-        //         System.out.println("Seeds.loadImage(): No specific image path for " + getName() + ". Image will be null.");
-        //         this.image = null; // Tidak ada gambar spesifik
-        //         return;
-        // }
-
-        // try {
-        //     this.image = ImageIO.read(getClass().getResourceAsStream(path));
-        //     if (this.image == null) {
-        //         System.err.println("Seeds.loadImage(): Failed to load image from path: " + path + " for " + getName());
-        //     } else {
-        //         this.image = uTool.scaleImage(this.image, 32, 32); // Sesuaikan ukuran target
-        //     }
-        // } catch (IOException e) {
-        //     System.err.println("Error (IOException) loading image for Seed " + getName() + " from path " + path + ": " + e.getMessage());
-        //     this.image = null;
-        // } catch (IllegalArgumentException e) {
-        //     System.err.println("Error (IllegalArgumentException - likely invalid path) loading image for Seed " + getName() + " from path " + path + ": " + e.getMessage());
-        //     this.image = null;
-        // }
+    public EnumSet<Season> getSeason() {
+        return season;
+    }
+    public void setSeason(EnumSet<Season> season) {
+        this.season = season;
     }
 
-    public Season getPlantableSeason() { // Nama getter disesuaikan
-        return plantableSeason;
-    }
-
-    public void setPlantableSeason(Season plantableSeason) { // Nama setter disesuaikan
-        this.plantableSeason = plantableSeason;
-    }
 
     public int getDaysToHarvest() {
         return daysToHarvest;
@@ -75,13 +41,70 @@ public class Seeds extends Items {
         this.daysToHarvest = daysToHarvest;
     }
 
-    public String getProducesCropName() {
-        return producesCropName;
+    public boolean isPlantableInSeason(Season season) {
+        return this.season.contains(season);
     }
 
-    public void setProducesCropName(String producesCropName) {
-        this.producesCropName = producesCropName;
+
+    public void loadImage() {
+        String path = null;
+        switch (getName().toLowerCase()) {
+            case "parsnip seeds":
+                path = "/seeds/ParsnipSeeds.png"; 
+                break;
+            case "cauliflower seeds":
+                path = "/seeds/CauliflowerSeeds.png";
+                break;
+            case "potato seeds":
+                path = "/seeds/PotatoSeeds.png"; 
+                break;
+            case "wheat seeds":
+                path = "/seeds/WheatSeeds.png";
+                break;
+            case "blueberry seeds":
+                path = "/seeds/BlueberrySeeds.png";
+                break;
+            case "tomato seeds":
+                path = "/seeds/TomatoSeeds.png";
+                break;
+            case "hot pepper seeds":
+                path = "/seeds/Seeds.png";
+                break;
+            case "melon seeds":
+                path = "/seeds/MelonSeeds.png";
+                break;
+            case "cranberry seeds":
+                path = "/seeds/CranberrySeeds.png";
+                break;
+            case "pumpkin seeds":
+                path = "/seeds/PumpkinSeeds.png";
+                break;
+            case "grape seeds":
+                path = "/seeds/GrapeSeeds.png";
+                break;
+            default:
+                this.image = null;
+                return;
+        }
+
+        try {
+            if (path != null) {
+                this.image = ImageIO.read(getClass().getResourceAsStream(path));
+                if (this.image == null) {
+                     System.err.println("Gagal ngeload gambar " + path + " dari " + getName());
+                }
+                UtilityTool uTool = new UtilityTool();
+                this.image = uTool.scaleImage(this.image, 32, 32);
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading image for " + getName() + " from path " + path + ": " + e.getMessage());
+            this.image = null;
+        } catch (IllegalArgumentException e) { 
+            System.err.println("Error (likely invalid path) loading image for " + getName() + " from path " + path + ": " + e.getMessage());
+            this.image = null;
+        }
     }
+ 
 
     public boolean canPlantInSeason(Season currentSeason) {
         return this.plantableSeason == Season.ALL || this.plantableSeason == currentSeason;

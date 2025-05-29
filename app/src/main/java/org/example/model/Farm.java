@@ -116,8 +116,6 @@ public class Farm {
     public void setCurrentWeather(Weather nextWeather) {
         this.currentWeather = nextWeather;
     }
-<<<<<<< Updated upstream
-=======
 
 
     public InteractableObject getObjectAtTile(int mapIndex, int col, int row, int tileSize) {
@@ -242,5 +240,4 @@ public class Farm {
         }
         return claimedTask;
     }
->>>>>>> Stashed changes
 }

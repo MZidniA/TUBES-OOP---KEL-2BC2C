@@ -6,9 +6,7 @@ import java.time.LocalTime;
 import org.example.controller.GameController;
 import org.example.model.Farm;
 import org.example.model.Player;
-import org.example.model.Items.ItemDatabase;
 import org.example.view.entitas.PlayerView;
-import org.example.controller.GameController;
 
 public class SleepingAction implements Action {
     private final GameController controller;
@@ -55,7 +53,7 @@ public class SleepingAction implements Action {
 
         
 
-        // Logika pemulihan energi
+
         if (currentEnergy == 0) {
             player.setEnergy(10);
             System.out.println("Energi habis total. Tidur hanya memulihkan 10 poin.");
@@ -67,8 +65,9 @@ public class SleepingAction implements Action {
             System.out.println("Tidur nyenyak. Energi pulih sepenuhnya.");
         }
 
-        // Time skip ke jam 06.00
+        
         skipToMorning(farm);
+        controller.processEndOfDayEvents();
         int spawnX = 6 * tileSize;
         int spawnY = 10 * tileSize;
         playerView.worldX = spawnX;
@@ -77,9 +76,8 @@ public class SleepingAction implements Action {
         player.setCurrentHeldItem(null);
 
 
-        // Lanjut ke hari berikutnya
+
         farm.getGameClock().nextDay(null);
-        System.out.println("Selamat pagi! Hari ke-" + farm.getGameClock().getDay()
-                + ", pukul " + farm.getGameClock().getCurrentTime());
+        System.out.println("Selamat pagi! Hari ke-" + farm.getGameClock().getDay() + ", pukul " + farm.getGameClock().getCurrentTime());
     }
 }
