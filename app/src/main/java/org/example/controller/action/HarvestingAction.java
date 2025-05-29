@@ -19,7 +19,7 @@ public class HarvestingAction implements Action {
     }
 
     private Plantedland getTargetPlantedLand(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         FarmMap farmMap = farm.getFarmMap();
         if (farmMap == null || player == null) {
             return null;
@@ -35,7 +35,7 @@ public class HarvestingAction implements Action {
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         if (player.getEnergy() <= (ENERGY_COST - (player.getMinEnergyOperational() + 1))) {
             return false;
         }
@@ -51,7 +51,7 @@ public class HarvestingAction implements Action {
 
     @Override
     public void execute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         FarmMap farmMap = farm.getFarmMap();
         if (farmMap == null) {
             System.err.println("Error: FarmMap tidak tersedia di HarvestingAction.execute");

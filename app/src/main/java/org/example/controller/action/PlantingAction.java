@@ -30,7 +30,7 @@ public class PlantingAction implements Action {
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         if (seedToPlant == null) {
             return false;
         }
@@ -50,10 +50,10 @@ public class PlantingAction implements Action {
             System.out.println("LOG: Gagal menanam, bibit tidak ditentukan.");
             return;
         }
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         player.decreaseEnergy(ENERGY_COST);
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
-        player.getInventory().removeItem(seedToPlant, 1); 
+        player.getInventory().removeInventory(seedToPlant, 1);
 
         System.out.println("LOG: " + player.getName() + " menanam " + seedToPlant.getName() + ".");
     }

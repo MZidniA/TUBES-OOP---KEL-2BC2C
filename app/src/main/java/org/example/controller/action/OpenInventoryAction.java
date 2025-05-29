@@ -16,7 +16,7 @@ public class OpenInventoryAction implements Action {
 
     @Override
     public void execute(Farm farm) {
-        Player player = farm.getPlayer(); 
+        Player player = farm.getPlayerModel(); 
         Inventory inventory = player.getInventory(); 
 
         System.out.println("--- Isi Inventaris " + player.getName() + " ---"); 
@@ -33,7 +33,6 @@ public class OpenInventoryAction implements Action {
                 i++;
             }
         }
-        System.out.println("------------------------------------");
     }
 
     @Override

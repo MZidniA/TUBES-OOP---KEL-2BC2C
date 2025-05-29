@@ -1,25 +1,29 @@
 package org.example.view.InteractableObject;
+
+import java.io.IOException; 
+
 import javax.imageio.ImageIO;
 
-import org.example.controller.GamePanel;
+import org.example.controller.GameController;
 
 public class PlantedTileObject extends InteractableObject {
-    GamePanel gp;
-    public PlantedTileObject(GamePanel gp) {
-        this.gp = gp;
-        this.name = "Planted Tile";
-        try {
-            this.image = ImageIO.read(getClass().getResourceAsStream("/InteractableObject/PlantedTile.png"));
-            uTool.scaleImage(image, gp.tileSize, gp.tileSize); 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
+    public PlantedTileObject() { 
+        super("Planted Tile"); 
+        loadImage(); 
     }
 
     @Override
-    public void interact() {
-        // Define interaction logic for the PlantedTileObject
+    protected void loadImage() {
+        try {
+            this.image = ImageIO.read(getClass().getResourceAsStream("/InteractableObject/PlantedTile.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Error loading PlantedTile.png for PlantedTileObject");
+        }
+    }
+
+    @Override
+    public void interact(GameController controller) {
         System.out.println("You have interacted with a Planted Tile.");
     }
 }

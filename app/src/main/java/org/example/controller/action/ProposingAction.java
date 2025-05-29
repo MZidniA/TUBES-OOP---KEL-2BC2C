@@ -44,7 +44,7 @@ public class ProposingAction implements Action {
             return false;
         }
 
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         if (player == null) {
             System.out.println("LOG: Player not found.");
             return false;
@@ -100,7 +100,7 @@ public class ProposingAction implements Action {
     @Override
     public void execute(Farm farm) {
         // Asumsi canExecute() sudah dipanggil dan true
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         GameClock gameClock = farm.getGameClock();
 
         System.out.println(player.getName() + " is proposing to " + targetNpc.getName() + "...");

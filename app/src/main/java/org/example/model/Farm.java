@@ -1,77 +1,109 @@
 package org.example.model;
 
-import org.example.model.Map.FarmMap;
-import org.example.model.NPC.NPC;
-import org.example.model.enums.Season; // Import Season enum
-import org.example.model.enums.Weather; // Import Weather enum
-import java.time.LocalTime; // Import LocalTime
-
+import java.time.LocalTime;
 import java.util.List;
 
+import org.example.model.Map.FarmMap;
+import org.example.model.enums.Season;
+import org.example.model.enums.Weather;
+import org.example.view.InteractableObject.InteractableObject;
+// Tidak perlu import PlayerView lagi di sini
+
 public class Farm {
-    private String farmName;
-    private Player player;
-    private FarmMap farmMap;
-    private GameClock gameClock; // Ini masih mengacu pada GameTime.java yang Anda berikan
-    private List<NPC> npcList;
-    private PlayerStats playerStats;
-
-    // Atribut baru untuk menyimpan state waktu, hari, musim, dan cuaca saat ini
+    private final Player playerModel;
     private int currentDay;
-    private Season currentSeason;
-    private Weather currentWeather;
-    private LocalTime currentTime; // Waktu aktual saat ini dalam game
+    // private final PlayerView playerView; // DIHAPUS: Farm tidak boleh tahu tentang PlayerView
+    private final InteractableObject[][] objects = new InteractableObject[6][100]; // maxMap, maxObjects
+    private int currentMap = 0;
+    // Tambahkan list untuk menyimpan CookingInProgress jika belum ada
+    private List<CookingInProgress> activeCookings = new java.util.ArrayList<>();
+    private final PlayerStats playerStats;
+    private final GameClock gameClock;
+    private final FarmMap farmMap = new FarmMap(); // Tambahkan deklarasi dan inisialisasi FarmMap
+    private Weather currentWeather; // Tambahkan untuk menyimpan cuaca saat ini
+    private Season currentSeason; // Tambahkan untuk menyimpan musim saat ini   
 
-    public Farm(String farmName, Player player, List<NPC> npclist) {
-        this.farmName = farmName;
-        this.player = player;
+    public Farm(String farmName, Player playerModel) { // Parameter hanya Player model
+        this.playerModel = playerModel;
+        this.playerModel.setFarmname(farmName);
+        this.playerStats = new PlayerStats(); // Atau sesuai konstruktor PlayerStats yang tersedia
+        this.gameClock = new GameClock(); // Atau sesuai konstruktor GameClock
+        // Inisialisasi PlayerView TIDAK LAGI dilakukan di sini
+        // this.playerView = new PlayerView(playerModel, ???); // DIHAPUS
+        this.currentDay = 1; // Inisialisasi hari pertama
+        this.currentWeather = Weather.SUNNY; // Inisialisasi cuaca awal
+    }
+    
+    // Getters
+    public Player getPlayerModel() { return playerModel; }
+    // public PlayerView getPlayerView() { return playerView; } // DIHAPUS
 
-        if (this.player != null) {
-            this.player.setFarmname(this.farmName);
+    public int getCurrentMap() { return currentMap; }
+    public InteractableObject[][] getAllObjects() { return objects; }
+    public InteractableObject[] getObjectsForCurrentMap() { return objects[currentMap]; }
+
+    // Setters
+    public void setCurrentMap(int map) { this.currentMap = map; }
+
+    public String getMapPathFor(int mapIndex) {
+        return switch (mapIndex) {
+            case 0 -> "/maps/map.txt";
+            case 1 -> "/maps/beachmap.txt";
+            case 2 -> "/maps/rivermap.txt";
+            case 3 -> "/maps/townmap.txt";   // Disesuaikan dengan pemanggilan loadMap di TileManager
+            case 4 -> "/maps/housemap.txt";
+            // ... dst, pastikan semua peta terdaftar di sini jika digunakan
+            default -> "/maps/map.txt"; // Default jika mapIndex tidak valid
+        };
+    }
+    
+    public void clearObjects(int mapIndex) {
+        if (mapIndex >= 0 && mapIndex < objects.length) {
+            for(int i = 0; i < objects[mapIndex].length; i++) {
+                objects[mapIndex][i] = null;
+            }
         }
-
-        this.farmMap = new FarmMap();
-        this.gameClock = new GameClock(); // Ini masih mengacu pada GameTime.java
-        this.playerStats = new PlayerStats();
-        this.npcList = npclist;
-        if (this.player != null) {
-            this.player.setLocation(this.farmMap.getFarmLocation());
-        }
-
-        // Inisialisasi nilai awal untuk atribut baru
-        this.currentDay = 1; // Permainan dimulai dari hari ke-1
-        this.currentSeason = Season.SPRING; // Permainan dimulai dari musim semi
-        this.currentWeather = Weather.SUNNY; // Cuaca awal cerah
-        this.currentTime = LocalTime.of(6, 0); // Waktu awal 06.00
-    }
-
-    public String getFarmName() {
-        return farmName;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public FarmMap getFarmMap() {
-        return farmMap;
-    }
-
-    public GameClock getGameClock() { // Perlu diperhatikan bahwa ini mengembalikan GameTime, bukan current game time
-        return gameClock;
-    }
-
-    public List<NPC> getNpcList() {
-        return npcList;
     }
 
     public PlayerStats getPlayerStats() {
         return playerStats;
     }
 
-    // --- Getter untuk atribut waktu, hari, musim, dan cuaca saat ini ---
+    public GameClock getGameClock() {
+        return gameClock;
+    }
+
+        // Method untuk menambahkan CookingInProgress ke list
+    public void addActiveCooking(CookingInProgress cookingTask) {
+        if (cookingTask != null) {
+            activeCookings.add(cookingTask);
+        }
+    }
+
+        // (Pastikan ada getter jika dibutuhkan di tempat lain)
+    public List<CookingInProgress> getActiveCookings() {
+        return activeCookings;
+    }
+
+    // Add this method to provide access to the FarmMap
+    public FarmMap getFarmMap() {
+        return this.farmMap;
+    }
+
     public int getCurrentDay() {
         return currentDay;
+    }
+
+    public void setCurrentDay(int currentDay) {
+        this.currentDay = currentDay;
+    }
+
+    public LocalTime getCurrentTime() {
+        return gameClock.getCurrentTime();
+    }
+
+    public void setCurrentTime(LocalTime newTime) {
+        gameClock.setCurrentTime(newTime);
     }
 
     public Season getCurrentSeason() {
@@ -82,24 +114,44 @@ public class Farm {
         return currentWeather;
     }
 
-    public LocalTime getCurrentTime() {
-        return currentTime;
+    public void setCurrentSeason(Season nextSeason) {
+        this.currentSeason = nextSeason;
     }
 
-    // --- Setter untuk atribut waktu, hari, musim, dan cuaca saat ini (jika diperlukan untuk update game loop) ---
-    public void setCurrentDay(int currentDay) {
-        this.currentDay = currentDay;
+    public void setCurrentWeather(Weather nextWeather) {
+        this.currentWeather = nextWeather;
     }
 
-    public void setCurrentSeason(Season currentSeason) {
-        this.currentSeason = currentSeason;
+
+    public InteractableObject getObjectAtTile(int mapIndex, int col, int row, int tileSize) {
+        if (mapIndex < 0 || mapIndex >= objects.length) return null;
+        for (InteractableObject obj : objects[mapIndex]) {
+            if (obj != null) {
+                int objCol = obj.worldX / tileSize;
+                int objRow = obj.worldY / tileSize;
+                if (objCol == col && objRow == row) {
+                    return obj;
+                }
+            }
+        }
+        return null;
     }
 
-    public void setCurrentWeather(Weather currentWeather) {
-        this.currentWeather = currentWeather;
+   
+    public boolean removeObjectAtTile(int mapIndex, int col, int row, int tileSize) {
+        if (mapIndex < 0 || mapIndex >= objects.length) return false;
+        for (int i = 0; i < objects[mapIndex].length; i++) {
+            InteractableObject obj = objects[mapIndex][i];
+            if (obj != null) {
+                int objCol = obj.worldX / tileSize;
+                int objRow = obj.worldY / tileSize;
+                if (objCol == col && objRow == row) {
+                    objects[mapIndex][i] = null; 
+                    return true;
+                }
+            }
+        }
+        return false;
     }
-
-    public void setCurrentTime(LocalTime currentTime) {
-        this.currentTime = currentTime;
-    }
+    
 }

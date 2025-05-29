@@ -16,7 +16,7 @@ public class WateringAction implements Action {
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         if (player.getEnergy() <= (ENERGY_COST - 21)) {
             return false;
         }
@@ -25,22 +25,12 @@ public class WateringAction implements Action {
             // System.out.println("LOG: Tidak punya Watering Can.");
             return false;
         }
-        // Cek apakah tile target adalah Tilled Land atau Planted Land yang perlu disiram
-        // Tile targetTile = farm.getTileAt(player.getFacingX(), player.getFacingY());
-        // if (targetTile == null || !(targetTile.getType() == TileType.TILLED_LAND || targetTile.getType() == TileType.PLANTED_LAND)) {
-        //     System.out.println("LOG: Tidak ada yang bisa disiram di sini.");
-        //     return false;
-        // }
-        // if (targetTile.isWateredToday()) { // Asumsi tile punya status sudah disiram
-        //     System.out.println("LOG: Tile ini sudah disiram hari ini.");
-        //     return false;
-        // }
         return true; // Placeholder
     }
 
     @Override
     public void execute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         player.decreaseEnergy(ENERGY_COST);
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
 

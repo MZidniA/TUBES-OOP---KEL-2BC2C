@@ -20,7 +20,7 @@ public class MovingAction implements Action{
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
 
         // Boleh berpindah jika belum berada di lokasi tujuan
         if (player.getTileX() == newX && player.getTileY() == newY) {
@@ -28,14 +28,13 @@ public class MovingAction implements Action{
             return false;
         }
 
-        // (Optional) Tambahkan validasi agar tidak keluar dari batas map
 
         return true;
     }
 
     @Override
     public void execute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
 
         if (!canExecute(farm)) return;
 

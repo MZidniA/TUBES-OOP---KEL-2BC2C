@@ -25,7 +25,7 @@ public class MarryAction implements Action{
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         NPC partner = player.getPartner();
 
         if (partner == null) {
@@ -53,7 +53,7 @@ public class MarryAction implements Action{
 
     @Override
     public void execute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         NPC partner = player.getPartner();
 
         if (!canExecute(farm)) return;

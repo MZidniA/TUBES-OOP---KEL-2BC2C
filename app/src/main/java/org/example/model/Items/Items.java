@@ -1,9 +1,11 @@
 package org.example.model.Items;
+import java.awt.image.BufferedImage;
 
 public abstract class Items {
     private String name;
     private int sellprice;
     private int buyprice;
+    protected BufferedImage image;
 
     public Items(String name, int sellprice, int buyprice) {
         this.name = name;
@@ -34,6 +36,14 @@ public abstract class Items {
     public void setBuyprice(int buyprice) {
         this.buyprice = buyprice;
     }
+    protected void loadImage() {
+        this.image = null;
+    }
+
+    public BufferedImage getImage() {
+        return image;
+    }
+
 
     public String toString() {
         return getName();

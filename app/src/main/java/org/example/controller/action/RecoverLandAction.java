@@ -1,21 +1,31 @@
-// Lokasi: src/main/java/org/example/controller/action/RecoverLandAction.java
 package org.example.controller.action;
 
+import org.example.controller.GameController; // Diperlukan untuk akses tileSize dan komponen lain
 import org.example.model.Farm;
 import org.example.model.Player;
-import org.example.model.Map.FarmMap;
-import org.example.model.Map.Tile;
-import org.example.model.Map.Tilledland;
-import org.example.model.Map.Tillableland;
-import org.example.model.Items.ItemDatabase;
+import org.example.model.Items.ItemDatabase; // Asumsi ItemDatabase Anda berfungsi seperti ini
 import org.example.model.Items.Items;
-import org.example.model.GameClock; // Pastikan GameClock bisa diakses dari Farm
+import org.example.model.GameClock;
+import org.example.view.InteractableObject.InteractableObject;
+import org.example.view.InteractableObject.UnplantedTileObject; // Atau Tilledland jika itu nama kelasnya
+import org.example.view.tile.TileManager; // Untuk mengubah tile visual (opsional)
 
 public class RecoverLandAction implements Action {
 
-    private static final int ENERGY_COST_PER_TILE = 5;
-    private static final int TIME_COST_PER_TILE_MINUTES = 5;
-    private static final Items REQUIRED_ITEM = ItemDatabase.getItem("Pickaxe"); // Ambil instance Pickaxe
+    private static final int ENERGY_COST_PER_TILE = 5; // Sesuai spesifikasi
+    private static final int TIME_COST_PER_TILE_MINUTES = 5; // Sesuai spesifikasi
+    private static final Items REQUIRED_ITEM = ItemDatabase.getItem("Pickaxe"); // Item yang dibutuhkan adalah Pickaxe
+
+    private GameController controller;
+    private int targetCol;
+    private int targetRow;
+
+    public RecoverLandAction(GameController controller, int targetCol, int targetRow) {
+        this.controller = controller;
+        this.targetCol = targetCol;
+        this.targetRow = targetRow;
+    }
+    
 
     @Override
     public String getActionName() {
@@ -24,88 +34,75 @@ public class RecoverLandAction implements Action {
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player player = farm.getPlayer();
-        FarmMap farmMap = farm.getFarmMap(); // Asumsi Farm punya getFarmMap()
+        Player player = farm.getPlayerModel();
 
-        if (player == null || farmMap == null) {
-            // Handle case where player or map is not initialized (shouldn't happen in normal flow)
+        if (player == null || controller == null) {
+            //System.err.println("RecoverLandAction Error: Player or Controller is null.");
             return false;
         }
 
-        // 1. Cek Energi Player
+ 
         if (player.getEnergy() < ENERGY_COST_PER_TILE) {
-            System.out.println("LOG: Not enough energy to recover land.");
+            
             return false;
         }
 
-        // 2. Cek Player berada di atas Tile yang tepat (TilledLand)
-        int playerX = player.getTileX();
-        int playerY = player.getTileY();
-        Tile currentTile = farmMap.getTile(playerX, playerY);
 
-        if (currentTile == null) {
-            System.out.println("LOG: Cannot recover land on a null tile."); // Should not happen
-            return false;
-        }
-
-        // Aksi Recover Land hanya bisa dilakukan PADA TILE yang sudah di-tilled
-        if (!(currentTile instanceof Tilledland)) {
-            System.out.println("LOG: Player is not on a tilled land tile.");
-            return false;
-        }
-
-        // 3. Cek Inventory Player memiliki Pickaxe
         if (REQUIRED_ITEM == null) {
-             System.out.println("ERROR: Pickaxe item definition not found in ItemDatabase.");
-             return false; // Safety check
+            //System.err.println("RecoverLandAction ERROR: Definisi item Pickaxe tidak ditemukan di ItemDatabase.");
+            return false;
         }
-
-        if (!player.getInventory().hasItem(REQUIRED_ITEM, 1)) {
-            System.out.println("LOG: You need a Pickaxe to recover land.");
+   
+        Items currentHeldItem = player.getCurrentHeldItem();
+        if (currentHeldItem == null || !currentHeldItem.getName().equalsIgnoreCase(REQUIRED_ITEM.getName())) {
+            //System.out.println(player.getName() + " membutuhkan Pickaxe untuk mengembalikan tanah.");
             return false;
         }
 
-        // Jika semua cek lolos
+    
+        InteractableObject targetObject = farm.getObjectAtTile(farm.getCurrentMap(), targetCol, targetRow, controller.getTileSize());
+        if (!(targetObject instanceof UnplantedTileObject)) { 
+            return false; 
+        }
+
         return true;
     }
 
     @Override
     public void execute(Farm farm) {
-        // canExecute should be called before execute, but re-validating minimal things is safer
         if (!canExecute(farm)) {
-            System.out.println("LOG: Failed to execute Recover Land action due to unmet requirements.");
-            // Mungkin tambahkan pesan spesifik kenapa gagal jika mau
             return;
         }
 
-        Player player = farm.getPlayer();
-        FarmMap farmMap = farm.getFarmMap();
-        GameClock gameClock = farm.getGameClock(); // Asumsi Farm punya getGameClock()
+        Player player = farm.getPlayerModel();
+        GameClock gameClock = farm.getGameClock();
+        int currentMapIndex = farm.getCurrentMap();
 
-        int playerX = player.getTileX();
-        int playerY = player.getTileY();
-        Tile currentTile = farmMap.getTile(playerX, playerY); // Sudah dipastikan TilledLand oleh canExecute
 
-        // 1. Kurangi Energi Player
         player.decreaseEnergy(ENERGY_COST_PER_TILE);
-        System.out.println(player.getName() + " used " + ENERGY_COST_PER_TILE + " energy to recover land.");
+        if (player.getEnergy() <= player.getMinEnergyOperational()) {
+            player.setPassedOut(true); 
+            return; 
+        }
+       
 
-        // 2. Ubah Tile dari TilledLand menjadi TillableLand
-        // Ciptakan Tile baru (TillableLand) dengan koordinat yang sama
-        Tile newTillableTile = new Tillableland(playerX, playerY);
-        farmMap.setTile(playerX, playerY, newTillableTile);
-        System.out.println("Land recovered at (" + playerX + ", " + playerY + ").");
 
-        // 3. Majukan waktu game
-        if (gameClock != null) {
-            gameClock.advanceTimeMinutes(TIME_COST_PER_TILE_MINUTES);
-            System.out.println("Game time advanced by " + TIME_COST_PER_TILE_MINUTES + " minutes.");
+        boolean objectRemoved = farm.removeObjectAtTile(currentMapIndex, targetCol, targetRow, controller.getTileSize());
+        
+        if (objectRemoved) {
+            TileManager tileManager = controller.getTileManager();
+            if (tileManager != null) {
+                int defaultTileID = 37;; 
+                tileManager.setTile(currentMapIndex, targetCol, targetRow, defaultTileID);
+            }
+
         } else {
-            System.out.println("WARNING: GameClock not available to advance time.");
+            System.err.println("R Gagal mengembalikan tanah tercangkul di (" + targetCol + ", " + targetRow + ").");
         }
 
-        // Pickaxe (Equipment) tidak dikonsumsi, hanya dibutuhkan untuk melakukan aksi
+        if (gameClock != null) {
+            gameClock.advanceTimeMinutes(TIME_COST_PER_TILE_MINUTES);
 
-        System.out.println("Action 'Recover Land' executed successfully.");
+        }
     }
 }

@@ -1,115 +1,147 @@
 package org.example.controller;
 
+import org.example.model.Farm;
 import org.example.view.InteractableObject.AbigailHouse;
+import org.example.view.InteractableObject.BedObject;
 import org.example.view.InteractableObject.CarolineHouse;
 import org.example.view.InteractableObject.DascoHouse;
 import org.example.view.InteractableObject.DoorObject;
 import org.example.view.InteractableObject.EmilyStore;
+import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.InteractableObject.MayorHouse;
+import org.example.view.InteractableObject.MountainLakeObject;
 import org.example.view.InteractableObject.OceanObject;
 import org.example.view.InteractableObject.PerryHouse;
-import org.example.view.InteractableObject.PlantedTileObject;
-import org.example.view.InteractableObject.PondObject; 
+import org.example.view.InteractableObject.PondObject;
 import org.example.view.InteractableObject.RiverObject;
 import org.example.view.InteractableObject.ShippingBinObject;
-import org.example.view.InteractableObject.UnplantedTileObject;
+import org.example.view.InteractableObject.StoveObject;
 
 public class AssetSetter {
-    GamePanel gp;
+    private final GameController controller;
+    private final UtilityTool uTool = new UtilityTool();
 
-    public AssetSetter(GamePanel gp) {
-        this.gp = gp;
+    public AssetSetter(GameController controller) {
+        this.controller = controller;
     }
 
+   
     public void setInteractableObject() {
-        int mapIndex = 0;
+        Farm farmModel = controller.getFarmModel();
+        if (farmModel == null) {
+            System.err.println("AssetSetter Error: farmModel is null!");
+            return;
+        }
 
-        gp.obj[mapIndex][0] = new DoorObject(gp);
-        gp.obj[mapIndex][0].worldX = 5* gp.tileSize;
-        gp.obj[mapIndex][0].worldY = 7* gp.tileSize;
+        InteractableObject[][] allObjects = farmModel.getAllObjects();
+        int tileSize = controller.getTileSize();
+        if (tileSize <= 0) {
+            System.err.println("AssetSetter Error: tileSize is invalid (" + tileSize + ")!");
+            return;
+        }
 
-        gp.obj[mapIndex][1] = new PlantedTileObject(gp);
-        gp.obj[mapIndex][1].worldX = 15 * gp.tileSize;
-        gp.obj[mapIndex][1].worldY = 18 * gp.tileSize;
+        int currentMapIndex = farmModel.getCurrentMap(); 
+
+        System.out.println("AssetSetter: Setting objects for map index " + currentMapIndex);
+
+
+        if (currentMapIndex == 0) { 
+            InteractableObject[] farmObjects = {
+                new DoorObject(), 
+                new PondObject(), 
+                new ShippingBinObject(), new MountainLakeObject() 
+            };
+            int[][] farmPositions = {
+                {5, 7}, 
+                {3, 22}, 
+                {11, 8}, {29, 10} 
+            };
+
+            for (int i = 0; i < farmObjects.length; i++) {
+                if (farmObjects[i] == null) continue; 
+                if (farmObjects[i].image != null) {
+                    farmObjects[i].image = uTool.scaleImage(farmObjects[i].image, tileSize, tileSize);
+                }
+                farmObjects[i].worldX = farmPositions[i][0] * tileSize;
+                farmObjects[i].worldY = farmPositions[i][1] * tileSize;
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = farmObjects[i];
+                } else {
+                    System.err.println("AssetSetter Error: Index " + i + " out of bounds for mapIndex " + currentMapIndex);
+                }
+            }
+        } else if (currentMapIndex == 3) { 
+            InteractableObject[] townInteractables = {
+                new CarolineHouse(), new PerryHouse(), new MayorHouse(),
+                new EmilyStore(), new DascoHouse(), new AbigailHouse()
+            };
+            int[][] townPositions = {
+                {5, 17}, {5, 28}, {7, 7}, {23, 7}, {26, 17}, {25, 28}
+            };
+
+            for (int i = 0; i < townInteractables.length; i++) {
+                if (townInteractables[i] == null) continue;
+                if (townInteractables[i].image != null) {
+                    townInteractables[i].image = uTool.scaleImage(townInteractables[i].image, tileSize, tileSize);
+                }
+                townInteractables[i].worldX = townPositions[i][0] * tileSize;
+                townInteractables[i].worldY = townPositions[i][1] * tileSize;
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = townInteractables[i];
+                } else {
+                    System.err.println("AssetSetter Error: Index " + i + " out of bounds for mapIndex " + currentMapIndex + " (Town)");
+                }
+            }
+        } else if (currentMapIndex == 2) { 
+            RiverObject river = new RiverObject();
+            if (river.image != null) river.image = uTool.scaleImage(river.image, tileSize, tileSize);
+            river.worldX = 22 * tileSize;
+            river.worldY = 7 * tileSize;
+            if (0 < allObjects[currentMapIndex].length) { 
+                allObjects[currentMapIndex][0] = river; 
+            } else {
+                System.err.println("AssetSetter Error: No available slot for RiverObject in mapIndex " + currentMapIndex);
+            }
+        } else if (currentMapIndex == 1) { 
+            OceanObject ocean = new OceanObject();
+            if (ocean.image != null) ocean.image = uTool.scaleImage(ocean.image, tileSize, tileSize);
+            ocean.worldX = 10 * tileSize;
+            ocean.worldY = 21 * tileSize;
+            if (0 < allObjects[currentMapIndex].length) {
+                allObjects[currentMapIndex][0] = ocean;
+            } else {
+                System.err.println("AssetSetter Error: No available slot for OceanObject in mapIndex " + currentMapIndex);
+            }
+        } else if (currentMapIndex == 4) { 
+            // Definisikan semua objek untuk rumah
+            InteractableObject[] houseObjects = {
+                new StoveObject(),
+                new BedObject()
+            };
         
-        gp.obj[mapIndex][2] = new PlantedTileObject(gp);
-        gp.obj[mapIndex][2].worldX = 16 * gp.tileSize;
-        gp.obj[mapIndex][2].worldY = 18 * gp.tileSize;
+            int[][] housePositions = {
+                {6, 3},  
+                {9, 10}  
+            };
 
-        gp.obj[mapIndex][3] = new PlantedTileObject(gp);
-        gp.obj[mapIndex][3].worldX = 17 * gp.tileSize;
-        gp.obj[mapIndex][3].worldY = 18 * gp.tileSize;
-
-        gp.obj[mapIndex][4] = new PlantedTileObject(gp);
-        gp.obj[mapIndex][4].worldX = 18 * gp.tileSize;
-        gp.obj[mapIndex][4].worldY = 18 * gp.tileSize;
-
-        gp.obj[mapIndex][5] = new PlantedTileObject(gp);
-        gp.obj[mapIndex][5].worldX = 19 * gp.tileSize;
-        gp.obj[mapIndex][5].worldY = 18 * gp.tileSize;
+            for (int i = 0; i < houseObjects.length; i++) {
+                if (houseObjects[i] == null) continue; 
+            
+    
         
-        gp.obj[mapIndex][6] = new PondObject(gp);
-        gp.obj[mapIndex][6].worldX = 3* gp.tileSize;
-        gp.obj[mapIndex][6].worldY = 22* gp.tileSize;
 
-        gp.obj[mapIndex][7] = new UnplantedTileObject(gp);
-        gp.obj[mapIndex][7].worldX = 22 * gp.tileSize;
-        gp.obj[mapIndex][7].worldY = 18 * gp.tileSize;
+                if (houseObjects[i].image != null) {
+                    houseObjects[i].image = uTool.scaleImage(houseObjects[i].image, tileSize, tileSize);
+                }
+                houseObjects[i].worldX = housePositions[i][0] * tileSize;
+                houseObjects[i].worldY = housePositions[i][1] * tileSize;
         
-        gp.obj[mapIndex][8] = new UnplantedTileObject(gp);
-        gp.obj[mapIndex][8].worldX = 23 * gp.tileSize;
-        gp.obj[mapIndex][8].worldY = 18 * gp.tileSize;
-
-        gp.obj[mapIndex][9] = new UnplantedTileObject(gp);
-        gp.obj[mapIndex][9].worldX = 24 * gp.tileSize;
-        gp.obj[mapIndex][9].worldY = 18 * gp.tileSize;
-
-        gp.obj[mapIndex][10] = new UnplantedTileObject(gp);
-        gp.obj[mapIndex][10].worldX = 25 * gp.tileSize;
-        gp.obj[mapIndex][10].worldY = 18 * gp.tileSize;
-
-        gp.obj[mapIndex][11] = new UnplantedTileObject(gp);
-        gp.obj[mapIndex][11].worldX = 26 * gp.tileSize;
-        gp.obj[mapIndex][11].worldY = 18 * gp.tileSize;
-
-        gp.obj[mapIndex][12] = new ShippingBinObject(gp);
-        gp.obj[mapIndex][12].worldX = 11 * gp.tileSize;
-        gp.obj[mapIndex][12].worldY = 8 * gp.tileSize;
-
-        mapIndex = 3; 
-        gp.obj[mapIndex][13] = new CarolineHouse(gp);
-        gp.obj[mapIndex][13].worldX = 5 * gp.tileSize;
-        gp.obj[mapIndex][13].worldY = 17 * gp.tileSize;
-
-        gp.obj[mapIndex][14] = new PerryHouse(gp);
-        gp.obj[mapIndex][14].worldX = 5 * gp.tileSize;
-        gp.obj[mapIndex][14].worldY = 28 * gp.tileSize;
-
-        gp.obj[mapIndex][15] = new MayorHouse(gp);
-        gp.obj[mapIndex][15].worldX = 7 * gp.tileSize;
-        gp.obj[mapIndex][15].worldY = 7 * gp.tileSize;
-
-        gp.obj[mapIndex][16] = new EmilyStore(gp);
-        gp.obj[mapIndex][16].worldX = 23 * gp.tileSize;
-        gp.obj[mapIndex][16].worldY = 7 * gp.tileSize;
-
-        gp.obj[mapIndex][17] = new DascoHouse(gp);
-        gp.obj[mapIndex][17].worldX = 26 * gp.tileSize;
-        gp.obj[mapIndex][17].worldY = 17 * gp.tileSize;
-
-        gp.obj[mapIndex][18] = new AbigailHouse(gp);
-        gp.obj[mapIndex][18].worldX = 25 * gp.tileSize;
-        gp.obj[mapIndex][18].worldY = 28 * gp.tileSize;
-
-        mapIndex = 2;
-        gp.obj[mapIndex][19] = new RiverObject(gp);
-        gp.obj[mapIndex][19].worldX = 22 * gp.tileSize;
-        gp.obj[mapIndex][19].worldY = 7 * gp.tileSize;
-
-        mapIndex = 1;
-        gp.obj[mapIndex][20] = new OceanObject(gp);
-        gp.obj[mapIndex][20].worldX = 10 * gp.tileSize;
-        gp.obj[mapIndex][20].worldY = 21 * gp.tileSize;
-
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = houseObjects[i];
+                } else {
+                    System.err.println("AssetSetter Error: Slot tidak cukup untuk objek di peta rumah.");
+                }
+            }
+        }
     }
 }

@@ -42,6 +42,8 @@ public class GameClock {
         } else {
             randomizeWeatherForDay();
         }
+
+        this.currentTime = LocalTime.of(6, 0); 
     }
 
     private void nextSeason() {
@@ -99,6 +101,12 @@ public class GameClock {
     
     public int getDaysIntoSeason() { 
         return daysIntoSeason; 
+    }
+
+    public void setCurrentTime(LocalTime newTime) {
+        if (newTime != null) {
+            this.currentTime = newTime;
+        }
     }
 
 }

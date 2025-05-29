@@ -26,7 +26,7 @@ public class ChattingAction implements Action{
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
 
         if (player.getCurrentLocationType() != npcHouse) {
             System.out.println("Kamu harus berada di rumah " + targetNpc.getName() + " untuk ngobrol.");
@@ -43,20 +43,19 @@ public class ChattingAction implements Action{
 
     @Override
     public void execute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
 
         if (!canExecute(farm)) return;
 
-        // Kurangi energi
+
         player.decreaseEnergy(ENERGY_COST);
 
-        // Tambah waktu
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
 
-        // Tambah heart point ke NPC
+
         targetNpc.setHeartPoints(targetNpc.getHeartPoints() + HEART_POINT_GAIN);
 
-        // Output
+  
         System.out.println("Kamu ngobrol hangat dengan " + targetNpc.getName() + ".");
         System.out.println("HeartPoint +10 (sekarang: " + targetNpc.getHeartPoints() + ")");
         System.out.println("Energi -10. Waktu maju 10 menit.");

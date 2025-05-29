@@ -1,25 +1,42 @@
 package org.example.view.InteractableObject;
 
-import javax.imageio.ImageIO;
+import java.io.IOException; 
 
-import org.example.controller.GamePanel;
+import javax.imageio.ImageIO;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
+import org.example.controller.GameController;
+import org.example.view.NPCInteractionPanel;
 
 public class MayorHouse extends InteractableObject {
-      GamePanel gp;
-    public MayorHouse(GamePanel gp) {
-        this.gp = gp;
-        this.name = "Mayor Tadi House";
-        try {
-            this.image = ImageIO.read(getClass().getResourceAsStream("/InteractableObject/MayorHouse.png"));
-            uTool.scaleImage(image, gp.tileSize, gp.tileSize); 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
+
+    public MayorHouse() { 
+        super("Mayor Tadi House"); 
+        loadImage(); 
     }
 
     @Override
-    public void interact() {
-        System.out.println("You are visiting Mayor Tadi's House.");
-    }  
+    protected void loadImage() {
+        try {
+            this.image = ImageIO.read(getClass().getResourceAsStream("/InteractableObject/MayorHouse.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Error loading MayorHouse.png for MayorHouse");
+        }
+    }
+
+    @Override
+    public void interact(GameController controller) {
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(controller.getGamePanel());
+
+        JDialog dialog = new JDialog(frame, "Interaction", true);
+        dialog.setUndecorated(true); // Biar latar belakang keliatan
+        NPCInteractionPanel panel = new NPCInteractionPanel(frame, "Mayor Tadi");
+        dialog.setContentPane(panel); // Ganti isi dialog dengan panel yang punya latar
+        dialog.pack(); // Biarkan ukurannya ikut ukuran panel
+        dialog.setLocationRelativeTo(frame);
+        dialog.setVisible(true);
+    }
 }

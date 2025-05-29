@@ -51,7 +51,7 @@ public class FishingAction implements Action {
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         LocationType location = player.getCurrentLocationType();
         boolean validLocation = location == LocationType.POND
                              || location == LocationType.OCEAN
@@ -65,7 +65,7 @@ public class FishingAction implements Action {
 
     @Override
     public void execute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
 
         if (!canExecute(farm)) {
             System.out.println("Tidak bisa memancing");
@@ -138,5 +138,6 @@ public class FishingAction implements Action {
         }
 
         System.out.println("Waktu sekarang: " + farm.getGameClock().getCurrentTime());
+        scanner.close();
     }
 }

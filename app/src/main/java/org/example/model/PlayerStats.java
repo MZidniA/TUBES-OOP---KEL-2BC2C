@@ -1,24 +1,28 @@
+// Lokasi: org.example.model.PlayerStats.java
 package org.example.model;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set; // IMPORT BARU
+import java.util.HashSet; // IMPORT BARU
 
 import org.example.model.NPC.NPC;
 import org.example.model.enums.FishType;
 
 public class PlayerStats {
-    private int totalIncome;                    
-    private int totalGoldSpent;               
-    private int totalCropsHarvested;            
-    private Map<FishType, Integer> TotalFishCaught; 
-    private int totalDaysPlayed;                
+    private int totalIncome;
+    private int totalGoldSpent;
+    private int totalCropsHarvested;
+    private Map<FishType, Integer> TotalFishCaught; // Variabel Anda diawali huruf besar, biasanya lowercase
+    private int totalDaysPlayed;
 
+    private Map<String, Integer> npcFriendshipPoints;
+    private Map<String, Integer> npcTotalChat;
+    private Map<String, Integer> npcTotalGift;
 
-    private Map<String, Integer> npcFriendshipPoints;  
-    private Map<String, Integer> npcTotalChat; 
-    private Map<String, Integer> npcTotalGift;  
-
+    // BARU: Menyimpan ID resep yang sudah unlocked
+    private Set<String> unlockedRecipeIds;
 
     public PlayerStats() {
         this.totalIncome = 0;
@@ -33,7 +37,34 @@ public class PlayerStats {
         this.npcFriendshipPoints = new HashMap<>();
         this.npcTotalChat = new HashMap<>();
         this.npcTotalGift = new HashMap<>();
+
+
+        this.unlockedRecipeIds = new HashSet<>();
+        
     }
+
+
+    public void unlockRecipe(String recipeId) {
+        if (recipeId != null && !recipeId.isEmpty()) {
+            if (this.unlockedRecipeIds.add(recipeId)) { // .add() mengembalikan true jika set diubah
+                System.out.println("PlayerStats LOG: Recipe '" + recipeId + "' unlocked!");
+            } else {
+                System.out.println("PlayerStats LOG: Recipe '" + recipeId + "' already unlocked.");
+            }
+        }
+    }
+
+
+    public boolean isRecipeUnlocked(String recipeId) {
+        if (recipeId == null) return false;
+        return this.unlockedRecipeIds.contains(recipeId);
+    }
+
+   
+    public Set<String> getUnlockedRecipeIds() {
+        return new HashSet<>(this.unlockedRecipeIds); 
+    }
+ 
 
 
     public void recordIncome(int amount) {
@@ -56,13 +87,10 @@ public class PlayerStats {
         this.totalDaysPlayed++;
     }
 
- 
     public void recordNpcInteraction(String npcName, String interactionType, Integer currentHeartPoints) {
-        if (npcName == null) 
-            return;
+        if (npcName == null) return;
 
-
-        npcFriendshipPoints.putIfAbsent(npcName, 0); 
+        npcFriendshipPoints.putIfAbsent(npcName, 0);
         npcTotalChat.putIfAbsent(npcName, 0);
         npcTotalGift.putIfAbsent(npcName, 0);
 
@@ -79,42 +107,22 @@ public class PlayerStats {
         }
     }
 
-    public void updateAllNpcFriendshipPoints(List<NPC> npcList) {
-        if (npcList == null) return;
-        for (NPC npc : npcList) {
-            recordNpcInteraction(npc.getName(), "friendship", npc.getHeartPoints());
+    public void updateAllNpcFriendshipPoints(List<NPC> npcListParam) { // Ganti nama parameter agar tidak sama dengan field
+        if (npcListParam == null) return;
+        for (NPC npc : npcListParam) {
+            if (npc != null) { 
+                recordNpcInteraction(npc.getName(), "friendship", npc.getHeartPoints());
+            }
         }
     }
 
-    public int getTotalIncome() {
-        return totalIncome; 
-    }
 
-    public int gettotalGoldSpent() { 
-        return totalGoldSpent; 
-    }
-
-    public int getTotalCropsHarvested() {
-        return totalCropsHarvested; 
-    }
-
-    public Map<FishType, Integer> getTotalFishCaught() { 
-        return TotalFishCaught; 
-    }
-
-    public int getTotalDaysPlayed() { 
-        return totalDaysPlayed; 
-    }
-
-    public Map<String, Integer> getNpcFriendshipPoints() { 
-        return npcFriendshipPoints; 
-    }
-
-    public Map<String, Integer> getnpcTotalChat() { 
-        return npcTotalChat; 
-    }
-
-    public Map<String, Integer> getnpcTotalGift() { 
-        return npcTotalGift; 
-    }
+    public int getTotalIncome() { return totalIncome; }
+    public int gettotalGoldSpent() { return totalGoldSpent; } 
+    public int getTotalCropsHarvested() { return totalCropsHarvested; }
+    public Map<FishType, Integer> getTotalFishCaught() { return TotalFishCaught; } 
+    public int getTotalDaysPlayed() { return totalDaysPlayed; }
+    public Map<String, Integer> getNpcFriendshipPoints() { return npcFriendshipPoints; }
+    public Map<String, Integer> getNpcTotalChat() { return npcTotalChat; } 
+    public Map<String, Integer> getNpcTotalGift() { return npcTotalGift; }
 }

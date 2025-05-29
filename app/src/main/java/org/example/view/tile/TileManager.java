@@ -1,4 +1,4 @@
-package org.example.controller;
+package org.example.view.tile;
 
 import java.awt.Graphics2D;
 import java.io.BufferedReader;
@@ -8,23 +8,45 @@ import java.io.InputStreamReader;
 
 import javax.imageio.ImageIO;
 
+import org.example.controller.UtilityTool;
+import org.example.view.GamePanel;
+import org.example.view.entitas.PlayerView;
+
+
+
+// Asumsi ada file Tile.java di package yang sama atau di-import
+// package org.example.controller;
+// import java.awt.image.BufferedImage;
+// public class Tile {
+//     public BufferedImage image;
+//     public boolean collision = false;
+// }
+
 public class TileManager {
     GamePanel gp;
     public Tile[] tile;
-    public int mapTileNum[][][];
+    public int[][][] mapTileNum;
 
-    public TileManager(GamePanel gp) {
+
+    public TileManager(org.example.view.GamePanel gp) {
         this.gp = gp;
         tile = new Tile[850];
-        mapTileNum = new int[gp.maxMap][gp.maxWorldCol][gp.maxWorldRow];
+        // Inisialisasi mapTileNum berdasarkan dimensi dari GamePanel
+        mapTileNum = new int[6][gp.maxWorldCol][gp.maxWorldRow];
+// Nilai maxMap diambil dari gp
         getTileImage();
+        // Memuat semua peta saat inisialisasi
         loadMap("/maps/map.txt", 0);
         loadMap("/maps/beachmap.txt", 1);
-        loadMap("/maps/rivermap.txt", 2);
-        loadMap("/maps/townmap.txt", 3);
+        loadMap("/maps/rivermap.txt", 2); // Mengganti rivermap dengan forest.txt sesuai GamePanel
+        loadMap("/maps/townmap.txt", 3);   // Mengganti townmap dengan lake.txt
         loadMap("/maps/housemap.txt", 4);
     }
 
+    public TileManager getTileManager() {
+        return gp.tileM;
+    }
+   
     public void getTileImage() {
         // Farm Map
         setup(0, "RumputSummer", false);
@@ -116,8 +138,8 @@ public class TileManager {
         setup(86, "RumputCorner86", false);
         setup(87, "RumputCorner87", false);
         setup(89, "Rumput89", false);
-        setup(88, "Path", true); 
-        setup(90, "Path", true);
+        setup(88, "Path", false); 
+        setup(90, "Path", false);
 
         // Beach and Ocean Map
         setup(91, "LightSandPatch", false);
@@ -491,7 +513,7 @@ public class TileManager {
         setup(469, "row-4-column-10", true);
         setup(470, "row-4-column-11", true);
         setup(471, "row-4-column-12", true);
-        setup(472, "row-5-column-1", false);
+        setup(472, "row-5-column-1", true);
         setup(473, "row-5-column-2", false);
         setup(474, "row-5-column-3", false);
         setup(475, "row-5-column-4", false);
@@ -501,9 +523,9 @@ public class TileManager {
         setup(479, "row-5-column-8", false);
         setup(480, "row-5-column-9", false);
         setup(481, "row-5-column-10", false);
-        setup(482, "row-5-column-11", false);
-        setup(483, "row-5-column-12", false);
-        setup(484, "row-6-column-1", false);
+        setup(482, "row-5-column-11", true);
+        setup(483, "row-5-column-12", true);
+        setup(484, "row-6-column-1", true);
         setup(485, "row-6-column-2", false);
         setup(486, "row-6-column-3", false);
         setup(487, "row-6-column-4", false);
@@ -511,23 +533,23 @@ public class TileManager {
         setup(489, "row-6-column-6", false);
         setup(490, "row-6-column-7", false);
         setup(491, "row-6-column-8", false);
-        setup(492, "row-6-column-9", false);
-        setup(493, "row-6-column-10", false);
-        setup(494, "row-6-column-11", false);
-        setup(495, "row-6-column-12", false);
-        setup(496, "row-7-column-1", false);
-        setup(497, "row-7-column-2", false);
-        setup(498, "row-7-column-3", false);
+        setup(492, "row-6-column-9", true);
+        setup(493, "row-6-column-10", true);
+        setup(494, "row-6-column-11", true);
+        setup(495, "row-6-column-12", true);
+        setup(496, "row-7-column-1", true);
+        setup(497, "row-7-column-2", true);
+        setup(498, "row-7-column-3", true);
         setup(499, "row-7-column-4", false);
         setup(500, "row-7-column-5", false);
         setup(501, "row-7-column-6", false);
-        setup(502, "row-7-column-7", false);
-        setup(503, "row-7-column-8", false);
+        setup(502, "row-7-column-7", true);
+        setup(503, "row-7-column-8", true);
         setup(504, "row-7-column-9", false);
         setup(505, "row-7-column-10", false);
         setup(506, "row-7-column-11", false);
-        setup(507, "row-7-column-12", false);
-        setup(508, "row-8-column-1", false);
+        setup(507, "row-7-column-12", true);
+        setup(508, "row-8-column-1", true);
         setup(509, "row-8-column-2", false);
         setup(510, "row-8-column-3", false);
         setup(511, "row-8-column-4", false);
@@ -537,9 +559,9 @@ public class TileManager {
         setup(515, "row-8-column-8", false);
         setup(516, "row-8-column-9", false);
         setup(517, "row-8-column-10", false);
-        setup(518, "row-8-column-11", false);
+        setup(518, "row-8-column-11", true);
         setup(519, "row-8-column-12", false);
-        setup(520, "row-9-column-1", false);
+        setup(520, "row-9-column-1", true);
         setup(521, "row-9-column-2", false);
         setup(522, "row-9-column-3", false);
         setup(523, "row-9-column-4", false);
@@ -548,10 +570,10 @@ public class TileManager {
         setup(526, "row-9-column-7", false);
         setup(527, "row-9-column-8", false);
         setup(528, "row-9-column-9", false);
-        setup(529, "row-9-column-10", false);
-        setup(530, "row-9-column-11", false);
-        setup(531, "row-9-column-12", false);
-        setup(532, "row-10-column-1", false);
+        setup(529, "row-9-column-10", true);
+        setup(530, "row-9-column-11", true);
+        setup(531, "row-9-column-12", true);
+        setup(532, "row-10-column-1", true);
         setup(533, "row-10-column-2", false);
         setup(534, "row-10-column-3", false);
         setup(535, "row-10-column-4", false);
@@ -560,10 +582,10 @@ public class TileManager {
         setup(538, "row-10-column-7", false);
         setup(539, "row-10-column-8", false);
         setup(540, "row-10-column-9", false);
-        setup(541, "row-10-column-10", false);
+        setup(541, "row-10-column-10", true);
         setup(542, "row-10-column-11", false);
         setup(543, "row-10-column-12", false);
-        setup(544, "row-11-column-1", false);
+        setup(544, "row-11-column-1", true);
         setup(545, "row-11-column-2", false);
         setup(546, "row-11-column-3", false);
         setup(547, "row-11-column-4", false);
@@ -572,21 +594,21 @@ public class TileManager {
         setup(550, "row-11-column-7", false);
         setup(551, "row-11-column-8", false);
         setup(552, "row-11-column-9", false);
-        setup(553, "row-11-column-10", false);
+        setup(553, "Path", true);
         setup(554, "row-11-column-11", false);
         setup(555, "row-11-column-12", false);
-        setup(556, "row-12-column-1", false);
-        setup(557, "row-12-column-2", false);
+        setup(556, "row-12-column-1", true);
+        setup(557, "row-12-column-2", true);
         setup(558, "row-12-column-3", false);
         setup(559, "row-12-column-4", false);
-        setup(560, "row-12-column-5", false);
-        setup(561, "row-12-column-6", false);
-        setup(562, "row-12-column-7", false);
-        setup(563, "row-12-column-8", false);
-        setup(564, "row-12-column-9", false);
-        setup(565, "row-12-column-10", false);
-        setup(566, "row-12-column-11", false);
-        setup(567, "row-12-column-12", false);
+        setup(560, "row-12-column-5", true);
+        setup(561, "row-12-column-6", true);
+        setup(562, "row-12-column-7", true);
+        setup(563, "row-12-column-8", true);
+        setup(564, "row-12-column-9", true);
+        setup(565, "row-12-column-10", true);
+        setup(566, "row-12-column-11", true);
+        setup(567, "row-12-column-12", true);
         setup(568, "121", false);
         setup(569, "569", false);
         setup(570, "570", false);
@@ -608,19 +630,22 @@ public class TileManager {
         setup(586, "586", false);
         setup(587, "587", false);
         setup(588, "588", false);
-        setup(589, "589", false);
+        setup(589, "589", false);  
+        setup(590, "80", false);
     }
-    
 
     public void setup(int index, String imageName, boolean collision) {
         UtilityTool uTool = new UtilityTool();
-
         try {
             tile[index] = new Tile();
             tile[index].image = ImageIO.read(getClass().getResourceAsStream("/tiles/" + imageName + ".png"));
+            // Menggunakan gp.tileSize yang disimpan saat konstruksi
             tile[index].image = uTool.scaleImage(tile[index].image, gp.tileSize, gp.tileSize);
             tile[index].collision = collision;
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Error setting up tile: " + imageName + ". Make sure the image exists.");
             e.printStackTrace();
         }
     }
@@ -629,60 +654,79 @@ public class TileManager {
         try {
             InputStream is = getClass().getResourceAsStream(filePath);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
-    
+
             int row = 0;
-    
+            // Menggunakan gp.maxWorldRow & gp.maxWorldCol yang disimpan saat konstruksi
             while (row < gp.maxWorldRow) {
                 String line = br.readLine();
                 if (line == null) break;
-    
+
                 String[] numbers = line.split("\\s+");
-    
                 for (int col = 0; col < gp.maxWorldCol; col++) {
-                    int num = Integer.parseInt(numbers[col]);
-                    mapTileNum[map][col][row] = num;
+                    if (col < numbers.length) {
+                        int num = Integer.parseInt(numbers[col]);
+                        mapTileNum[map][col][row] = num;
+                    }
                 }
                 row++;
             }
-    
             br.close();
-            System.out.println("Map loaded successfully.");
         } catch (Exception e) {
-            System.out.println("Error loading map: " + e.getMessage());
+            System.err.println("Error loading map: " + filePath);
+            e.printStackTrace();
         }
     }
-    
 
-    public void draw(Graphics2D g2) {
-        int worldCol = 0;
-        int worldRow = 0;
+    public void draw(Graphics2D g2, PlayerView playerView, int currentMap) {
+        if (gp == null || playerView == null) return;
     
-        while (worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
-            int tileNum = mapTileNum[gp.currentMap][worldCol][worldRow];
+        int worldWidth = gp.maxWorldCol * gp.tileSize;
+        int worldHeight = gp.maxWorldRow * gp.tileSize;
     
-            int worldX = worldCol * gp.tileSize;
-            int worldY = worldRow * gp.tileSize;
-            int screenX = worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = worldY - gp.player.worldY + gp.player.screenY;
+        // 1. Hitung posisi kamera yang berpusat pada pemain
+        double cameraX = playerView.worldX - (gp.screenWidth / 2.0);
+        double cameraY = playerView.worldY - (gp.screenHeight / 2.0);
     
-            if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX
-                    && worldX - gp.tileSize < gp.player.worldX + gp.player.screenX
-                    && worldY + gp.tileSize > gp.player.worldY - gp.player.screenY
-                    && worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
+        // 2. Clamp (jepit) kamera agar tidak menampilkan area di luar peta
+        cameraX = Math.max(0, Math.min(cameraX, worldWidth - gp.screenWidth));
+        cameraY = Math.max(0, Math.min(cameraY, worldHeight - gp.screenHeight));
+        
+        // 3. Gunakan NESTED FOR LOOP untuk menggambar semua tile
+        // Ini adalah cara yang lebih aman dan mudah dibaca daripada while loop tunggal.
+        for (int worldRow = 0; worldRow < gp.maxWorldRow; worldRow++) {
+            for (int worldCol = 0; worldCol < gp.maxWorldCol; worldCol++) {
+                
+                int tileNum = mapTileNum[currentMap][worldCol][worldRow];
+                
+
+                if (tileNum >= tile.length || tile[tileNum] == null || tile[tileNum].image == null) {
+                    continue; 
+                }
     
-                if (tileNum < tile.length && tile[tileNum] != null) {
-                    g2.drawImage(tile[tileNum].image, screenX, screenY,gp.tileSize, gp.tileSize,null);
-                } else {
-                    System.out.println("Undefined tile index: " + tileNum);
+                int worldX = worldCol * gp.tileSize;
+                int worldY = worldRow * gp.tileSize;
+                
+                // Hitung posisi tile di layar relatif terhadap kamera
+                int screenX = (int) (worldX - cameraX);
+                int screenY = (int) (worldY - cameraY);
+    
+                // Culling: Hanya gambar tile yang terlihat di layar untuk efisiensi
+                if (screenX > -gp.tileSize && screenX < gp.screenWidth && 
+                    screenY > -gp.tileSize && screenY < gp.screenHeight) {
+                    
+                    g2.drawImage(tile[tileNum].image, screenX, screenY, null);
                 }
             }
-    
-            worldCol++;
-    
-            if (worldCol == gp.maxWorldCol) {
-                worldCol = 0;
-                worldRow++;
-            }
         }
-    }    
+    }
+
+    public boolean setTile(int map, int col, int row, int newTileID) {
+        if (map >= 0 && map < gp.maxMap &&
+            col >= 0 && col < gp.maxWorldCol &&
+            row >= 0 && row < gp.maxWorldRow) {
+            mapTileNum[map][col][row] = newTileID;
+            return true;
+        }
+        return false;
+    }
 }

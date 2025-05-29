@@ -32,7 +32,7 @@ public class EatingAction implements Action {
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         if (itemToEat == null) {
             return false;
         }
@@ -54,11 +54,11 @@ public class EatingAction implements Action {
             System.out.println("LOG: Gagal makan, item tidak ditentukan.");
             return;
         }
-        Player player = farm.getPlayer();
+        Player player = farm.getPlayerModel();
         if (itemToEat instanceof EdibleItem) {
             int restored = ((EdibleItem) itemToEat).getEnergyRestored();
             player.setEnergy(player.getEnergy() + restored);
-            player.getInventory().removeItem(itemToEat, 1);
+            player.getInventory().removeInventory(itemToEat, 1);
             farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
             System.out.println("LOG: " + player.getName() + " memakan " + itemToEat.getName() + ". Energi pulih " + restored + ".");
         } else {

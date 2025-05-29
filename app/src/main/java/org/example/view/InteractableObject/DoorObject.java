@@ -1,25 +1,32 @@
 package org.example.view.InteractableObject;
 
+import java.io.IOException;
+
 import javax.imageio.ImageIO;
 
-import org.example.controller.GamePanel;
-
+import org.example.controller.GameController;
 
 public class DoorObject extends InteractableObject {
-    GamePanel gp;
-    public DoorObject(GamePanel gp) {
-        this.gp = gp;
-        this.name = "Door";
+
+    public DoorObject() {
+        super("Door"); 
+        this.collision = true;
+        loadImage(); 
+    }
+
+    @Override
+    protected void loadImage() {
         try {
             this.image = ImageIO.read(getClass().getResourceAsStream("/InteractableObject/Door.png"));
-            uTool.scaleImage(image, gp.tileSize, gp.tileSize);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
+            System.err.println("Error loading Door.png for DoorObject");
         }
     }
 
     @Override
-    public void interact() {
-        gp.teleportPlayer(4, 6 * gp.tileSize, 6 * gp.tileSize);
+    public void interact(GameController controller) {
+        int targetTileSize = controller.getTileSize();
+        controller.teleportPlayer(4, 6 * targetTileSize, 6 * targetTileSize);
     }
 }

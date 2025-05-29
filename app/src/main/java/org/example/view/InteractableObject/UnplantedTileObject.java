@@ -1,24 +1,33 @@
 package org.example.view.InteractableObject;
-import javax.imageio.ImageIO;
 
-import org.example.controller.GamePanel;
+import java.io.IOException; 
+
+import javax.imageio.ImageIO;
+import java.awt.Rectangle;
+
+import org.example.controller.GameController;
 
 public class UnplantedTileObject extends InteractableObject {
-    GamePanel gp;
-    public UnplantedTileObject(GamePanel gp) {
-        this.gp = gp;
-        this.name = "Unplanted Tile";
+
+    public UnplantedTileObject() { 
+        super("Unplanted Tile");
+        this.collision = false;
+        this.solidArea = new Rectangle(0, 0, 5, 5);
+        loadImage(); 
+    }
+
+    @Override
+    protected void loadImage() {
         try {
             this.image = ImageIO.read(getClass().getResourceAsStream("/InteractableObject/UnplantedTile.png"));
-            uTool.scaleImage(image, gp.tileSize, gp.tileSize); // Assuming you want to scale the image to 48x48 pixels
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
+            System.err.println("Error loading UnplantedTile.png for UnplantedTileObject");
         }
     }
 
     @Override
-    public void interact() {
-        // Implement interaction logic here
+    public void interact(GameController controller) {
         System.out.println("Interacting with the Unplanted Tile");
     }
 }
