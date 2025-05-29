@@ -37,7 +37,7 @@ public class TillingAction implements Action {
         if (player == null) return false;
 
         if (player.getEnergy() <= player.getMinEnergyOperational()) {
-            System.out.println("TillingAction: Energi terlalu rendah.");
+            //System.out.println("TillingAction: Energi terlalu rendah.");
             return false;
         }
         Items heldItem = player.getCurrentHeldItem();

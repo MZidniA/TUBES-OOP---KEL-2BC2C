@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.example.controller.action.RecoverLandAction;
 import org.example.controller.action.TillingAction;
 import org.example.model.Farm;
 import org.example.model.GameClock;
@@ -218,7 +219,14 @@ public class GameController implements Runnable {
                 if (tilling.canExecute(farm)) {
                     tilling.execute(farm);
                 } else {
-                    System.out.println("Tidak bisa mencangkul di sini.");
+                    System.out.println("Tidak bisa mencangkul di sini");
+                }
+            } else if (heldItem != null && heldItem.getName().equalsIgnoreCase("Pickaxe")) {
+                RecoverLandAction recoverAction = new RecoverLandAction(this, targetCol, targetRow);
+                if (recoverAction.canExecute(farm)) {
+                    recoverAction.execute(farm);
+                } else {
+                    System.out.println("Tidak bisa mengembalikan tanah ini lagi");
                 }
             }
         } else {
@@ -455,4 +463,6 @@ public class GameController implements Runnable {
         }
         return false;
     }
+
+    
 }

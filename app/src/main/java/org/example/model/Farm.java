@@ -121,4 +121,37 @@ public class Farm {
     public void setCurrentWeather(Weather nextWeather) {
         this.currentWeather = nextWeather;
     }
+
+
+    public InteractableObject getObjectAtTile(int mapIndex, int col, int row, int tileSize) {
+        if (mapIndex < 0 || mapIndex >= objects.length) return null;
+        for (InteractableObject obj : objects[mapIndex]) {
+            if (obj != null) {
+                int objCol = obj.worldX / tileSize;
+                int objRow = obj.worldY / tileSize;
+                if (objCol == col && objRow == row) {
+                    return obj;
+                }
+            }
+        }
+        return null;
+    }
+
+   
+    public boolean removeObjectAtTile(int mapIndex, int col, int row, int tileSize) {
+        if (mapIndex < 0 || mapIndex >= objects.length) return false;
+        for (int i = 0; i < objects[mapIndex].length; i++) {
+            InteractableObject obj = objects[mapIndex][i];
+            if (obj != null) {
+                int objCol = obj.worldX / tileSize;
+                int objRow = obj.worldY / tileSize;
+                if (objCol == col && objRow == row) {
+                    objects[mapIndex][i] = null; 
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
 }

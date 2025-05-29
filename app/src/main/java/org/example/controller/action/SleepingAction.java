@@ -6,9 +6,7 @@ import java.time.LocalTime;
 import org.example.controller.GameController;
 import org.example.model.Farm;
 import org.example.model.Player;
-import org.example.model.Items.ItemDatabase;
 import org.example.view.entitas.PlayerView;
-import org.example.controller.GameController;
 
 public class SleepingAction implements Action {
     private final GameController controller;
