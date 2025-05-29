@@ -678,39 +678,44 @@ public class TileManager {
     }
 
     public void draw(Graphics2D g2, PlayerView playerView, int currentMap) {
-        int worldCol = 0;
-        int worldRow = 0;
+        if (gp == null || playerView == null) return;
+    
+        int worldWidth = gp.maxWorldCol * gp.tileSize;
+        int worldHeight = gp.maxWorldRow * gp.tileSize;
+    
+        // 1. Hitung posisi kamera yang berpusat pada pemain
+        double cameraX = playerView.worldX - (gp.screenWidth / 2.0);
+        double cameraY = playerView.worldY - (gp.screenHeight / 2.0);
+    
+        // 2. Clamp (jepit) kamera agar tidak menampilkan area di luar peta
+        cameraX = Math.max(0, Math.min(cameraX, worldWidth - gp.screenWidth));
+        cameraY = Math.max(0, Math.min(cameraY, worldHeight - gp.screenHeight));
+        
+        // 3. Gunakan NESTED FOR LOOP untuk menggambar semua tile
+        // Ini adalah cara yang lebih aman dan mudah dibaca daripada while loop tunggal.
+        for (int worldRow = 0; worldRow < gp.maxWorldRow; worldRow++) {
+            for (int worldCol = 0; worldCol < gp.maxWorldCol; worldCol++) {
+                
+                int tileNum = mapTileNum[currentMap][worldCol][worldRow];
+                
 
-        // Posisi pemain di layar selalu di tengah
-        final int playerScreenX = gp.screenWidth / 2 - (gp.tileSize / 2);
-        final int playerScreenY = gp.screenHeight / 2 - (gp.tileSize / 2);
-
-        while (worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
-            // Menggunakan currentMap dari parameter, bukan gp.currentMap
-            int tileNum = mapTileNum[currentMap][worldCol][worldRow];
-
-            int worldX = worldCol * gp.tileSize;
-            int worldY = worldRow * gp.tileSize;
-            
-            // Menggunakan playerView dari parameter, bukan gp.player
-            int screenX = worldX - playerView.worldX + playerScreenX;
-            int screenY = worldY - playerView.worldY + playerScreenY;
-
-            // Culling (hanya gambar yang terlihat di layar)
-            if (worldX + gp.tileSize > playerView.worldX - playerScreenX &&
-                worldX - gp.tileSize < playerView.worldX + playerScreenX &&
-                worldY + gp.tileSize > playerView.worldY - playerScreenY &&
-                worldY - gp.tileSize < playerView.worldY + playerScreenY) {
-
-                if (tileNum < tile.length && tile[tileNum] != null && tile[tileNum].image != null) {
-                    g2.drawImage(tile[tileNum].image, screenX, screenY, null); 
+                if (tileNum >= tile.length || tile[tileNum] == null || tile[tileNum].image == null) {
+                    continue; 
                 }
-            }
-
-            worldCol++;
-            if (worldCol == gp.maxWorldCol) {
-                worldCol = 0;
-                worldRow++;
+    
+                int worldX = worldCol * gp.tileSize;
+                int worldY = worldRow * gp.tileSize;
+                
+                // Hitung posisi tile di layar relatif terhadap kamera
+                int screenX = (int) (worldX - cameraX);
+                int screenY = (int) (worldY - cameraY);
+    
+                // Culling: Hanya gambar tile yang terlihat di layar untuk efisiensi
+                if (screenX > -gp.tileSize && screenX < gp.screenWidth && 
+                    screenY > -gp.tileSize && screenY < gp.screenHeight) {
+                    
+                    g2.drawImage(tile[tileNum].image, screenX, screenY, null);
+                }
             }
         }
     }

@@ -38,19 +38,12 @@ public class PlayerStats {
         this.npcTotalChat = new HashMap<>();
         this.npcTotalGift = new HashMap<>();
 
-        // BARU: Inisialisasi set untuk resep yang unlocked
+
         this.unlockedRecipeIds = new HashSet<>();
-        // Di sini Anda bisa menambahkan resep "default" atau "bawaan"
-        // Misalnya, jika ada resep dengan ID "recipe_default_omelette"
-        // unlockRecipe("recipe_default_omelette");
-        // Atau ini bisa ditangani saat RecipeDatabase diinisialisasi.
+        
     }
 
-    // --- Metode BARU untuk manajemen resep ---
-    /**
-     * Menandai bahwa pemain telah mempelajari atau membuka resep baru.
-     * @param recipeId ID dari resep yang di-unlock.
-     */
+
     public void unlockRecipe(String recipeId) {
         if (recipeId != null && !recipeId.isEmpty()) {
             if (this.unlockedRecipeIds.add(recipeId)) { // .add() mengembalikan true jika set diubah
@@ -61,24 +54,17 @@ public class PlayerStats {
         }
     }
 
-    /**
-     * Mengecek apakah pemain sudah mengetahui/membuka resep tertentu.
-     * @param recipeId ID dari resep yang akan dicek.
-     * @return true jika resep sudah unlocked, false jika belum.
-     */
+
     public boolean isRecipeUnlocked(String recipeId) {
         if (recipeId == null) return false;
         return this.unlockedRecipeIds.contains(recipeId);
     }
 
-    /**
-     * Mendapatkan semua ID resep yang sudah diketahui pemain.
-     * @return Set dari ID resep yang unlocked.
-     */
+   
     public Set<String> getUnlockedRecipeIds() {
-        return new HashSet<>(this.unlockedRecipeIds); // Kembalikan salinan agar tidak bisa diubah dari luar
+        return new HashSet<>(this.unlockedRecipeIds); 
     }
-    // --- Akhir Metode BARU ---
+ 
 
 
     public void recordIncome(int amount) {
@@ -94,7 +80,6 @@ public class PlayerStats {
     }
 
     public void recordFishCaught(FishType type) {
-        // Menggunakan nama variabel yang konsisten (lowercase)
         TotalFishCaught.put(type, TotalFishCaught.getOrDefault(type, 0) + 1);
     }
 
@@ -125,19 +110,19 @@ public class PlayerStats {
     public void updateAllNpcFriendshipPoints(List<NPC> npcListParam) { // Ganti nama parameter agar tidak sama dengan field
         if (npcListParam == null) return;
         for (NPC npc : npcListParam) {
-            if (npc != null) { // Tambahkan null check untuk npc
+            if (npc != null) { 
                 recordNpcInteraction(npc.getName(), "friendship", npc.getHeartPoints());
             }
         }
     }
 
-    // Getters (saya ubah nama variabel TotalFishCaught menjadi totalFishCaught untuk konsistensi)
+
     public int getTotalIncome() { return totalIncome; }
-    public int gettotalGoldSpent() { return totalGoldSpent; } // typo? -> getTotalGoldSpent
+    public int gettotalGoldSpent() { return totalGoldSpent; } 
     public int getTotalCropsHarvested() { return totalCropsHarvested; }
-    public Map<FishType, Integer> getTotalFishCaught() { return TotalFishCaught; } // Menggunakan nama variabel yang sudah diubah
+    public Map<FishType, Integer> getTotalFishCaught() { return TotalFishCaught; } 
     public int getTotalDaysPlayed() { return totalDaysPlayed; }
     public Map<String, Integer> getNpcFriendshipPoints() { return npcFriendshipPoints; }
-    public Map<String, Integer> getNpcTotalChat() { return npcTotalChat; } // typo? -> getNpcTotalChat
-    public Map<String, Integer> getNpcTotalGift() { return npcTotalGift; } // typo? -> getNpcTotalGift
+    public Map<String, Integer> getNpcTotalChat() { return npcTotalChat; } 
+    public Map<String, Integer> getNpcTotalGift() { return npcTotalGift; }
 }

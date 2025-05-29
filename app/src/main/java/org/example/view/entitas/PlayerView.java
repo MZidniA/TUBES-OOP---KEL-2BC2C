@@ -115,7 +115,7 @@ public class PlayerView extends Entity {
         }
     }
 
-    public void draw(Graphics2D g2, GamePanel gp) {
+    public void draw(Graphics2D g2, GamePanel gp,  int screenX, int screenY) {
         BufferedImage image = null;
         switch (direction) {
             case "up":

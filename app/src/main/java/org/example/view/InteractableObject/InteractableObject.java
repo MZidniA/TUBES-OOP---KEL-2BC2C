@@ -41,19 +41,26 @@ public abstract class InteractableObject {
      */
     public void draw(Graphics2D g2, GamePanel gp, PlayerView playerView) {
         if (playerView == null || gp == null) return; 
-        int playerScreenX = gp.screenWidth / 2 - (gp.tileSize / 2);
-        int playerScreenY = gp.screenHeight / 2 - (gp.tileSize / 2);
-
-        int screenX = worldX - playerView.worldX + playerScreenX;
-        int screenY = worldY - playerView.worldY + playerScreenY;
-
-        if (worldX + gp.tileSize > playerView.worldX - playerScreenX &&
-            worldX - gp.tileSize < playerView.worldX + playerScreenX + gp.tileSize && // Sedikit penyesuaian culling
-            worldY + gp.tileSize > playerView.worldY - playerScreenY &&
-            worldY - gp.tileSize < playerView.worldY + playerScreenY + gp.tileSize) {
-
+    
+        int worldWidth = gp.maxWorldCol * gp.tileSize;
+        int worldHeight = gp.maxWorldRow * gp.tileSize;
+        
+        // Logika kamera yang sama dengan TileManager
+        double cameraX = playerView.worldX - (gp.screenWidth / 2.0);
+        double cameraY = playerView.worldY - (gp.screenHeight / 2.0);
+        
+        cameraX = Math.max(0, Math.min(cameraX, worldWidth - gp.screenWidth));
+        cameraY = Math.max(0, Math.min(cameraY, worldHeight - gp.screenHeight));
+        
+        int screenX = (int) (this.worldX - cameraX);
+        int screenY = (int) (this.worldY - cameraY);
+        
+        // Culling dan gambar objek
+        if (screenX > -gp.tileSize && screenX < gp.screenWidth && 
+            screenY > -gp.tileSize && screenY < gp.screenHeight) {
+            
             if (image != null) {
-                g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(image, screenX, screenY, null);
             }
         }
     }

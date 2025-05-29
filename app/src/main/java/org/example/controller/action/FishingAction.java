@@ -138,5 +138,6 @@ public class FishingAction implements Action {
         }
 
         System.out.println("Waktu sekarang: " + farm.getGameClock().getCurrentTime());
+        scanner.close();
     }
 }

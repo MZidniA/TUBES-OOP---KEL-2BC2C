@@ -51,13 +51,7 @@ public class SleepingAction implements Action {
 
         int maxEnergy = player.getMaxEnergy();
         int currentEnergy = player.getEnergy();
-        int spawnX = 6 * tileSize;
-        int spawnY = 10 * tileSize;
-        playerView.worldX = spawnX;
-        playerView.worldY = spawnY;
-        playerView.direction = "down";
-        player.setCurrentHeldItem(null);
-
+        
 
         
 
@@ -75,6 +69,13 @@ public class SleepingAction implements Action {
 
         // Time skip ke jam 06.00
         skipToMorning(farm);
+        int spawnX = 6 * tileSize;
+        int spawnY = 10 * tileSize;
+        playerView.worldX = spawnX;
+        playerView.worldY = spawnY;
+        playerView.direction = "down";
+        player.setCurrentHeldItem(null);
+
 
         // Lanjut ke hari berikutnya
         farm.getGameClock().nextDay(null);

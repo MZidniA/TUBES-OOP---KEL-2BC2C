@@ -84,35 +84,50 @@ public class GamePanel extends JPanel {
         }
 
         Graphics2D g2 = (Graphics2D) g;
+        GamePanel gp = this;
 
         Farm farmModel = gameController.getFarmModel();
         PlayerView playerView = gameController.getPlayerViewInstance();
         GameState currentGameState = gameController.getGameState();
+        Inventory playerInventory = farmModel.getPlayerModel().getInventory();
 
-        Inventory playerInventory = null;
-        if (farmModel != null && farmModel.getPlayerModel() != null) {
-            playerInventory = farmModel.getPlayerModel().getInventory();
-        }
-
+        // Gambar Tiles dan Objek (sekarang mereka menangani kamera sendiri)
         if (farmModel != null && playerView != null) {
-            if (tileM != null) {
-                tileM.draw(g2, playerView, farmModel.getCurrentMap());
-            }
+            tileM.draw(g2, playerView, farmModel.getCurrentMap());
 
             InteractableObject[] objectsOnCurrentMap = farmModel.getObjectsForCurrentMap();
-            if (objectsOnCurrentMap != null) {
-                for (InteractableObject obj : objectsOnCurrentMap) {
-                    if (obj != null) {
-                        obj.draw(g2, this, playerView);
-                    }
+            for (InteractableObject obj : objectsOnCurrentMap) {
+                if (obj != null) {
+                    obj.draw(g2, this, playerView);
                 }
             }
+            
 
-            // 3. Gambar Player
-            playerView.draw(g2, this);
+            int playerScreenX = screenWidth / 2 - (tileSize / 2);
+            int playerScreenY = screenHeight / 2 - (tileSize / 2);
 
-            // 4. Gambar Prompt Interaksi
-            if (currentGameState != null && currentGameState.getGameState() == currentGameState.play) {
+            int worldWidth = maxWorldCol * tileSize;
+            int worldHeight = maxWorldRow * tileSize;
+            
+
+            if (playerView.worldX < screenWidth / 2) {
+                playerScreenX = playerView.worldX;
+            } else if (playerView.worldX > worldWidth - screenWidth / 2) {
+                playerScreenX = playerView.worldX - (worldWidth - screenWidth);
+            }
+            
+            // Clamp posisi pemain di layar sumbu Y
+            if (playerView.worldY < screenHeight / 2) {
+                playerScreenY = playerView.worldY;
+            } else if (playerView.worldY > worldHeight - screenHeight / 2) {
+                playerScreenY = playerView.worldY - (worldHeight - screenHeight);
+            }
+            // Panggil metode draw PlayerView yang baru
+            playerView.draw(g2, gp,  playerScreenX, playerScreenY);
+            // ---------------------------------------------
+
+            // Gambar Prompt Interaksi (logika ini tetap sama)
+            if (currentGameState.getGameState() == currentGameState.play) {
                 CollisionChecker cChecker = gameController.getCollisionChecker();
                 if (cChecker != null) {
                     int objIndex = cChecker.checkObject(playerView);
@@ -134,8 +149,8 @@ public class GamePanel extends JPanel {
                         g2.drawString(text, x, y);
                     }
                 }
-            }
-        } else {
+            }   
+        }  else {
             g2.setColor(Color.RED);
             g2.drawString("Data game (Farm/PlayerView) belum siap.", 20, 40);
         }
