@@ -43,6 +43,7 @@ public class GameController implements Runnable {
     private final PlayerView playerViewInstance;
     private final TileManager tileManager; 
     private final GameStateUI gameStateUI; 
+    private final JFrame mainFrame; // Untuk akses JFrame utama jika diperlukan
 
     private final KeyHandler keyHandler;
     private final CollisionChecker cChecker;
@@ -58,9 +59,10 @@ public class GameController implements Runnable {
     private final int TILLABLE_AREA_MAP0_MIN_ROW = 19;
     private final int TILLABLE_AREA_MAP0_MAX_ROW = 28;
 
-    public GameController(GamePanel gamePanel, Farm farm) {
+    public GameController(JFrame frame,GamePanel gamePanel, Farm farm) {
         this.gamePanel = gamePanel;
         this.farm = farm;
+        this.mainFrame = frame; // Simpan referensi JFrame utama
 
         this.gameState = new GameState();
         
@@ -437,7 +439,7 @@ public class GameController implements Runnable {
     }
 
     public JFrame getMainFrame() {
-        return (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
+        return this.mainFrame;
     }
 
     public void openFishingPanel() {
@@ -449,11 +451,25 @@ public class GameController implements Runnable {
     }
 
     public void returnToGamePanel() {
-        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
-        frame.setContentPane(gamePanel);
-        frame.revalidate();
-        frame.repaint();
-        gamePanel.requestFocusInWindow();
+        if (this.mainFrame != null && this.gamePanel != null) {
+            System.out.println("GameController: Kembali ke GamePanel menggunakan referensi mainFrame.");
+            this.mainFrame.setContentPane(this.gamePanel);
+            this.mainFrame.revalidate();
+            this.mainFrame.repaint();
+            this.gamePanel.requestFocusInWindow(); // Penting untuk input keyboard
+            
+            // Pastikan game state kembali ke play jika sebelumnya bukan
+            if (gameState.getGameState() != gameState.play) {
+                gameState.setGameState(gameState.play);
+            }
+        } else {
+            if (this.mainFrame == null) {
+                System.err.println("Error in returnToGamePanel: mainFrame adalah null di GameController.");
+            }
+            if (this.gamePanel == null) {
+                System.err.println("Error in returnToGamePanel: gamePanel adalah null di GameController.");
+            }
+        }
     }
 
     public InteractableObject getNearestInteractableTile(Player player) {

@@ -13,7 +13,7 @@ public class Farm {
     private final Player playerModel;
     private int currentDay;
     // private final PlayerView playerView; // DIHAPUS: Farm tidak boleh tahu tentang PlayerView
-    private final InteractableObject[][] objects = new InteractableObject[6][100]; // maxMap, maxObjects
+    private final InteractableObject[][] objects = new InteractableObject[6][300]; // maxMap, maxObjects
     private int currentMap = 0;
     // Tambahkan list untuk menyimpan CookingInProgress jika belum ada
     private List<CookingInProgress> activeCookings = new java.util.ArrayList<>();

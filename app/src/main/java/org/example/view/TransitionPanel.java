@@ -145,7 +145,7 @@ public class TransitionPanel extends JPanel {
         Player playerModel = new Player(playerName, playerGender, farmNameInput);
         Farm farmModel = new Farm(farmNameInput, playerModel);
         GamePanel newGamePanel = new GamePanel();
-        GameController gameController = new GameController(newGamePanel, farmModel);
+        GameController gameController = new GameController(frame, newGamePanel, farmModel);
         newGamePanel.setController(gameController);
 
         frame.getContentPane().removeAll();
