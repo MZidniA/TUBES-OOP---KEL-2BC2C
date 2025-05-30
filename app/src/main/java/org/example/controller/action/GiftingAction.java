@@ -42,7 +42,7 @@ public class GiftingAction implements Action {
         }
 
         // Update heartPoints dan pastikan max 100
-        int updatedHeart = Math.min(100, targetNpc.getHeartPoints() + effect);
+        int updatedHeart = Math.min(150, targetNpc.getHeartPoints() + effect);
         targetNpc.setHeartPoints(updatedHeart);
 
         // Set tanggal hadiah hari ini

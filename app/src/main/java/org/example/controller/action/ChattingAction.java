@@ -56,7 +56,7 @@ public class ChattingAction implements Action {
         }
 
         int current = npc.getHeartPoints();
-        int updated = Math.min(current + HEART_POINT_GAIN, 100);
+        int updated = Math.min(current + HEART_POINT_GAIN, 150);
         npc.setHeartPoints(updated);
 
         player.decreaseEnergy(ENERGY_COST);

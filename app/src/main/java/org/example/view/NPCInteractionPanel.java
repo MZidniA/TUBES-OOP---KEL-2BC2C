@@ -137,8 +137,8 @@ public class NPCInteractionPanel extends JPanel {
     }
 
     private void updateNPCInfo(NPC npc) {
-        int heartPoints = Math.min(npc.getHeartPoints(), 100);
-        String info = "Heart: " + heartPoints + " / 100    Status: " + npc.getRelationshipsStatus();
+        int heartPoints = Math.min(npc.getHeartPoints(), 150);
+        String info = "Heart: " + heartPoints + " / 150    Status: " + npc.getRelationshipsStatus();
         infoLabel.setText(info);
     }
 

@@ -102,7 +102,7 @@ public abstract class NPC {
             // Neutral item: tidak ada perubahan
         }
 
-        if (heartPoints > 100) heartPoints = 100;
+        if (heartPoints > 150) heartPoints = 150;
         if (heartPoints < 0) heartPoints = 0;
 
         lastGiftDate = LocalDate.now();
