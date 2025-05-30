@@ -59,11 +59,7 @@ public class TillingAction implements Action {
             System.out.println("LOG: Target cangkul di luar peta.");
             return false; 
         }
-        Tile targetDataTile = farmMap.getTile(targetCol, targetRow);
-        if (!(targetDataTile instanceof Tillableland)) {
-            System.out.println("TillingAction: Tile di (" + targetCol + "," + targetRow + ") tidak bisa dicangkul. Tipe: " + (targetDataTile != null ? targetDataTile.getClass().getSimpleName() : "null"));
-            return false;
-        }
+        
         int currentMap = farm.getCurrentMap();
         if (currentMap == 0) {
             final int MIN_COL = controller.getTillableAreaMinCol(currentMap);
@@ -124,6 +120,14 @@ public class TillingAction implements Action {
                 break;
             }
         }
+
+        int filledSlots = 0;
+        for (InteractableObject obj : allObjects[currentMap]) {
+            if (obj != null) {
+                filledSlots++;
+            }
+        }
+        System.out.println("TillingAction: Map " + currentMap + " saat ini memiliki " + filledSlots + " objek terisi dari total " + allObjects[currentMap].length + " slot.");
 
         if (emptySlotIndex != -1) {
             UnplantedTileObject tilledVisual = new UnplantedTileObject(); 

@@ -11,7 +11,6 @@ public class FarmMap {
 
     public FarmMap() {
         map = new Tile[SIZE][SIZE];
-        initializeMap();
     }
 
     public Tile[][] getMap() {
@@ -66,25 +65,25 @@ public class FarmMap {
         }
     }
 
-    private void initializeMap() {
-        Random random = new Random();
+    // private void initializeMap() {
+    //     Random random = new Random();
 
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                map[i][j] = new Tillableland(i, j);
-            }
-        }
+    //     for (int i = 0; i < SIZE; i++) {
+    //         for (int j = 0; j < SIZE; j++) {
+    //             map[i][j] = new Tillableland(i, j);
+    //         }
+    //     }
 
-        int houseX = random.nextInt(SIZE - 7) + 1;
-        int houseY = random.nextInt(SIZE - 7) + 1; 
-        placeObject(houseX, houseY, 6, 6, House.class);
+    //     int houseX = random.nextInt(SIZE - 7) + 1;
+    //     int houseY = random.nextInt(SIZE - 7) + 1; 
+    //     placeObject(houseX, houseY, 6, 6, House.class);
 
-        placeShippingBin(houseX, houseY);
+    //     placeShippingBin(houseX, houseY);
 
-        int pondX = random.nextInt(SIZE - 5) + 1;
-        int pondY = random.nextInt(SIZE - 4) + 1;
-        placeObject(pondX, pondY, 4, 3, Pond.class);
-    }
+    //     int pondX = random.nextInt(SIZE - 5) + 1;
+    //     int pondY = random.nextInt(SIZE - 4) + 1;
+    //     placeObject(pondX, pondY, 4, 3, Pond.class);
+    // }
 
     private void placeObject(int startX, int startY, int width, int height, Class<? extends Tile> tileClass) {
         for (int i = startX; i < startX + width; i++) {
