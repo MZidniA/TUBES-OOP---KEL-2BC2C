@@ -41,12 +41,12 @@ public class GameStateUI implements TimeObserver {
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
     // Cooking Menu State
-    private Farm farm;
-    private int selectedRecipeIndex = 0;
-    private int selectedFuelIndex = 0;
-    private int cookingMenuCommandNum = 0; // 0: Cook, 1: Cancel
-    private List<Recipe> availableRecipesForUI; 
-    private List<Items> availableFuelsForUI; 
+
+    public int selectedRecipeIndex = 0;
+    public int selectedFuelIndex = 0;
+    public int cookingMenuCommandNum = 0; // 0: Cook, 1: Cancel
+    public List<Recipe> availableRecipesForUI; 
+    public List<Items> availableFuelsForUI; 
 
     // UI Message State
     private String uiMessage = null;
@@ -90,17 +90,21 @@ public class GameStateUI implements TimeObserver {
     }
 
   
-    public void draw(Graphics2D g2, GameState currentGameState, Inventory playerInventory) {    
-        this.g2 = g2; 
+public void draw(Graphics2D g2, GameState currentGameState, Farm farmInstance, Player playerInstance, Inventory playerInventory) {        this.g2 = g2; 
         drawTimeInfo();
-        Player player = (farm != null) ? farm.getPlayerModel() : null;
+
         if (currentGameState.getGameState() == currentGameState.pause) {
             drawPauseScreen();
         } else if (currentGameState.getGameState() == currentGameState.inventory) {
             drawInventoryScreen(playerInventory); 
         } else if (currentGameState.getGameState() == currentGameState.cooking_menu) {
-            drawCookingMenuScreen(farm, player, playerInventory);
-        } 
+            if (farmInstance != null && playerInstance != null && playerInventory != null) {
+                drawCookingMenuScreen(farmInstance, playerInstance, playerInventory);
+            } else {
+                System.err.println("GameStateUI.draw(): Data penting (Farm/Player/Inventory) null saat akan menggambar cooking menu.");
+                // Opsional: gambar pesan error sederhana di layar
+            }
+        }
 
         if (temporaryMessage != null) {
             long currentTime = System.currentTimeMillis();
@@ -123,7 +127,6 @@ public class GameStateUI implements TimeObserver {
         }
     }
 
-    // --- Metode untuk Menggambar Menu Memasak ---
     private void drawCookingMenuScreen(Farm farm, Player player, Inventory playerInventory) {
         if (g2 == null || gp == null) { // Pastikan g2 dan gp tidak null
             System.err.println("GameStateUI ERROR: Graphics2D (g2) or GamePanel (gp) is null in drawCookingMenuScreen.");
@@ -136,7 +139,7 @@ public class GameStateUI implements TimeObserver {
         }
 
         // Latar belakang menu
-        g2.setColor(new Color(0, 0, 0, 220)); 
+        g2.setColor(new Color(0, 0, 0, 220));
         g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
         // Frame utama window memasak
@@ -151,7 +154,7 @@ public class GameStateUI implements TimeObserver {
         Font listFont = stardewFont_30;
         Font detailHeaderFont = stardewFont_30.deriveFont(Font.BOLD);
         Font detailFont = stardewFont_20.deriveFont(13f); // Sedikit perbesar detailFont
-        Font commandFont = stardewFont_20.deriveFont(Font.BOLD);
+        Font commandFont = stardewFont_30.deriveFont(Font.BOLD, 14f); // Font untuk tombol Cook/Cancel, sesuaikan ukurannya
 
         // Judul Menu
         String title = "Stove - Let's Cook!";
@@ -163,48 +166,61 @@ public class GameStateUI implements TimeObserver {
         int listAreaX = frameX + gp.tileSize / 2;
         int listAreaY = titleY + gp.tileSize / 2;
         int listAreaWidth = (int) (frameWidth * 0.35); // Sedikit lebih kecil untuk daftar resep
-        int listLineHeight = (int)(gp.tileSize * 0.8); // Ketinggian baris disesuaikan dengan font M
+        int listLineHeight = (int) (gp.tileSize * 0.8); // Ketinggian baris disesuaikan dengan font M
 
         int detailAreaX = listAreaX + listAreaWidth + gp.tileSize / 2;
         int detailAreaY = listAreaY; // Sejajarkan Y dengan daftar resep
         int detailAreaContentWidth = frameWidth - (detailAreaX - frameX) - gp.tileSize / 2;
 
-        int bottomAreaY = frameY + frameHeight - gp.tileSize * 3 - 20; 
+        // Mengatur bottomAreaY agar ada ruang untuk tombol Cook/Cancel
+        int commandAreaHeight = gp.tileSize * 2; // Perkiraan tinggi area untuk tombol
+        int bottomAreaY = frameY + frameHeight - commandAreaHeight - (gp.tileSize / 2);
+
 
         // 1. Daftar Resep
         if (availableRecipesForUI == null) { // Populate jika null (pertama kali dibuka/di-reset)
-             availableRecipesForUI = RecipeDatabase.getCookableRecipes(playerInventory, farm.getPlayerStats());
-             if (availableRecipesForUI == null) availableRecipesForUI = new ArrayList<>();
+            availableRecipesForUI = RecipeDatabase.getCookableRecipes(playerInventory, farm.getPlayerStats());
+            if (availableRecipesForUI == null) availableRecipesForUI = new ArrayList<>();
         }
 
         if (availableRecipesForUI.isEmpty()) {
             String noRecipeText = "No recipes available or unlocked.";
-            int noRecipeTextX = listAreaX + (listAreaWidth - g2.getFontMetrics(listFont).stringWidth(noRecipeText)) / 2;
-            int noRecipeTextY = listAreaY + (bottomAreaY - listAreaY) / 2; // Tengahkan di area list
+            java.awt.FontMetrics fmNoRecipe = g2.getFontMetrics(listFont);
+            int textWidthNoRecipe = fmNoRecipe.stringWidth(noRecipeText);
+
+            // REVISI POSISI X UNTUK "No recipes available..."
+            // Menengahkan dalam listArea, jika listAreaX sudah benar, ini akan bekerja.
+            // Atau, beri margin kiri eksplisit jika listAreaX terlalu ke kiri.
+            int noRecipeTextX = frameX + (frameWidth - textWidthNoRecipe) / 2;
+            // Jika masih terpotong, coba ini:
+            // int noRecipeTextX = listAreaX + gp.tileSize / 4; // Sedikit padding dari kiri listArea
+
+            int noRecipeTextY = listAreaY + ( (bottomAreaY - listAreaY) / 2); // Tengahkan di area list secara vertikal
             drawTextWithShadow(noRecipeText, noRecipeTextX, noRecipeTextY, listFont);
         } else {
-            int maxRecipesDisplay = (bottomAreaY - listAreaY - gp.tileSize) / listLineHeight; // Dinamis berdasarkan tinggi area
-            maxRecipesDisplay = Math.max(1, maxRecipesDisplay); // Minimal 1 jika area sangat kecil
+            // Perhitungan maxRecipesDisplay harus memperhitungkan ruang yang sekarang diambil oleh tombol Cook/Cancel
+            // Jadi, kita gunakan bottomAreaY (yang sudah disesuaikan) untuk batas bawah list resep.
+            int listMaxHeight = bottomAreaY - listAreaY - (gp.tileSize / 2); // Tinggi maksimal untuk daftar resep
+            int maxRecipesDisplay = listMaxHeight / listLineHeight;
+            maxRecipesDisplay = Math.max(1, maxRecipesDisplay);
 
             int displayStartIndex = 0;
-            if (selectedRecipeIndex >= (maxRecipesDisplay -1) / 2 ) { // Logika scrolling agar item terpilih di tengah
-                displayStartIndex = selectedRecipeIndex - (maxRecipesDisplay -1 )/2;
+            if (selectedRecipeIndex >= (maxRecipesDisplay - 1) / 2) {
+                displayStartIndex = selectedRecipeIndex - (maxRecipesDisplay - 1) / 2;
             }
-            displayStartIndex = Math.max(0, displayStartIndex); // Jangan sampai negatif
-            if (displayStartIndex + maxRecipesDisplay > availableRecipesForUI.size()){
-                 displayStartIndex = Math.max(0, availableRecipesForUI.size() - maxRecipesDisplay);
+            displayStartIndex = Math.max(0, displayStartIndex);
+            if (displayStartIndex + maxRecipesDisplay > availableRecipesForUI.size()) {
+                displayStartIndex = Math.max(0, availableRecipesForUI.size() - maxRecipesDisplay);
             }
-
 
             for (int i = 0; i < maxRecipesDisplay; i++) {
                 int actualIdx = displayStartIndex + i;
                 if (actualIdx >= availableRecipesForUI.size()) break;
 
                 Recipe recipe = availableRecipesForUI.get(actualIdx);
-                if (recipe == null) continue; // Skip jika resep null
+                if (recipe == null) continue;
 
-                // Gunakan RecipeDatabase.canPlayerCookRecipe untuk status craftable
-                boolean canCraft = RecipeDatabase.canPlayerCookRecipe(playerInventory, recipe); 
+                boolean canCraft = RecipeDatabase.canPlayerCookRecipe(playerInventory, recipe);
 
                 String prefix = (actualIdx == selectedRecipeIndex) ? "> " : "  ";
                 Color textColor = (actualIdx == selectedRecipeIndex) ? Color.YELLOW : (canCraft ? canCraftColor : cannotCraftColor);
@@ -215,65 +231,111 @@ public class GameStateUI implements TimeObserver {
         // 2. Detail Resep yang Dipilih
         if (availableRecipesForUI != null && !availableRecipesForUI.isEmpty() && selectedRecipeIndex >= 0 && selectedRecipeIndex < availableRecipesForUI.size()) {
             Recipe currentRecipe = availableRecipesForUI.get(selectedRecipeIndex);
-            if (currentRecipe == null) return; // Pengaman jika resep di list null
-            
+            if (currentRecipe == null) return;
+
             Food resultingDish = currentRecipe.getResultingDish();
-            int currentDetailInternalY = detailAreaY;
+            int currentDetailInternalY = detailAreaY; // Mulai Y untuk detail
+
+            // Batas bawah untuk area detail agar tidak tumpang tindih dengan tombol Cook/Cancel
+            int detailMaxY = bottomAreaY - (gp.tileSize / 2);
+
 
             if (resultingDish != null) {
-                if (resultingDish.getImage() != null) {
-                    int dishImageX = detailAreaX + (detailAreaContentWidth - gp.tileSize * 2) / 2; // Tengahkan gambar
+                if (resultingDish.getImage() != null && (currentDetailInternalY + gp.tileSize * 2 + 10) < detailMaxY) {
+                    int dishImageX = detailAreaX + (detailAreaContentWidth - gp.tileSize * 2) / 2;
                     g2.drawImage(resultingDish.getImage(), dishImageX, currentDetailInternalY, gp.tileSize * 2, gp.tileSize * 2, null);
-                    currentDetailInternalY += gp.tileSize * 2 + 10; // Spasi setelah gambar
+                    currentDetailInternalY += gp.tileSize * 2 + 10;
                 }
-                String producesText = "Produces: " + resultingDish.getName();
-                int producesTextX = getXforCenteredTextInWindow(producesText, detailAreaX, detailAreaContentWidth, detailHeaderFont);
-                drawTextWithShadow(producesText, producesTextX, currentDetailInternalY, detailHeaderFont);
-                currentDetailInternalY += listLineHeight;
+                if ((currentDetailInternalY + listLineHeight) < detailMaxY) {
+                    String producesText = "Produces: " + resultingDish.getName();
+                    int producesTextX = getXforCenteredTextInWindow(producesText, detailAreaX, detailAreaContentWidth, detailHeaderFont);
+                    drawTextWithShadow(producesText, producesTextX, currentDetailInternalY, detailHeaderFont);
+                    currentDetailInternalY += listLineHeight;
+                }
             }
 
-            String ingredientsTitle = "Ingredients:";
-            int ingredientsTitleX = getXforCenteredTextInWindow(ingredientsTitle, detailAreaX, detailAreaContentWidth, detailHeaderFont);
-            drawTextWithShadow(ingredientsTitle, ingredientsTitleX, currentDetailInternalY, detailHeaderFont);
-            currentDetailInternalY += listLineHeight;
+            if ((currentDetailInternalY + listLineHeight) < detailMaxY) {
+                String ingredientsTitle = "Ingredients:";
+                int ingredientsTitleX = getXforCenteredTextInWindow(ingredientsTitle, detailAreaX, detailAreaContentWidth, detailHeaderFont);
+                drawTextWithShadow(ingredientsTitle, ingredientsTitleX, currentDetailInternalY, detailHeaderFont);
+                currentDetailInternalY += listLineHeight;
+            }
 
             Map<Items, Integer> ingredientsMap = currentRecipe.getIngredients();
             if (ingredientsMap != null) {
                 for (Map.Entry<Items, Integer> entry : ingredientsMap.entrySet()) {
+                    if ((currentDetailInternalY + listLineHeight - 8) >= detailMaxY) break; // Hentikan jika melebihi batas
+
                     Items requiredItem = entry.getKey();
-                    if (requiredItem == null) continue; // Skip jika bahan null di definisi resep
+                    if (requiredItem == null) continue;
 
                     int requiredQuantity = entry.getValue();
                     int ownedQuantity;
 
                     if (RecipeDatabase.ANY_FISH_INGREDIENT_NAME.equals(requiredItem.getName())) {
                         ownedQuantity = (int) playerInventory.getInventory().entrySet().stream()
-                                          .filter(invE -> invE.getKey() instanceof Fish)
-                                          .mapToLong(Map.Entry::getValue).sum();
+                                        .filter(invE -> invE.getKey() instanceof Fish)
+                                        .mapToLong(Map.Entry::getValue).sum();
                     } else {
-                        ownedQuantity = playerInventory.getItemQuantity(requiredItem.getName()); // Gunakan nama item (String)
+                        ownedQuantity = playerInventory.getItemQuantity(requiredItem.getName());
                     }
                     boolean hasEnough = ownedQuantity >= requiredQuantity;
-                    
-                    int ingredientRowX = detailAreaX + gp.tileSize / 4; // Sedikit indent
+
+                    int ingredientRowX = detailAreaX + gp.tileSize / 4;
                     int textXOffset = 0;
                     if (requiredItem.getImage() != null) {
-                         g2.drawImage(requiredItem.getImage(), ingredientRowX, currentDetailInternalY - (int)(gp.tileSize*0.6), (int)(gp.tileSize*0.7), (int)(gp.tileSize*0.7), null);
-                         textXOffset = (int)(gp.tileSize*0.8);
+                        g2.drawImage(requiredItem.getImage(), ingredientRowX, currentDetailInternalY - (int) (gp.tileSize * 0.6), (int) (gp.tileSize * 0.7), (int) (gp.tileSize * 0.7), null);
+                        textXOffset = (int) (gp.tileSize * 0.8);
                     }
                     String ingredientText = requiredItem.getName() + ": " + ownedQuantity + "/" + requiredQuantity;
-                    drawTextWithShadow(ingredientText, ingredientRowX + textXOffset, currentDetailInternalY, detailFont, 
-                                       (hasEnough ? canCraftColor : missingIngredientColor), darkTextShadow);
-                    currentDetailInternalY += listLineHeight - 8; // Perkecil spasi antar bahan
+                    drawTextWithShadow(ingredientText, ingredientRowX + textXOffset, currentDetailInternalY, detailFont,
+                                    (hasEnough ? canCraftColor : missingIngredientColor), darkTextShadow);
+                    currentDetailInternalY += listLineHeight - 8;
                 }
             }
-        } else if (availableRecipesForUI != null && !availableRecipesForUI.isEmpty()){
-             String selectRecipeText = "Select a recipe to see details.";
-             int selectX = getXforCenteredTextInWindow(selectRecipeText, detailAreaX, detailAreaContentWidth, listFont);
-                 drawTextWithShadow(selectRecipeText, selectX, detailAreaY + gp.tileSize * 2, listFont);
-            }
+        } else if (availableRecipesForUI != null && !availableRecipesForUI.isEmpty()) {
+            String selectRecipeText = "Select a recipe to see details.";
+            int selectX = getXforCenteredTextInWindow(selectRecipeText, detailAreaX, detailAreaContentWidth, listFont);
+            drawTextWithShadow(selectRecipeText, selectX, detailAreaY + gp.tileSize * 2, listFont);
         }
 
+
+        // --- REVISI: Gambar Tombol Aksi (Cook / Cancel) ---
+        // Posisi Y untuk tombol Cook/Cancel (di bawah daftar resep dan detail)
+        int commandSectionY = bottomAreaY + (gp.tileSize /2) ; // Sedikit di bawah bottomAreaY
+
+        String cookText = "Cook";
+        String cancelText = "Cancel";
+
+        java.awt.FontMetrics fmCommand = g2.getFontMetrics(commandFont);
+        int cookTextWidth = fmCommand.stringWidth(cookText);
+        int cancelTextWidth = fmCommand.stringWidth(cancelText);
+
+        // Posisikan tombol-tombol ini di tengah area bawah (misalnya, di bawah area detail)
+        // atau di tengah seluruh frame jika diinginkan.
+        // Contoh: Menempatkan di tengah area bawah (detailAreaX hingga frameX + frameWidth)
+        int totalCommandWidth = cookTextWidth + cancelTextWidth + gp.tileSize * 2; // Perkiraan lebar total dengan spasi
+        int commandStartX = detailAreaX + (detailAreaContentWidth - totalCommandWidth) / 2;
+        if (commandStartX < detailAreaX) commandStartX = detailAreaX + gp.tileSize / 4; // Pastikan tidak terlalu kiri
+
+        int currentCommandX = commandStartX;
+
+        // Tombol "Cook"
+        if (cookingMenuCommandNum == 0) { // Jika "Cook" terpilih
+            drawTextWithShadow("> " + cookText, currentCommandX, commandSectionY, commandFont, Color.YELLOW, darkTextShadow);
+        } else {
+            drawTextWithShadow("  " + cookText, currentCommandX, commandSectionY, commandFont, lightYellow, darkTextShadow);
+        }
+        currentCommandX += cookTextWidth + gp.tileSize * 2; // Spasi antar tombol
+
+        // Tombol "Cancel"
+        if (cookingMenuCommandNum == 1) { // Jika "Cancel" terpilih
+            drawTextWithShadow("> " + cancelText, currentCommandX, commandSectionY, commandFont, Color.YELLOW, darkTextShadow);
+        } else {
+            drawTextWithShadow("  " + cancelText, currentCommandX, commandSectionY, commandFont, lightYellow, darkTextShadow);
+        }
+        // --- AKHIR REVISI TOMBOL AKSI ---
+    }
 
     // Overload untuk warna default
     private void drawTextWithShadow(String text, int x, int y, Font font) {

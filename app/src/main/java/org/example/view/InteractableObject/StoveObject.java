@@ -6,7 +6,8 @@ import org.example.controller.GameController;
 import org.example.controller.GameState; // Diperlukan untuk mengakses field instance state
 import org.example.model.CookingInProgress;
 import org.example.model.Farm;
-import org.example.view.GameStateUI; // Diperlukan untuk reset dan dialog
+import org.example.view.GameStateUI;
+import org.example.controller.action.CookingAction; 
 
 public class StoveObject extends InteractableObject {
 

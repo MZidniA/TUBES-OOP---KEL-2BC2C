@@ -42,6 +42,29 @@ public class KeyHandler implements KeyListener {
             else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) gameController.navigateInventoryUI("left");
             else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) gameController.navigateInventoryUI("right");
             else if (code == KeyEvent.VK_ENTER) gameController.confirmInventoryUISelection();
+        } else if (currentGameState.getGameState() == currentGameState.cooking_menu) { 
+            switch (code) {
+                case KeyEvent.VK_W: case KeyEvent.VK_UP:
+                    gameController.navigateCookingMenu("up_recipe"); // Lebih spesifik untuk navigasi resep
+                    break;
+                case KeyEvent.VK_S: case KeyEvent.VK_DOWN:
+                    gameController.navigateCookingMenu("down_recipe"); // Lebih spesifik untuk navigasi resep
+                    break;
+                case KeyEvent.VK_A: case KeyEvent.VK_LEFT:
+                    gameController.navigateCookingMenu("left_command"); // Untuk pindah ke tombol kiri (misal, Cook dari Cancel)
+                    break;
+                case KeyEvent.VK_D: case KeyEvent.VK_RIGHT:
+                    gameController.navigateCookingMenu("right_command"); // Untuk pindah ke tombol kanan (misal, Cancel dari Cook)
+                    break;
+                case KeyEvent.VK_ENTER:
+                    System.out.println("KeyHandler: ENTER pressed in COOKING_MENU state."); // DEBUG
+                    gameController.confirmCookingMenuSelection();
+                    break;
+                case KeyEvent.VK_ESCAPE:
+                    System.out.println("KeyHandler: ESCAPE pressed in COOKING_MENU state."); // DEBUG
+                    gameController.exitCookingMenu();
+                    break;
+            }
         }
     }
 
