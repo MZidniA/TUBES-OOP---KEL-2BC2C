@@ -2,12 +2,17 @@ package org.example.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+<<<<<<< Updated upstream
 
+=======
+import org.example.controller.action.CookingAction;
+>>>>>>> Stashed changes
 import org.example.controller.action.PlantingAction;
 import org.example.controller.action.RecoverLandAction;
 import org.example.controller.action.TillingAction;
@@ -18,6 +23,7 @@ import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
 import org.example.model.Items.Seeds;
 import org.example.model.Player;
+import org.example.model.Recipe;
 import org.example.model.Sound;
 import org.example.model.Map.FarmMap;
 import org.example.model.Map.Plantedland;
@@ -100,7 +106,8 @@ public class GameController implements Runnable {
     }
     public GameStateUI getGameStateUIFromPanel() { 
         return gamePanel != null ? gamePanel.gameStateUI : null; }
-    public CollisionChecker getCollisionChecker() { return this.cChecker; 
+    
+        public CollisionChecker getCollisionChecker() { return this.cChecker; 
     }
 
 
@@ -166,9 +173,15 @@ public class GameController implements Runnable {
             System.out.println("Sudah jam 02:00, kamu kelelahan dan pingsan");
         }
         if (gameState.getGameState() == gameState.play) {
-             playerViewInstance.update(movementState, cChecker);
-             if (playerModel != null && playerViewInstance != null) {
+            playerViewInstance.update(movementState, cChecker);
+            if (playerModel != null && playerViewInstance != null) {
                 playerModel.setTilePosition(playerViewInstance.worldX / getTileSize(), playerViewInstance.worldY / getTileSize());
+            }
+        }
+        if (gameState.getGameState() == gameState.play) { // Atau state lain yang relevan
+            playerViewInstance.update(movementState, cChecker);
+            if (farm != null) {
+                farm.updateCookingProgress(); // PANGGIL INI SECARA BERKALA
             }
         }
     }
@@ -371,6 +384,45 @@ public class GameController implements Runnable {
         }
     }
 
+    public void navigateCookingMenuUI(String direction) {
+
+        if (gameState.getGameState() == gameState.cooking_menu && gameStateUI != null) {
+            System.out.println("GameController: navigateCookingMenuUI - " + direction); // Debugging
+            if ("up".equals(direction)) {
+                // Jika fokus di resep:
+                gameStateUI.setSelectedRecipeIndex(gameStateUI.getSelectedRecipeIndex() - 1);
+            } else if ("down".equals(direction)) {
+                // Jika fokus di resep:
+                gameStateUI.setSelectedRecipeIndex(gameStateUI.getSelectedRecipeIndex() + 1);
+            } else if ("left".equals(direction)) {
+                // Bisa untuk pindah antar fuel, atau dari resep ke fuel, atau antar tombol aksi
+                // Contoh: pindah antar tombol aksi jika ada 2 tombol (COOK, CANCEL)
+                int currentCommand = gameStateUI.getCookingMenuCommandNum();
+                gameStateUI.setCookingMenuCommandNum(currentCommand == 0 ? 1 : 0); // Toggle antara 0 dan 1
+                // Atau jika fokus di fuel:
+                // gameStateUI.setSelectedFuelIndex(gameStateUI.getSelectedFuelIndex() - 1);
+            } else if ("right".equals(direction)) {
+                int currentCommand = gameStateUI.getCookingMenuCommandNum();
+                gameStateUI.setCookingMenuCommandNum(currentCommand == 0 ? 1 : 0); // Toggle
+
+            }
+        }
+    }
+
+
+    public void confirmCookingMenuSelection() {
+        if (gameState.getGameState() == gameState.cooking_menu && gameStateUI != null) {
+            System.out.println("GameController: confirmCookingMenuSelection"); // Debugging
+            int commandNum = gameStateUI.getCookingMenuCommandNum(); // Dapatkan command yang dipilih dari UI
+
+            if (commandNum == 0) { // Asumsi 0 adalah untuk "COOK"
+                handleConfirmCooking(); // Metode ini sudah ada dari langkah sebelumnya
+            } else if (commandNum == 1) { // Asumsi 1 adalah untuk "CANCEL"
+                exitCookingMenu(); // Metode ini sudah ada dari langkah sebelumnya
+            }
+        }
+    }
+
     public void passedOutSleep() {
         gameState.setGameState(gameState.pause); 
     
@@ -523,4 +575,93 @@ public class GameController implements Runnable {
         }
         System.out.println("===== END OF PLANT GROWTH PROCESSING =====\n");
     }
+<<<<<<< Updated upstream
 }
+=======
+
+    public void handleConfirmCooking() {
+        // Pastikan game sedang dalam state cooking_menu dan komponen UI serta model farm ada
+        if (gameState.getGameState() != gameState.cooking_menu || gameStateUI == null || farm == null) {
+            System.err.println("GameController: handleConfirmCooking dipanggil pada state yang salah atau komponen null.");
+            return;
+        }
+        System.out.println("GameController: handleConfirmCooking dipanggil.");
+
+        // Dapatkan resep dan bahan bakar yang dipilih dari GameStateUI
+        // GameStateUI perlu memiliki getter untuk ini
+        List<Recipe> recipes = gameStateUI.getAvailableRecipesForUI(); // Asumsi metode ini ada di GameStateUI
+        List<Items> fuels = gameStateUI.getAvailableFuelsForUI();     // Asumsi metode ini ada di GameStateUI
+
+        if (recipes == null || recipes.isEmpty()) {
+            gameStateUI.showTemporaryMessage("No recipes available to cook.");
+            System.out.println("GameController: Tidak ada resep yang tersedia untuk dimasak.");
+            return;
+        }
+        if (fuels == null || fuels.isEmpty()) {
+            // Jika tidak ada fuel yang dikonfigurasi di GameStateUI, beri pesan.
+            // Namun, spesifikasi hanya menyebut Firewood dan Coal, yang seharusnya ada.
+            gameStateUI.showTemporaryMessage("No fuel items configured.");
+             System.out.println("GameController: Tidak ada bahan bakar yang terkonfigurasi.");
+            return;
+        }
+        
+        int recipeIdx = gameStateUI.getSelectedRecipeIndex(); // Asumsi metode ini ada
+        int fuelIdx = gameStateUI.getSelectedFuelIndex();     // Asumsi metode ini ada
+
+        // Validasi indeks (meskipun GameStateUI seharusnya sudah menangani wrap-around)
+        if (recipeIdx < 0 || recipeIdx >= recipes.size()) {
+            gameStateUI.showTemporaryMessage("Invalid recipe selection.");
+            System.err.println("GameController: Indeks resep tidak valid: " + recipeIdx);
+            return;
+        }
+         if (fuelIdx < 0 || fuelIdx >= fuels.size()) {
+            gameStateUI.showTemporaryMessage("Invalid fuel selection.");
+            System.err.println("GameController: Indeks bahan bakar tidak valid: " + fuelIdx);
+            return;
+        }
+
+        Recipe selectedRecipe = recipes.get(recipeIdx);
+        Items selectedFuel = fuels.get(fuelIdx);
+
+        // Buat instance CookingAction dengan resep dan bahan bakar yang dipilih
+        CookingAction cookingAction = new CookingAction(selectedRecipe, selectedFuel);
+
+        if (cookingAction.canExecute(farm)) {
+            cookingAction.execute(farm); // Ini akan mengurangi energi, bahan, dan memulai CookingInProgress
+            gameStateUI.showTemporaryMessage(selectedRecipe.getDisplayName() + " is now cooking!");
+            
+            // Setelah memasak dimulai, kembalikan game ke state PLAY
+            gameState.setGameState(gameState.play); // Menggunakan field instance
+            gameStateUI.resetCookingMenuState(); // Reset UI menu memasak
+            resetMovementState(); // Reset status gerakan pemain jika perlu
+            System.out.println("GameController: Cooking started. Game state set to PLAY.");
+        } else {
+            // Pesan error spesifik seharusnya sudah dicetak oleh CookingAction.canExecute() ke konsol.
+            // Tampilkan pesan umum di UI melalui GameStateUI.
+            // Pesan ini bisa diset oleh canExecute() atau di sini.
+            // Untuk sekarang, kita biarkan uiMessage dari GameStateUI yang mungkin sudah diset,
+            // atau tambahkan pesan default jika tidak ada.
+            if (gameStateUI.getUiMessage() == null) { // getUiMessage() perlu ada di GameStateUI
+                gameStateUI.showTemporaryMessage("Cannot cook " + selectedRecipe.getDisplayName() + ". Check requirements.");
+            }
+            System.out.println("GameController: Tidak bisa mengeksekusi CookingAction untuk " + selectedRecipe.getDisplayName());
+        }
+    }
+
+    /**
+     * Keluar dari menu memasak dan kembali ke state PLAY.
+     * Dipanggil oleh KeyHandler saat tombol ESC atau opsi "CANCEL" dipilih di Cooking Menu.
+     */
+    public void exitCookingMenu() {
+        if (gameState.getGameState() == gameState.cooking_menu) { // Cek apakah memang sedang di menu memasak
+            System.out.println("GameController: Exiting COOKING_MENU.");
+            gameState.setGameState(gameState.play); // Kembali ke mode play
+            if (gameStateUI != null) {
+                gameStateUI.resetCookingMenuState(); // Reset UI cooking
+            }
+            resetMovementState(); // Reset status gerakan pemain jika perlu
+        }
+    }
+    
+}
+>>>>>>> Stashed changes

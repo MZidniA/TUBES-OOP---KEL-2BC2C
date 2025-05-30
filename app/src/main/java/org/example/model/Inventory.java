@@ -1,6 +1,10 @@
 package org.example.model;
 import java.util.ArrayList;
 import java.util.HashMap;
+<<<<<<< Updated upstream
+=======
+import java.util.Iterator;
+>>>>>>> Stashed changes
 import java.util.List;
 import java.util.Map;
 import java.util.Iterator; // Import Iterator
@@ -88,6 +92,7 @@ public class Inventory {
         return 0;
     }
 
+<<<<<<< Updated upstream
     public List<Items> removeAnyFish(int requiredQuantity) {
 <<<<<<< Updated upstream
         List<Items> removedFish = new ArrayList<>();
@@ -107,10 +112,36 @@ public class Inventory {
                 removeInventory(item, toRemove);
                 removed += toRemove;
                 if (removed >= requiredQuantity) break;
+=======
+    /**
+     * Removes any fish items from the inventory up to the specified quantity.
+     * Returns a list of the fish items that were removed.
+     */
+    public List<Items> removeAnyFish(int quantity) {
+        List<Items> removedFish = new ArrayList<>();
+        int removedCount = 0;
+        Iterator<Map.Entry<Items, Integer>> iterator = getInventory().entrySet().iterator();
+        while (iterator.hasNext() && removedCount < quantity) {
+            Map.Entry<Items, Integer> entry = iterator.next();
+            Items item = entry.getKey();
+            if (item instanceof org.example.model.Items.Fish) {
+                int available = entry.getValue();
+                int toRemove = Math.min(available, quantity - removedCount);
+                for (int i = 0; i < toRemove; i++) {
+                    removedFish.add(item);
+                }
+                if (available == toRemove) {
+                    iterator.remove();
+                } else {
+                    entry.setValue(available - toRemove);
+                }
+                removedCount += toRemove;
+>>>>>>> Stashed changes
             }
         }
         return removedFish;
     }
+<<<<<<< Updated upstream
 =======
         List<Items> consumedFish = new ArrayList<>();
         if (requiredQuantity <= 0) return consumedFish;
@@ -143,5 +174,7 @@ public class Inventory {
         return consumedFish;
     }
 
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }

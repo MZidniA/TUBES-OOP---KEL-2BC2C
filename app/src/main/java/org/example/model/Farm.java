@@ -1,6 +1,7 @@
 package org.example.model;
 
 import java.time.LocalTime;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Iterator;
 
@@ -148,6 +149,7 @@ public class Farm {
         }
         return false;
     }
+<<<<<<< Updated upstream
     
 
     // --- Logika untuk Cooking (Memasak Pasif) ---
@@ -171,15 +173,33 @@ public class Farm {
         }
 
         LocalTime currentTime = this.gameClock.getCurrentTime();
+=======
+
+    public void updateCookingProgress() {
+        // Pemeriksaan awal untuk komponen penting
+        if (activeCookings.isEmpty() || this.gameClock == null || this.playerModel == null || this.playerModel.getInventory() == null) {
+            return; // Tidak ada yang perlu diproses atau komponen penting null
+        }
+
+        LocalTime currentTime = this.gameClock.getCurrentTime(); // Dapatkan waktu game saat ini
+
+        // Gunakan Iterator untuk menghindari ConcurrentModificationException saat menghapus item dari list
+>>>>>>> Stashed changes
         Iterator<CookingInProgress> iterator = activeCookings.iterator();
 
         while (iterator.hasNext()) {
             CookingInProgress task = iterator.next();
+<<<<<<< Updated upstream
             if (task == null) { // Pemeriksaan keamanan
+=======
+
+            if (task == null) { // Keamanan jika ada task null di list
+>>>>>>> Stashed changes
                 iterator.remove();
                 continue;
             }
 
+<<<<<<< Updated upstream
             if (task.isClaimed()) {
                 // Jika Anda ingin membersihkan task yang sudah diklaim dari daftar secara otomatis (bukan hanya saat klaim manual)
                 // iterator.remove(); // Opsional: hapus jika tidak ingin menumpuk task yang sudah diklaim
@@ -240,4 +260,40 @@ public class Farm {
         }
         return claimedTask;
     }
+=======
+            // Kita hanya peduli pada task yang belum diklaim
+            if (task.isClaimed()) {
+                // Opsional: Anda bisa menghapus task yang sudah diklaim dari list di sini
+                // jika Anda tidak ingin listnya terus bertambah. Tapi karena kita remove setelah klaim,
+                // ini mungkin tidak perlu.
+                // iterator.remove();
+                continue;
+            }
+
+            // Cek apakah masakan sudah siap untuk diklaim (selesai dan belum diklaim)
+            if (task.isCompleted(currentTime)) {
+                Items cookedDish = task.getResultingDish(); // Dapatkan item hasil masakan
+                int quantityProduced = task.getQuantity(); // Dapatkan jumlah yang dihasilkan
+
+                if (cookedDish != null) {
+                    // Tambahkan hasil masakan ke inventory pemain
+                    this.playerModel.getInventory().addInventory(cookedDish, quantityProduced);
+                    
+                    // Tandai task sebagai sudah diklaim
+                    task.setClaimed(true); 
+
+                    System.out.println("LOG (Farm.updateCookingProgress): Dish '" + cookedDish.getName() +
+                                       "' x" + quantityProduced + " is cooked and automatically added to inventory for " +
+                                       this.playerModel.getName() + "!");
+                    
+                    // Hapus task dari daftar activeCookings karena sudah selesai dan diklaim
+                    iterator.remove(); 
+                } else {
+                    System.err.println("ERROR (Farm.updateCookingProgress): Cooked dish is null for a completed task. Task removed.");
+                    iterator.remove(); // Hapus task yang bermasalah
+                }
+            }
+        }
+    }
+>>>>>>> Stashed changes
 }

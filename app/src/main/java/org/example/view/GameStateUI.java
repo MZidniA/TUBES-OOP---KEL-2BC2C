@@ -3,12 +3,25 @@ package org.example.view;
 
 import org.example.controller.GameState; 
 import org.example.model.Inventory;
+<<<<<<< Updated upstream
 import org.example.model.Recipe;
+=======
+import org.example.model.Player;
+import org.example.model.Items.Fish;
+import org.example.model.Items.Food;
+import org.example.model.Items.ItemDatabase;
+>>>>>>> Stashed changes
 import org.example.model.Items.Items;
 import org.example.model.enums.Season;
 import java.time.LocalTime;
+
+import org.example.model.Farm;
 import org.example.model.GameClock; 
-import org.example.model.enums.Weather; 
+import org.example.model.enums.Weather;
+import org.example.model.Recipe;
+import org.example.model.RecipeDatabase;
+import org.example.view.GamePanel;
+
 
 import java.awt.Color;
 import java.awt.Font;
@@ -32,6 +45,16 @@ public class GameStateUI implements TimeObserver {
     private Season currentSeason = Season.SPRING; 
     private LocalTime currentTime = LocalTime.of(6,0);
     private Weather currentWeather = Weather.SUNNY;
+
+    private String uiMessage = null;
+    private boolean clearUiMessageNextFrame = false; // Untuk pesan sementara
+
+    // Variabel State untuk Cooking Menu
+    private int selectedRecipeIndex = 0;
+    private int selectedFuelIndex = 0;
+    private int cookingMenuCommandNum = 0; // 0: Biasanya untuk aksi utama (misal, "COOK"), 1: Untuk "CANCEL"
+    private java.util.List<org.example.model.Recipe> availableRecipesForUI; // Menggunakan List dari model Recipe
+    private java.util.List<Items> availableFuelsForUI; 
 
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
@@ -73,18 +96,50 @@ public class GameStateUI implements TimeObserver {
             stardewFont_30 = new Font("Arial", Font.PLAIN, 10);
             stardewFont_20 = new Font("Arial", Font.PLAIN, 5);
         }
+        this.availableFuelsForUI = new ArrayList<>();
+        Items firewood = ItemDatabase.getItem("Firewood"); // Pastikan nama item ini ada di ItemDatabase
+        Items coal = ItemDatabase.getItem("Coal");       // Pastikan nama item ini ada di ItemDatabase
+        if (firewood != null) this.availableFuelsForUI.add(firewood);
+        if (coal != null) this.availableFuelsForUI.add(coal);
+        
     }
 
   
-    public void draw(Graphics2D g2, GameState currentGameState, Inventory playerInventory) {
+    public void draw(Graphics2D g2, GameState currentGameStateManager, Farm farm) { // Terima Farm
         this.g2 = g2; 
-        drawTimeInfo();
-        if (currentGameState.getGameState() == currentGameState.pause) {
-            drawPauseScreen();
-        } else if (currentGameState.getGameState() == currentGameState.inventory) {
-            drawInventoryScreen(playerInventory); 
-        }
+        Player player = (farm != null) ? farm.getPlayerModel() : null;
+        Inventory playerInventory = (player != null) ? player.getInventory() : null;
+        
+        drawTimeInfo(); // Selalu gambar info waktu
 
+        int currentState = currentGameStateManager.getGameState(); // Dapatkan nilai int dari state
+
+        if (currentState == currentGameStateManager.play) {
+            if (uiMessage != null) {
+                Font messageFont = (stardewFont_30 != null ? stardewFont_30 : defaultFont.deriveFont(Font.PLAIN, 12f));
+                int messageX = getXforCenteredText(uiMessage, messageFont);
+                int messageY = gp.screenHeight - gp.tileSize; 
+                drawTextWithShadow(uiMessage, messageX, messageY, messageFont);
+
+                if (clearUiMessageNextFrame) {
+                    uiMessage = null;
+                    clearUiMessageNextFrame = false;
+                }
+            }
+        } else if (currentState == currentGameStateManager.pause) {
+            drawPauseScreen();
+        } else if (currentState == currentGameStateManager.inventory) {
+            if (playerInventory != null) {
+                drawInventoryScreen(playerInventory); 
+            } else {
+                drawTextWithShadow("Inventory not available.", 
+                                   getXforCenteredText("Inventory not available.", stardewFont_30), 
+                                   gp.screenHeight / 2, 
+                                   stardewFont_30);
+            }
+        } else if (currentState == currentGameStateManager.cooking_menu) { // <-- TAMBAHKAN INI
+            drawCookingMenuScreen(farm, player, playerInventory); // Kirim parameter yang relevan
+        }
     }
 
     @Override
@@ -318,7 +373,6 @@ public class GameStateUI implements TimeObserver {
         g2.drawString(text, x + 2, y + 2);
         g2.setColor(lightYellow);
         g2.drawString(text, x, y);
-        if (font != null) g2.setFont(originalFont);
     }
 
 
@@ -329,6 +383,7 @@ public class GameStateUI implements TimeObserver {
         g2.drawString(text, x, y);
     }
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     public void setDialogue(String string) {
         // TODO Auto-generated method stub
@@ -356,4 +411,289 @@ public class GameStateUI implements TimeObserver {
         this.clearUiMessageNextFrame = true;
 >>>>>>> Stashed changes
     }
+=======
+    private void drawTextWithShadow(String text, int x, int y, Font font, Color textColor, Color shadowColor) {
+        Font originalFont = g2.getFont();
+        if (font != null) g2.setFont(font);
+
+        g2.setColor(shadowColor);
+        g2.drawString(text, x + 2, y + 2);
+        g2.setColor(textColor);
+        g2.drawString(text, x, y);
+    }
+
+    public int getCookingMenuCommandNum() {
+        return cookingMenuCommandNum;
+    }
+
+    public void setCookingMenuCommandNum(int commandNum) {
+        this.cookingMenuCommandNum = commandNum;
+        System.out.println("GameStateUI: Command number set to " + commandNum);
+    }   
+
+    public void resetCookingMenuState() {
+        this.selectedRecipeIndex = 0;    // Pilihan resep kembali ke item pertama
+        this.selectedFuelIndex = 0;      // Pilihan bahan bakar kembali ke item pertama
+        this.cookingMenuCommandNum = 0;  // Pilihan command kembali ke "COOK" (atau command default Anda)
+        
+        if (this.availableRecipesForUI != null) {
+            this.availableRecipesForUI.clear(); 
+        }
+        this.availableRecipesForUI = null; // Set ke null agar di-repopulate saat drawCookingMenuScreen
+        
+        
+        this.uiMessage = null; // Hapus pesan UI yang mungkin masih ada dari sesi menu sebelumnya
+        this.clearUiMessageNextFrame = false;
+        System.out.println("GameStateUI: Cooking menu state has been reset.");
+    }
+
+    public String getUiMessage(){
+        return uiMessage;
+    }
+
+    public void setDialogue(String message) {
+        this.uiMessage = message;
+        this.clearUiMessageNextFrame = false; // Pastikan pesan ini tidak dihapus otomatis oleh logika pesan sementara
+        System.out.println("GameStateUI: Dialogue set to - \"" + message + "\"");
+    }
+
+    public void showTemporaryMessage(String message) {
+        this.uiMessage = message;
+        this.clearUiMessageNextFrame = true;
+        System.out.println("GameStateUI: Temporary message - \"" + message + "\"");
+    }
+
+    public java.util.List<Recipe> getAvailableRecipesForUI() {
+        return availableRecipesForUI;
+    }
+
+    public java.util.List<Items> getAvailableFuelsForUI() {
+        // availableFuelsForUI diinisialisasi di konstruktor dan biasanya tidak berubah.
+        return availableFuelsForUI;
+    }
+
+    public int getSelectedRecipeIndex() {
+        return selectedRecipeIndex;
+    }
+
+    public int getSelectedFuelIndex() {
+        return selectedFuelIndex;
+    }
+    
+
+    // Setter untuk navigasi menu (dipanggil oleh KeyHandler melalui GameController)
+    public void setSelectedRecipeIndex(int index) {
+        if (availableRecipesForUI != null && !availableRecipesForUI.isEmpty()) {
+            if (index < 0) this.selectedRecipeIndex = availableRecipesForUI.size() - 1; // Wrap around
+            else if (index >= availableRecipesForUI.size()) this.selectedRecipeIndex = 0; // Wrap around
+            else this.selectedRecipeIndex = index;
+        } else {
+            this.selectedRecipeIndex = 0; 
+        }
+         this.uiMessage = null; // Hapus pesan saat navigasi
+    }
+
+    public void setSelectedFuelIndex(int index) {
+        if (availableFuelsForUI != null && !availableFuelsForUI.isEmpty()) {
+            if (index < 0) this.selectedFuelIndex = availableFuelsForUI.size() - 1;
+            else if (index >= availableFuelsForUI.size()) this.selectedFuelIndex = 0;
+            else this.selectedFuelIndex = index;
+        } else {
+            this.selectedFuelIndex = 0;
+        }
+        this.uiMessage = null; // Hapus pesan saat navigasi
+    }
+
+    private void drawCookingMenuScreen(Farm farm, Player player, Inventory playerInventory) {
+        if (farm == null || player == null || playerInventory == null) {
+            System.err.println("GameStateUI ERROR: Farm, Player, or Inventory is null in drawCookingMenuScreen.");
+            drawTextWithShadow("Error: Cooking data unavailable.", gp.tileSize, gp.screenHeight / 2, stardewFont_30);
+            return;
+        }
+
+        // Latar belakang menu
+        g2.setColor(new Color(0, 0, 0, 220)); // Latar belakang gelap transparan
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        // Frame utama window memasak
+        int frameX = gp.tileSize;
+        int frameY = gp.tileSize;
+        int frameWidth = gp.screenWidth - (gp.tileSize * 2);
+        int frameHeight = gp.screenHeight - (gp.tileSize * 2);
+        drawSubWindow(frameX, frameY, frameWidth, frameHeight, woodBrown); // Gunakan warna woodBrown
+
+        // Font
+        Font titleFont = (stardewFont_40 != null ? stardewFont_40 : defaultFont.deriveFont(Font.BOLD, 22f)); // Perbesar sedikit
+        Font listFont = (stardewFont_30 != null ? stardewFont_30 : defaultFont.deriveFont(Font.PLAIN, 16f)); // Perbesar sedikit
+        Font detailHeaderFont = listFont.deriveFont(Font.BOLD);
+        Font detailFont = (stardewFont_20 != null ? stardewFont_20 : defaultFont.deriveFont(Font.PLAIN, 14f)); // Perbesar sedikit
+        Font commandFont = listFont.deriveFont(Font.BOLD);
+
+        // Judul Menu
+        String title = "Stove - Let's Cook!";
+        int titleX = getXforCenteredTextInWindow(title, frameX, frameWidth, titleFont);
+        int titleY = frameY + gp.tileSize;
+        drawTextWithShadow(title, titleX, titleY, titleFont);
+
+        // Pembagian Area Layout
+        int listAreaX = frameX + gp.tileSize;
+        int listAreaY = titleY + gp.tileSize + 10;
+        int listAreaWidth = (int) (frameWidth * 0.4) - gp.tileSize; // Area untuk daftar resep
+        int listLineHeight = 25; // Ketinggian per baris resep
+
+        int detailAreaX = listAreaX + listAreaWidth + gp.tileSize;
+        int detailAreaY = listAreaY;
+        int detailAreaWidth = frameWidth - (listAreaWidth + gp.tileSize * 2) - (frameX + gp.tileSize - frameX) ; // Lebar sisa untuk detail
+
+        int bottomSectionY = frameY + frameHeight - gp.tileSize * 3 - 20; // Area untuk fuel dan tombol
+
+        // 1. Daftar Resep (Recipe List)
+        if (availableRecipesForUI == null) {
+            // Gunakan getCookableRecipes dari RecipeDatabase yang sudah Anda miliki
+            availableRecipesForUI = RecipeDatabase.getCookableRecipes(playerInventory, farm.getPlayerStats());
+            if (availableRecipesForUI == null) { // Jika getCookableRecipes bisa return null
+                 availableRecipesForUI = new ArrayList<>();
+            }
+        }
+
+        if (availableRecipesForUI.isEmpty()) {
+            String noRecipeText = "No recipes available.";
+            int noRecipeTextX = listAreaX + (listAreaWidth - g2.getFontMetrics(listFont).stringWidth(noRecipeText)) / 2;
+            int noRecipeTextY = listAreaY + listLineHeight * 2;
+            drawTextWithShadow(noRecipeText, noRecipeTextX, noRecipeTextY, listFont);
+        } else {
+            int maxRecipesToDisplay = 10; // Jumlah resep yang ditampilkan sekaligus (bisa digulir)
+            int displayOffset = 0;
+            if (selectedRecipeIndex >= maxRecipesToDisplay / 2) {
+                displayOffset = selectedRecipeIndex - (maxRecipesToDisplay / 2);
+                if (displayOffset + maxRecipesToDisplay > availableRecipesForUI.size()) {
+                    displayOffset = Math.max(0, availableRecipesForUI.size() - maxRecipesToDisplay);
+                }
+            }
+
+            for (int i = 0; i < maxRecipesToDisplay; i++) {
+                int actualIndexInList = displayOffset + i;
+                if (actualIndexInList >= availableRecipesForUI.size()) break;
+
+                Recipe recipe = availableRecipesForUI.get(actualIndexInList);
+                boolean canCraft = RecipeDatabase.getCookableRecipes(playerInventory, farm.getPlayerStats()).contains(recipe); // Cek lagi apakah bisa dimasak dengan bahan saat ini
+
+                String prefix = (actualIndexInList == selectedRecipeIndex) ? "> " : "  ";
+                Color textColor = (actualIndexInList == selectedRecipeIndex) ? Color.YELLOW : (canCraft ? lightYellow : Color.GRAY);
+                drawTextWithShadow(prefix + recipe.getDisplayName(), listAreaX, listAreaY + (i * listLineHeight), listFont, textColor, darkTextShadow);
+            }
+        }
+
+        // 2. Detail Resep yang Dipilih (Selected Recipe Details)
+        if (availableRecipesForUI != null && !availableRecipesForUI.isEmpty() && selectedRecipeIndex >= 0 && selectedRecipeIndex < availableRecipesForUI.size()) {
+            Recipe currentRecipe = availableRecipesForUI.get(selectedRecipeIndex);
+            Food resultingDish = currentRecipe.getResultingDish();
+            int currentDetailY = detailAreaY;
+
+            // Gambar Hasil Masakan (jika ada)
+            if (resultingDish != null && resultingDish.getImage() != null) {
+                g2.drawImage(resultingDish.getImage(), detailAreaX, currentDetailY, gp.tileSize * 2, gp.tileSize * 2, null);
+                currentDetailY += gp.tileSize * 2 + 5; // Spasi setelah gambar
+            }
+            
+            // Nama Hasil Masakan
+            drawTextWithShadow("Produces: " + (resultingDish != null ? resultingDish.getName() : "N/A"), detailAreaX, currentDetailY, detailHeaderFont);
+            currentDetailY += listLineHeight;
+
+            // Bahan-Bahan
+            drawTextWithShadow("Ingredients:", detailAreaX, currentDetailY, detailHeaderFont);
+            currentDetailY += listLineHeight;
+
+            for (Map.Entry<Items, Integer> entry : currentRecipe.getIngredients().entrySet()) {
+                Items requiredItem = entry.getKey();
+                int requiredQuantity = entry.getValue();
+                int ownedQuantity;
+
+                if (RecipeDatabase.ANY_FISH_INGREDIENT_NAME.equals(requiredItem.getName())) {
+                    ownedQuantity = (int) playerInventory.getInventory().entrySet().stream()
+                                      .filter(invE -> invE.getKey() instanceof Fish) // Asumsi Fish adalah subclass Items
+                                      .mapToLong(Map.Entry::getValue).sum();
+                } else {
+                    ownedQuantity = playerInventory.getItemQuantity(requiredItem.getName()); // Ambil berdasarkan nama jika objeknya placeholder
+                }
+                boolean hasEnough = ownedQuantity >= requiredQuantity;
+                
+                String ingredientName = requiredItem.getName();
+                if (requiredItem.getImage() != null) {
+                     g2.drawImage(requiredItem.getImage(), detailAreaX, currentDetailY - listLineHeight/2 , gp.tileSize-4, gp.tileSize-4, null);
+                     ingredientName = ""; // Jangan gambar nama jika sudah ada gambar
+                }
+
+                drawTextWithShadow(ingredientName + " " + ownedQuantity + "/" + requiredQuantity, 
+                                   detailAreaX + (requiredItem.getImage() != null ? gp.tileSize : 0), 
+                                   currentDetailY, detailFont, 
+                                   (hasEnough ? lightYellow : Color.RED), darkTextShadow);
+                currentDetailY += listLineHeight;
+            }
+        } else if (availableRecipesForUI != null && availableRecipesForUI.isEmpty()){
+             drawTextWithShadow("Select a recipe.", detailAreaX, detailAreaY, listFont);
+        }
+
+
+        // Garis Pemisah
+        g2.setColor(borderColor);
+        g2.setStroke(new BasicStroke(2));
+        g2.drawLine(frameX + 20, bottomSectionY - 10, frameX + frameWidth - 20, bottomSectionY - 10);
+
+        // 3. Pilihan Bahan Bakar (Fuel Selection)
+        int fuelSectionX = listAreaX;
+        int fuelSectionY = bottomSectionY;
+        drawTextWithShadow("Fuel:", fuelSectionX, fuelSectionY, detailHeaderFont);
+        fuelSectionY += listLineHeight;
+
+        if (availableFuelsForUI == null || availableFuelsForUI.isEmpty()) {
+            drawTextWithShadow("No fuel items defined!", fuelSectionX, fuelSectionY, listFont, Color.ORANGE, darkTextShadow);
+        } else {
+            for (int i = 0; i < availableFuelsForUI.size(); i++) {
+                Items fuel = availableFuelsForUI.get(i);
+                int fuelOwned = playerInventory.getItemQuantity(fuel.getName());
+                String fuelText = fuel.getName() + " (" + fuelOwned + ")";
+                
+                String prefix = (i == selectedFuelIndex) ? "> " : "  ";
+                Color fuelColor = (i == selectedFuelIndex) ? Color.YELLOW : (fuelOwned > 0 ? lightYellow : Color.GRAY);
+                // Posisikan pilihan fuel berdampingan
+                int fuelItemX = fuelSectionX + (i * (listAreaWidth / 2)); // Sesuaikan pembagian lebar
+                drawTextWithShadow(prefix + fuelText, fuelItemX, fuelSectionY, listFont, fuelColor, darkTextShadow);
+            }
+        }
+
+        // 4. Tombol Aksi (COOK / CANCEL)
+        int commandSectionX = detailAreaX; // Sejajarkan dengan area detail
+        int commandY = bottomSectionY + listLineHeight; // Di bawah fuel, atau sejajar
+
+        String cookText = "COOK";
+        int cookTextX = commandSectionX + (detailAreaWidth / 4) - (g2.getFontMetrics(commandFont).stringWidth(cookText) / 2);
+        if (cookingMenuCommandNum == 0) {
+            drawTextWithShadow("> " + cookText, cookTextX - 10, commandY, commandFont, Color.YELLOW, darkTextShadow);
+        } else {
+            drawTextWithShadow(cookText, cookTextX, commandY, commandFont);
+        }
+
+        String cancelText = "CANCEL";
+        int cancelTextX = commandSectionX + (detailAreaWidth * 3 / 4) - (g2.getFontMetrics(commandFont).stringWidth(cancelText) / 2);
+        if (cookingMenuCommandNum == 1) {
+            drawTextWithShadow("> " + cancelText, cancelTextX - 10, commandY, commandFont, Color.YELLOW, darkTextShadow);
+        } else {
+            drawTextWithShadow(cancelText, cancelTextX, commandY, commandFont);
+        }
+
+        // 5. Tampilkan Pesan UI (jika ada)
+        if (uiMessage != null) {
+            int messageY = frameY + frameHeight - gp.tileSize / 2 - 5; // Paling bawah
+            int messageX = getXforCenteredTextInWindow(uiMessage, frameX, frameWidth, listFont);
+            drawTextWithShadow(uiMessage, messageX, messageY, listFont, Color.ORANGE, darkTextShadow);
+            if (clearUiMessageNextFrame) {
+                uiMessage = null;
+                clearUiMessageNextFrame = false;
+            }
+        }
+    }
+
+    
+>>>>>>> Stashed changes
 }

@@ -202,7 +202,7 @@ public class GamePanel extends JPanel {
         }
 
         if (currentGameState != null && gameStateUI != null) {
-            gameStateUI.draw(g2, currentGameState, playerInventory);
+            gameStateUI.draw(g2, currentGameState, farmModel);
         }
 
         g2.dispose();

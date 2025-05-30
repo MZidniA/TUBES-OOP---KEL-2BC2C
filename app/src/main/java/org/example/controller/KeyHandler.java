@@ -11,6 +11,8 @@ import org.example.model.Recipe;
 import org.example.view.GameStateUI;
 import org.example.controller.action.CookingAction;
 
+import org.example.view.GameStateUI;
+
 public class KeyHandler implements KeyListener {
     private final GameController gameController;
 
@@ -28,6 +30,7 @@ public class KeyHandler implements KeyListener {
         int code = e.getKeyCode();
         if (gameController == null || gameController.getGameState() == null) return;
 
+<<<<<<< Updated upstream
         GameState currentGameStateManager = gameController.getGameState(); // The manager object
         int currentState = currentGameStateManager.getGameState(); // The actual state value
 
@@ -39,6 +42,57 @@ public class KeyHandler implements KeyListener {
             handleInventoryStateInput(code);
         } else if (currentState == GameState.COOKING_MENU) { // Use static constant
             handleCookingMenuInput(code);
+=======
+        if (currentGameState.getGameState() == currentGameState.play) {
+            switch (code) {
+                case KeyEvent.VK_W: case KeyEvent.VK_UP: gameController.handlePlayerMove("up", true); break;
+                case KeyEvent.VK_S: case KeyEvent.VK_DOWN: gameController.handlePlayerMove("down", true); break;
+                case KeyEvent.VK_A: case KeyEvent.VK_LEFT: gameController.handlePlayerMove("left", true); break;
+                case KeyEvent.VK_D: case KeyEvent.VK_RIGHT: gameController.handlePlayerMove("right", true); break;
+                case KeyEvent.VK_F: gameController.handleInteraction(); break;
+                case KeyEvent.VK_ESCAPE: gameController.togglePause(); break;
+                case KeyEvent.VK_I: gameController.toggleInventory(); break;
+                case KeyEvent.VK_CONTROL: gameController.activateSetTimeTo2AMCheat();; break;
+            }
+        } else if (currentGameState.getGameState() == currentGameState.pause) {
+            if (code == KeyEvent.VK_ESCAPE) gameController.togglePause();
+            else if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) gameController.navigatePauseUI("up");
+            else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) gameController.navigatePauseUI("down");
+            else if (code == KeyEvent.VK_ENTER) gameController.confirmPauseUISelection();
+        } else if (currentGameState.getGameState() == currentGameState.inventory) {
+            if (code == KeyEvent.VK_ESCAPE || code == KeyEvent.VK_I) gameController.toggleInventory();
+            else if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) gameController.navigateInventoryUI("up");
+            else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) gameController.navigateInventoryUI("down");
+            else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) gameController.navigateInventoryUI("left");
+            else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) gameController.navigateInventoryUI("right");
+            else if (code == KeyEvent.VK_ENTER) gameController.confirmInventoryUISelection();
+        } else if (currentGameState.getGameState() == currentGameState.cooking_menu) {
+            System.out.println("KeyHandler: Input diterima dalam COOKING_MENU state."); // Debugging
+            switch (code) {
+                case KeyEvent.VK_W:
+                case KeyEvent.VK_UP:
+                    gameController.navigateCookingMenuUI("up"); // Panggil metode di GameController
+                    break;
+                case KeyEvent.VK_S:
+                case KeyEvent.VK_DOWN:
+                    gameController.navigateCookingMenuUI("down"); // Panggil metode di GameController
+                    break;
+                case KeyEvent.VK_A:
+                case KeyEvent.VK_LEFT:
+                    gameController.navigateCookingMenuUI("left"); // Panggil metode di GameController
+                    break;
+                case KeyEvent.VK_D:
+                case KeyEvent.VK_RIGHT:
+                    gameController.navigateCookingMenuUI("right"); // Panggil metode di GameController
+                    break;
+                case KeyEvent.VK_ENTER:
+                    gameController.confirmCookingMenuSelection(); // Panggil metode di GameController
+                    break;
+                case KeyEvent.VK_ESCAPE:
+                    gameController.exitCookingMenu(); // Metode ini sudah kita buat di GameController
+                    break;
+            }
+>>>>>>> Stashed changes
         }
     }
 

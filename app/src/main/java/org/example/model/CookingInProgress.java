@@ -69,6 +69,7 @@ public class CookingInProgress {
         this.claimed = claimed;
     }
 
+<<<<<<< Updated upstream
     /**
      * Mengecek apakah masakan sudah selesai berdasarkan waktu saat ini.
      * @param currentTime Waktu game saat ini.
@@ -117,4 +118,6 @@ public class CookingInProgress {
         return isCompleted(currentTime) && !isClaimed;
     }
 
+=======
+>>>>>>> Stashed changes
 }

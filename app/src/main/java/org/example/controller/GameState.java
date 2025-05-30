@@ -5,10 +5,14 @@ public class GameState {
     public final int play = 1;
     public final int pause = 2;
     public final int inventory = 3;
+<<<<<<< Updated upstream
     public final int cooking_menu = 4;
+=======
+    public final int cooking_menu = 4; 
+>>>>>>> Stashed changes
 
     public GameState() {
-        this.gamestate = play;
+        this.gamestate = this.play; 
     }
 
     public void setGameState(int state) {
