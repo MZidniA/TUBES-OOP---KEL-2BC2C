@@ -52,6 +52,10 @@ public class GameStateUI implements TimeObserver {
     private String uiMessage = null;
     private boolean clearUiMessageNextFrame = false;
 
+    private String temporaryMessage = null;
+    private long messageDisplayTime = 0;
+    private static final int MESSAGE_DURATION_MS = 3000;
+
     Color woodBrown = new Color(139, 69, 19);
     Color lightYellow = new Color(255, 253, 208);
     Color darkTextShadow = new Color(80, 40, 0, 150);
@@ -96,6 +100,26 @@ public class GameStateUI implements TimeObserver {
             drawInventoryScreen(playerInventory); 
         } else if (currentGameState.getGameState() == currentGameState.cooking_menu) {
             drawCookingMenuScreen(farm, player, playerInventory);
+        } 
+
+        if (temporaryMessage != null) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - messageDisplayTime < MESSAGE_DURATION_MS) {
+                // Gambar pesan di lokasi yang sesuai di layar
+                g2.setFont(stardewFont_30); // Atau font lain yang sesuai
+                int x = getXforCenteredText(temporaryMessage, g2.getFont()); 
+                int y = gp.screenHeight - (gp.tileSize*3); 
+
+                java.awt.FontMetrics fm = g2.getFontMetrics();
+                int textWidth = fm.stringWidth(temporaryMessage);
+                int textHeight = fm.getHeight();
+                g2.setColor(new Color(0,0,0,150)); 
+                g2.fillRect(x - 10, y - fm.getAscent(), textWidth + 20, textHeight);
+
+                drawTextWithShadow(temporaryMessage, x, y, g2.getFont(), Color.WHITE, Color.BLACK);
+            } else {
+                temporaryMessage = null; 
+            }
         }
     }
 
@@ -270,6 +294,11 @@ public class GameStateUI implements TimeObserver {
         g2.setColor(textColor);
         g2.drawString(text, x, y);
         g2.setFont(originalFont); // Kembalikan font asli
+    }
+
+    public void showTemporaryMessage(String message) {
+        this.temporaryMessage = message;
+        this.messageDisplayTime = System.currentTimeMillis();
     }
 
     @Override

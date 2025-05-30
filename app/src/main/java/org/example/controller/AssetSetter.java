@@ -121,7 +121,7 @@ public class AssetSetter {
             int[][] housePositions = {
                 {6, 3},  
                 {9, 10},
-                {3, 3}
+                {4, 3}
             };
 
             for (int i = 0; i < houseObjects.length; i++) {
