@@ -55,13 +55,15 @@ public class ChattingAction implements Action {
             return;
         }
 
-        npc.setHeartPoints(npc.getHeartPoints() + HEART_POINT_GAIN);
+        int current = npc.getHeartPoints();
+        int updated = Math.min(current + HEART_POINT_GAIN, 100);
+        npc.setHeartPoints(updated);
 
         player.decreaseEnergy(ENERGY_COST);
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
 
         System.out.println("Kamu ngobrol hangat dengan " + npc.getName() + ".");
-        System.out.println("HeartPoint +10 (sekarang: " + npc.getHeartPoints() + ")");
+        System.out.println("HeartPoint +" + (updated - current) + " (sekarang: " + updated + ")");
         System.out.println("Relationship Status: " + npc.getRelationshipStatus());
         System.out.println("Energi -10. Waktu maju 10 menit.");
     }

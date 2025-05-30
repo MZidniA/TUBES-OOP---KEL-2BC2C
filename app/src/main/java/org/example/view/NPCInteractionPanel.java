@@ -10,7 +10,7 @@ import javax.swing.*;
 import org.example.controller.GameController;
 import org.example.controller.action.ChattingAction;
 import org.example.model.Farm;
-import org.example.model.NPC.*;
+import org.example.model.NPC.NPC;
 
 public class NPCInteractionPanel extends JPanel {
     private Image backgroundImage;
@@ -20,7 +20,7 @@ public class NPCInteractionPanel extends JPanel {
     private Farm farm;
     private String playerName;
 
-    private JLabel infoLabel; // 👉 digabung jadi satu label
+    private JLabel infoLabel;
 
     public NPCInteractionPanel(JFrame parentFrame, GameController controller, Farm farm, String npcName, String playerName) {
         this.parentFrame = parentFrame;
@@ -28,26 +28,27 @@ public class NPCInteractionPanel extends JPanel {
         this.farm = farm;
         this.playerName = playerName;
 
+        // Ubah ukuran panel jadi lebih lebar
         setLayout(null);
-        setPreferredSize(new Dimension(300, 320));
+        setPreferredSize(new Dimension(360, 360));
         setOpaque(false);
 
         loadFont();
         loadBackground();
 
+        int panelWidth = 360;
         int buttonWidth = 140;
         int buttonHeight = 30;
-        int startY = 40;
+        int startY = 60;
         int gap = 10;
 
         NPC npc = controller.getFarm().getNPCByName(npcName);
 
-        // Tombol aksi
         String[] actions = {"Chatting", "Gifting", "Proposing", "Marrying"};
         for (int i = 0; i < actions.length; i++) {
             String actionName = actions[i];
             JButton btn = createPixelButton(actionName);
-            btn.setBounds(80, startY + i * (buttonHeight + gap), buttonWidth, buttonHeight);
+            btn.setBounds((panelWidth - buttonWidth) / 2, startY + i * (buttonHeight + gap), buttonWidth, buttonHeight);
             add(btn);
 
             if (actionName.equals("Chatting")) {
@@ -75,7 +76,7 @@ public class NPCInteractionPanel extends JPanel {
                     dialog.setLocationRelativeTo(parentFrame);
                     dialog.setVisible(true);
 
-                    updateNPCInfo(npc); // realtime update
+                    updateNPCInfo(npc);
                 });
             } else {
                 btn.addActionListener(e -> {
@@ -87,7 +88,6 @@ public class NPCInteractionPanel extends JPanel {
             }
         }
 
-        // Tombol BACK
         JButton backButton = new JButton("BACK");
         backButton.setFont(pixelFont.deriveFont(10f));
         backButton.setForeground(Color.WHITE);
@@ -96,22 +96,23 @@ public class NPCInteractionPanel extends JPanel {
         backButton.setFocusPainted(false);
         backButton.setOpaque(true);
         int backY = startY + actions.length * (buttonHeight + gap) + 10;
-        backButton.setBounds(90, backY, buttonWidth - 20, buttonHeight - 10);
+        backButton.setBounds((panelWidth - (buttonWidth - 20)) / 2, backY, buttonWidth - 20, buttonHeight - 10);
         backButton.addActionListener(e -> SwingUtilities.getWindowAncestor(this).dispose());
         add(backButton);
 
-        // 🆕 Label info digabung jadi satu
         infoLabel = new JLabel();
         infoLabel.setFont(pixelFont.deriveFont(9f));
         infoLabel.setForeground(Color.WHITE);
-        infoLabel.setBounds(40, backY + 50, 300, 15); // bawah BACK
+        infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        infoLabel.setBounds(0, backY + 35, panelWidth, 15);
         add(infoLabel);
 
         updateNPCInfo(npc);
     }
 
     private void updateNPCInfo(NPC npc) {
-        String info = "Heart: " + npc.getHeartPoints() + "    Status: " + npc.getRelationshipStatus();
+        int heartPoints = Math.min(npc.getHeartPoints(), 100);
+        String info = "Heart: " + heartPoints + " / 100    Status: " + npc.getRelationshipStatus();
         infoLabel.setText(info);
     }
 
@@ -151,7 +152,7 @@ public class NPCInteractionPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // auto-scale background sesuai panel
         }
     }
 }
