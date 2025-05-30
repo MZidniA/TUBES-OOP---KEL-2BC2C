@@ -20,6 +20,7 @@ import java.awt.Graphics2D;
 import java.awt.BasicStroke;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.example.model.Farm;
@@ -55,6 +56,13 @@ public class GameStateUI implements TimeObserver {
     private String temporaryMessage = null;
     private long messageDisplayTime = 0;
     private static final int MESSAGE_DURATION_MS = 3000;
+
+    // Map Selection Menu State
+    public int mapSelectionCommandNum = 0;
+    public List<String> mapOptions; // Daftar nama map yang bisa dipilih
+    public List<Integer> mapOptionTargetMapIndices; // Daftar index map tujuan
+    public List<int[]> mapOptionTargetCoords; // Daftar koordinat spawn [tileX, tileY]
+
 
     Color woodBrown = new Color(139, 69, 19);
     Color lightYellow = new Color(255, 253, 208);
@@ -99,8 +107,24 @@ public class GameStateUI implements TimeObserver {
         } else if (currentGameState.getGameState() == currentGameState.inventory) {
             drawInventoryScreen(playerInventory); 
         } else if (currentGameState.getGameState() == currentGameState.cooking_menu) {
+<<<<<<< Updated upstream
             drawCookingMenuScreen(farm, player, playerInventory);
         } 
+=======
+            if (farmInstance != null && playerInstance != null && playerInventory != null) {
+                drawCookingMenuScreen(farmInstance, playerInstance, playerInventory);
+            } else {
+                System.err.println("GameStateUI.draw(): Data penting (Farm/Player/Inventory) null saat akan menggambar cooking menu.");
+                // Opsional: gambar pesan error sederhana di layar
+            }
+        } else if (currentGameState.getGameState() == currentGameState.map_selection) { 
+            if (farmInstance != null) { 
+                drawMapSelectionMenu(farmInstance.getCurrentMap());
+            } else {
+                System.err.println("GameStateUI.draw(): farmInstance null saat akan menggambar map selection menu.");
+            }
+        }
+>>>>>>> Stashed changes
 
         if (temporaryMessage != null) {
             long currentTime = System.currentTimeMillis();
@@ -123,7 +147,92 @@ public class GameStateUI implements TimeObserver {
         }
     }
 
+<<<<<<< Updated upstream
     // --- Metode untuk Menggambar Menu Memasak ---
+=======
+    private void drawMapSelectionMenu(int currentMapIndex) {
+        if (g2 == null || gp == null) return;
+
+        // Latar belakang menu
+        g2.setColor(new Color(0, 0, 0, 220));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        // Frame
+        int frameX = gp.tileSize * 2;
+        int frameY = gp.tileSize;
+        int frameWidth = gp.screenWidth - (gp.tileSize * 4);
+        int frameHeight = gp.screenHeight - (gp.tileSize * 2);
+        drawSubWindow(frameX, frameY, frameWidth, frameHeight, woodBrown);
+
+        // Font
+        Font menuTitleFont = stardewFont_40.deriveFont(18f); // Sesuaikan ukuran font
+        Font optionFont = stardewFont_30.deriveFont(14f);
+
+        // Judul
+        String menuTitle = "Teleport To:";
+        int titleX = getXforCenteredTextInWindow(menuTitle, frameX, frameWidth, menuTitleFont);
+        int titleY = frameY + gp.tileSize;
+        drawTextWithShadow(menuTitle, titleX, titleY, menuTitleFont);
+
+        // Populate opsi jika belum ada atau jika map saat ini berubah (meskipun interaksi harusnya dari map yg sama)
+        if (mapOptions == null) {
+            mapOptions = new ArrayList<>();
+            mapOptionTargetMapIndices = new ArrayList<>();
+            mapOptionTargetCoords = new ArrayList<>();
+
+            // Tambahkan tujuan berdasarkan map saat ini
+            // Format: Nama Tampilan, Target Map Index, Target Tile X, Target Tile Y
+            // (0: Farm, 1: Ocean, 2: ForestRiver, 3: Town, 4: House)
+            // Selalu ada opsi "Cancel"
+            
+            // Default spawn points (ANDA PERLU MENYESUAIKAN KOORDINAT INI)
+            int farmSpawnX = 29, farmSpawnY = 10;     // Contoh spawn di Farm
+            int oceanSpawnX = 30, oceanSpawnY = 2;    // Contoh spawn di Ocean
+            int riverSpawnX = 28, riverSpawnY = 0;     // Contoh spawn di Forest River
+            int townSpawnX = 16, townSpawnY = 30;    // Contoh spawn di Town
+
+            if (currentMapIndex != 0) { // Jika tidak di Farm, tambahkan opsi ke Farm
+                mapOptions.add("Farm");
+                mapOptionTargetMapIndices.add(0);
+                mapOptionTargetCoords.add(new int[]{farmSpawnX, farmSpawnY});
+            }
+            if (currentMapIndex != 1) { // Jika tidak di Ocean, tambahkan opsi ke Ocean
+                mapOptions.add("Ocean");
+                mapOptionTargetMapIndices.add(1);
+                mapOptionTargetCoords.add(new int[]{oceanSpawnX, oceanSpawnY});
+            }
+            if (currentMapIndex != 2) { // Jika tidak di Forest River, tambahkan opsi ke Forest River
+                mapOptions.add("Forest River");
+                mapOptionTargetMapIndices.add(2);
+                mapOptionTargetCoords.add(new int[]{riverSpawnX, riverSpawnY});
+            }
+            if (currentMapIndex != 3) { // Jika tidak di Town, tambahkan opsi ke Town
+                mapOptions.add("Town");
+                mapOptionTargetMapIndices.add(3);
+                mapOptionTargetCoords.add(new int[]{townSpawnX, townSpawnY});
+            }
+            mapOptions.add("Cancel"); // Selalu ada opsi cancel
+        }
+
+        // Gambar opsi
+        int optionY = titleY + gp.tileSize * 2;
+        for (int i = 0; i < mapOptions.size(); i++) {
+            String optionText = mapOptions.get(i);
+            int optionX = getXforCenteredTextInWindow(optionText, frameX, frameWidth, optionFont);
+            Color textColor = lightYellow;
+            String prefix = "  ";
+
+            if (i == mapSelectionCommandNum) {
+                textColor = Color.YELLOW;
+                prefix = "> ";
+            }
+            drawTextWithShadow(prefix + optionText, optionX - gp.tileSize/2 , optionY, optionFont, textColor, darkTextShadow); // Geser prefix sedikit
+            optionY += gp.tileSize;
+        }
+    }
+
+
+>>>>>>> Stashed changes
     private void drawCookingMenuScreen(Farm farm, Player player, Inventory playerInventory) {
         if (g2 == null || gp == null) { // Pastikan g2 dan gp tidak null
             System.err.println("GameStateUI ERROR: Graphics2D (g2) or GamePanel (gp) is null in drawCookingMenuScreen.");
@@ -544,4 +653,14 @@ public class GameStateUI implements TimeObserver {
         this.clearUiMessageNextFrame = false;
         System.out.println("GameStateUI: Cooking menu state has been reset.");
     }
+
+    public void resetMapSelectionMenuState() {
+        this.mapSelectionCommandNum = 0;
+        // Daftar opsi akan di-populate saat menu digambar, tergantung lokasi pemain saat ini
+        this.mapOptions = null;
+        this.mapOptionTargetMapIndices = null;
+        this.mapOptionTargetCoords = null;
+        System.out.println("GameStateUI: Map Selection Menu state has been reset.");
+    }
+
 }
