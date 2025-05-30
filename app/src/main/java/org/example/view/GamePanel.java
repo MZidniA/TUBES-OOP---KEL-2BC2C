@@ -232,7 +232,7 @@ public class GamePanel extends JPanel {
             if (farmModel != null && playerModel != null && playerInventory != null) {
                 // Panggil GameStateUI.draw dengan SEMUA parameter yang dibutuhkan (sesuaikan dengan signature GameStateUI.draw Anda)
                 // Asumsi signature draw di GameStateUI adalah: draw(Graphics2D g2, GameState gs, Farm f, Player p, Inventory inv)
-                gameStateUI.draw(g2, currentGameState, farmModel, playerModel, playerInventory);
+                gameStateUI.draw(g2, currentGameState, playerInventory);
             } else {
                 // Jika data penting untuk UI hilang, mungkin tampilkan pesan error atau UI minimal
                 // Ini penting terutama jika cooking_menu aktif dan membutuhkan farmModel & playerModel

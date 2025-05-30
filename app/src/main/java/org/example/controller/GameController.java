@@ -626,6 +626,10 @@ public class GameController implements Runnable {
                 }
             }
         }
+
+        int revenue = farm.processShippedItemsAndGetRevenue();
+        System.out.println("GameController (processEndOfDayEvents): Revenue calculated: " + revenue); // DEBUG
+        farm.setGoldFromLastShipment(revenue);
     }
 
     // Metode baru untuk Shipping Bin

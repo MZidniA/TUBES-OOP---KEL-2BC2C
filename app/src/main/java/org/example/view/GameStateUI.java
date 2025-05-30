@@ -44,11 +44,11 @@ public class GameStateUI implements TimeObserver {
 
     // Cooking Menu State
     // private Farm farm; // Farm reference removed, get from GamePanel/Controller if needed contextually
-    private int selectedRecipeIndex = 0;
-    private int selectedFuelIndex = 0;
-    private int cookingMenuCommandNum = 0; // 0: Cook, 1: Cancel
-    private List<Recipe> availableRecipesForUI;
-    private List<Items> availableFuelsForUI;
+    public int selectedRecipeIndex = 0;
+    public int selectedFuelIndex = 0;
+    public int cookingMenuCommandNum = 0; // 0: Cook, 1: Cancel
+    public List<Recipe> availableRecipesForUI;
+    public List<Items> availableFuelsForUI;
 
     // UI Message State
     private String uiMessage = null;
