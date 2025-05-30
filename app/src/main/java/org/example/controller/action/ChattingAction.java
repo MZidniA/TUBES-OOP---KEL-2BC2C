@@ -64,7 +64,7 @@ public class ChattingAction implements Action {
 
         System.out.println("Kamu ngobrol hangat dengan " + npc.getName() + ".");
         System.out.println("HeartPoint +" + (updated - current) + " (sekarang: " + updated + ")");
-        System.out.println("Relationship Status: " + npc.getRelationshipStatus());
+        System.out.println("Relationship Status: " + npc.getRelationshipsStatus());
         System.out.println("Energi -10. Waktu maju 10 menit.");
     }
 }

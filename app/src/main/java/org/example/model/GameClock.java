@@ -109,4 +109,18 @@ public class GameClock {
         }
     }
 
+    public void advanceTimeByMinutes(Farm farm, int minutes) {
+        int totalMinutes = this.currentTime.getHour() * 60 + this.currentTime.getMinute();
+        totalMinutes += minutes;
+
+        int newHour = totalMinutes / 60;
+        int newMinute = totalMinutes % 60;
+
+        if (newHour >= 24) {
+            nextDay(farm.getPlayerStats());
+        } else {
+            this.currentTime = LocalTime.of(newHour, newMinute);
+        }
+    }
+
 }

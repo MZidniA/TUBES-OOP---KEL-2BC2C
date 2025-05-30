@@ -10,7 +10,10 @@ import javax.swing.*;
 import org.example.controller.GameController;
 import org.example.controller.action.ChattingAction;
 import org.example.model.Farm;
+import org.example.model.Items.Items;
 import org.example.model.NPC.NPC;
+import org.example.view.GiftingDialogPanel;
+
 
 public class NPCInteractionPanel extends JPanel {
     private Image backgroundImage;
@@ -28,7 +31,6 @@ public class NPCInteractionPanel extends JPanel {
         this.farm = farm;
         this.playerName = playerName;
 
-        // Ubah ukuran panel jadi lebih lebar
         setLayout(null);
         setPreferredSize(new Dimension(360, 360));
         setOpaque(false);
@@ -51,40 +53,69 @@ public class NPCInteractionPanel extends JPanel {
             btn.setBounds((panelWidth - buttonWidth) / 2, startY + i * (buttonHeight + gap), buttonWidth, buttonHeight);
             add(btn);
 
-            if (actionName.equals("Chatting")) {
-                btn.addActionListener(e -> {
-                    List<String> dialogLines = Arrays.asList(
-                        "Hai, senang bertemu denganmu!",
-                        "Aku sedang bersantai hari ini.",
-                        "Cuaca sangat bagus, ya?",
-                        "Sampai jumpa lagi!"
-                    );
+            switch (actionName) {
+                case "Chatting":
+                    btn.addActionListener(e -> {
+                        List<String> dialogLines = Arrays.asList(
+                            "Hai, senang bertemu denganmu!",
+                            "Aku sedang bersantai hari ini.",
+                            "Cuaca sangat bagus, ya?",
+                            "Sampai jumpa lagi!"
+                        );
 
-                    ChattingAction action = new ChattingAction(npc, npc.getLocation());
-                    if (!action.canExecute(farm)) {
-                        EnergyWarningDialog warning = new EnergyWarningDialog(parentFrame);
-                        warning.setVisible(true);
-                        return;
-                    }
+                        ChattingAction action = new ChattingAction(npc, npc.getLocation());
+                        if (!action.canExecute(farm)) {
+                            new EnergyWarningDialog(parentFrame).setVisible(true);
+                            return;
+                        }
 
-                    ChattingDialogPanel dialogPanel = new ChattingDialogPanel(parentFrame, dialogLines, npcName, playerName, action, farm);
+                        ChattingDialogPanel dialogPanel = new ChattingDialogPanel(parentFrame, dialogLines, npcName, playerName, action, farm);
+                        JDialog dialog = new JDialog(parentFrame, "Chatting with " + npcName, true);
+                        dialog.setUndecorated(true);
+                        dialog.setContentPane(dialogPanel);
+                        dialog.pack();
+                        dialog.setLocationRelativeTo(parentFrame);
+                        dialog.setVisible(true);
 
-                    JDialog dialog = new JDialog(parentFrame, "Chatting with " + npcName, true);
-                    dialog.setUndecorated(true);
-                    dialog.setContentPane(dialogPanel);
-                    dialog.pack();
-                    dialog.setLocationRelativeTo(parentFrame);
-                    dialog.setVisible(true);
+                        updateNPCInfo(npc);
+                    });
+                    break;
 
-                    updateNPCInfo(npc);
-                });
-            } else {
-                btn.addActionListener(e -> {
-                    JOptionPane.showMessageDialog(parentFrame,
-                        "Kamu memilih aksi: " + actionName,
-                        "Interaksi dengan " + npcName,
-                        JOptionPane.INFORMATION_MESSAGE);
-                });
+                case "Gifting":
+                    btn.addActionListener(e -> {
+                        if (npc.hasGiftedToday()) {
+                            JOptionPane.showMessageDialog(parentFrame, "Kamu sudah memberikan hadiah hari ini!", "Sudah Dikasih", JOptionPane.INFORMATION_MESSAGE);
+                            return;
+                        }
+
+                        GiftingDialogPanel giftPanel = new GiftingDialogPanel(parentFrame, controller, npc, farm);
+                        JDialog giftDialog = new JDialog(parentFrame, "Pilih Hadiah untuk " + npc.getName(), true);
+                        giftDialog.setUndecorated(true);
+                        giftDialog.setContentPane(giftPanel);
+                        giftDialog.pack();
+                        giftDialog.setLocationRelativeTo(parentFrame);
+                        giftDialog.setVisible(true);
+
+                        updateNPCInfo(npc); // update info setelah gift
+                    });
+                    break;
+
+
+                case "Proposing":
+                    btn.addActionListener(e -> {
+                        JOptionPane.showMessageDialog(parentFrame,
+                            "Kamu mencoba melamar " + npc.getName() + ".",
+                            "Proposing", JOptionPane.INFORMATION_MESSAGE);
+                    });
+                    break;
+
+                case "Marrying":
+                    btn.addActionListener(e -> {
+                        JOptionPane.showMessageDialog(parentFrame,
+                            "Kamu mencoba menikah dengan " + npc.getName() + ".",
+                            "Marrying", JOptionPane.INFORMATION_MESSAGE);
+                    });
+                    break;
             }
         }
 
@@ -112,7 +143,7 @@ public class NPCInteractionPanel extends JPanel {
 
     private void updateNPCInfo(NPC npc) {
         int heartPoints = Math.min(npc.getHeartPoints(), 100);
-        String info = "Heart: " + heartPoints + " / 100    Status: " + npc.getRelationshipStatus();
+        String info = "Heart: " + heartPoints + " / 100    Status: " + npc.getRelationshipsStatus();
         infoLabel.setText(info);
     }
 
@@ -152,7 +183,7 @@ public class NPCInteractionPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // auto-scale background sesuai panel
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
 }
