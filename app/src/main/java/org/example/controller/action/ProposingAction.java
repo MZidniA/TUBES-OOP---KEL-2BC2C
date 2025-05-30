@@ -52,6 +52,6 @@ public class ProposingAction implements Action {
             System.out.println("LAMARAN DITOLAK");
         }
 
-        player.getPlayerStats().addMinutes(TIME_COST);
+        farm.getGameClock().advanceTimeByMinutes(farm, TIME_COST);
     }
 }
