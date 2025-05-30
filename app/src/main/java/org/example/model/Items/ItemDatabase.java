@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.example.model.RecipeDatabase;
+
 public class ItemDatabase {
     private static final Map<String, Items> items = new HashMap<>();
     private static boolean isInitialized = false;
@@ -35,6 +37,19 @@ public class ItemDatabase {
         items.putAll(FurnitureFactory.createFurniture());
         isInitialized = true;
         System.out.println("LOG: ItemDatabase initialized with " + items.size() + " items.");
+
+
+        String anyFishName = RecipeDatabase.ANY_FISH_INGREDIENT_NAME;
+        if (anyFishName != null && !items.containsKey(anyFishName)) {
+            items.put(anyFishName, new Misc(anyFishName, 0, 0)); // Harga jual/beli 0 karena placeholder
+            System.out.println("LOG: Placeholder '" + anyFishName + "' added to ItemDatabase.");
+        } else if (anyFishName == null) {
+            System.err.println("ItemDatabase CRITICAL ERROR: RecipeDatabase.ANY_FISH_INGREDIENT_NAME is null. Cannot create placeholder.");
+        } else if (items.containsKey(anyFishName)) {
+            System.out.println("LOG: Placeholder '" + anyFishName + "' already exists in ItemDatabase (possibly from a factory).");
+        }
+        isInitialized = true;
+        System.out.println("LOG: ItemDatabase initialization complete.");
     }
 
     public static Items getItem(String name) {

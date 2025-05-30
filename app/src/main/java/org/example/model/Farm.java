@@ -151,4 +151,20 @@ public class Farm {
     public void addNPC(NPC npc) {
         npcMap.put(npc.getName(), npc);
     }
+
+    public void updateCookingProgress() {
+        if (activeCookings == null || activeCookings.isEmpty()) return;
+        Player player = getPlayerModel();
+        if (player == null) return;
+
+        LocalTime now = getCurrentTime();
+        for (CookingInProgress cooking : activeCookings) {
+            if (cooking != null && !cooking.isClaimed() && cooking.isCompleted(now)) {
+                // Tambahkan hasil masakan ke inventory pemain
+                player.getInventory().addInventory(cooking.getCookedDish(), cooking.getQuantityProduced());
+                cooking.setClaimed(true);
+                System.out.println("Masakan " + cooking.getCookedDish().getName() + " selesai dimasak dan otomatis masuk ke inventory.");
+            }
+        }
+    }
 }

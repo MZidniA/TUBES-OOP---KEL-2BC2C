@@ -3,6 +3,11 @@ package org.example.view;
 
 import org.example.controller.GameState; 
 import org.example.model.Inventory;
+import org.example.model.Player;
+import org.example.model.Recipe;
+import org.example.model.RecipeDatabase;
+import org.example.model.Items.Fish;
+import org.example.model.Items.Food;
 import org.example.model.Items.Items;
 import org.example.model.enums.Season;
 import java.time.LocalTime;
@@ -15,7 +20,9 @@ import java.awt.Graphics2D;
 import java.awt.BasicStroke;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import org.example.model.Farm;
 
 public class GameStateUI implements TimeObserver { 
     GamePanel gp; 
@@ -33,12 +40,25 @@ public class GameStateUI implements TimeObserver {
 
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
+    // Cooking Menu State
+    private Farm farm;
+    private int selectedRecipeIndex = 0;
+    private int selectedFuelIndex = 0;
+    private int cookingMenuCommandNum = 0; // 0: Cook, 1: Cancel
+    private List<Recipe> availableRecipesForUI; 
+    private List<Items> availableFuelsForUI; 
 
+    // UI Message State
+    private String uiMessage = null;
+    private boolean clearUiMessageNextFrame = false;
 
     Color woodBrown = new Color(139, 69, 19);
     Color lightYellow = new Color(255, 253, 208);
     Color darkTextShadow = new Color(80, 40, 0, 150);
     Color borderColor = new Color(210, 180, 140);
+    Color canCraftColor = new Color(144, 238, 144); // Light green
+    Color cannotCraftColor = new Color(255, 99, 71); // Tomato red
+    Color missingIngredientColor = new Color(255, 99, 71); // Tomato red for missing ingredients
 
     public GameStateUI(GamePanel gp) {
         this.gp = gp;
@@ -66,15 +86,190 @@ public class GameStateUI implements TimeObserver {
     }
 
   
-    public void draw(Graphics2D g2, GameState currentGameState, Inventory playerInventory) {
+    public void draw(Graphics2D g2, GameState currentGameState, Inventory playerInventory) {    
         this.g2 = g2; 
         drawTimeInfo();
+        Player player = (farm != null) ? farm.getPlayerModel() : null;
         if (currentGameState.getGameState() == currentGameState.pause) {
             drawPauseScreen();
         } else if (currentGameState.getGameState() == currentGameState.inventory) {
             drawInventoryScreen(playerInventory); 
+        } else if (currentGameState.getGameState() == currentGameState.cooking_menu) {
+            drawCookingMenuScreen(farm, player, playerInventory);
+        }
+    }
+
+    // --- Metode untuk Menggambar Menu Memasak ---
+    private void drawCookingMenuScreen(Farm farm, Player player, Inventory playerInventory) {
+        if (g2 == null || gp == null) { // Pastikan g2 dan gp tidak null
+            System.err.println("GameStateUI ERROR: Graphics2D (g2) or GamePanel (gp) is null in drawCookingMenuScreen.");
+            return;
+        }
+        if (farm == null || player == null || playerInventory == null) {
+            System.err.println("GameStateUI ERROR: Farm, Player, or Inventory is null in drawCookingMenuScreen.");
+            drawTextWithShadow("Error: Cooking data unavailable.", gp.tileSize, gp.screenHeight / 2, stardewFont_30, Color.RED, darkTextShadow);
+            return;
         }
 
+        // Latar belakang menu
+        g2.setColor(new Color(0, 0, 0, 220)); 
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        // Frame utama window memasak
+        int frameX = gp.tileSize / 2; // Sedikit lebih ke tepi
+        int frameY = gp.tileSize / 2;
+        int frameWidth = gp.screenWidth - gp.tileSize;
+        int frameHeight = gp.screenHeight - gp.tileSize;
+        drawSubWindow(frameX, frameY, frameWidth, frameHeight, woodBrown);
+
+        // Font
+        Font titleFont = stardewFont_40; // Sudah didefinisikan dan di-load
+        Font listFont = stardewFont_30;
+        Font detailHeaderFont = stardewFont_30.deriveFont(Font.BOLD);
+        Font detailFont = stardewFont_20.deriveFont(13f); // Sedikit perbesar detailFont
+        Font commandFont = stardewFont_20.deriveFont(Font.BOLD);
+
+        // Judul Menu
+        String title = "Stove - Let's Cook!";
+        int titleX = getXforCenteredTextInWindow(title, frameX, frameWidth, titleFont);
+        int titleY = frameY + gp.tileSize;
+        drawTextWithShadow(title, titleX, titleY, titleFont);
+
+        // Pembagian Area Layout (disesuaikan agar lebih proporsional)
+        int listAreaX = frameX + gp.tileSize / 2;
+        int listAreaY = titleY + gp.tileSize / 2;
+        int listAreaWidth = (int) (frameWidth * 0.35); // Sedikit lebih kecil untuk daftar resep
+        int listLineHeight = (int)(gp.tileSize * 0.8); // Ketinggian baris disesuaikan dengan font M
+
+        int detailAreaX = listAreaX + listAreaWidth + gp.tileSize / 2;
+        int detailAreaY = listAreaY; // Sejajarkan Y dengan daftar resep
+        int detailAreaContentWidth = frameWidth - (detailAreaX - frameX) - gp.tileSize / 2;
+
+        int bottomAreaY = frameY + frameHeight - gp.tileSize * 3 - 20; 
+
+        // 1. Daftar Resep
+        if (availableRecipesForUI == null) { // Populate jika null (pertama kali dibuka/di-reset)
+             availableRecipesForUI = RecipeDatabase.getCookableRecipes(playerInventory, farm.getPlayerStats());
+             if (availableRecipesForUI == null) availableRecipesForUI = new ArrayList<>();
+        }
+
+        if (availableRecipesForUI.isEmpty()) {
+            String noRecipeText = "No recipes available or unlocked.";
+            int noRecipeTextX = listAreaX + (listAreaWidth - g2.getFontMetrics(listFont).stringWidth(noRecipeText)) / 2;
+            int noRecipeTextY = listAreaY + (bottomAreaY - listAreaY) / 2; // Tengahkan di area list
+            drawTextWithShadow(noRecipeText, noRecipeTextX, noRecipeTextY, listFont);
+        } else {
+            int maxRecipesDisplay = (bottomAreaY - listAreaY - gp.tileSize) / listLineHeight; // Dinamis berdasarkan tinggi area
+            maxRecipesDisplay = Math.max(1, maxRecipesDisplay); // Minimal 1 jika area sangat kecil
+
+            int displayStartIndex = 0;
+            if (selectedRecipeIndex >= (maxRecipesDisplay -1) / 2 ) { // Logika scrolling agar item terpilih di tengah
+                displayStartIndex = selectedRecipeIndex - (maxRecipesDisplay -1 )/2;
+            }
+            displayStartIndex = Math.max(0, displayStartIndex); // Jangan sampai negatif
+            if (displayStartIndex + maxRecipesDisplay > availableRecipesForUI.size()){
+                 displayStartIndex = Math.max(0, availableRecipesForUI.size() - maxRecipesDisplay);
+            }
+
+
+            for (int i = 0; i < maxRecipesDisplay; i++) {
+                int actualIdx = displayStartIndex + i;
+                if (actualIdx >= availableRecipesForUI.size()) break;
+
+                Recipe recipe = availableRecipesForUI.get(actualIdx);
+                if (recipe == null) continue; // Skip jika resep null
+
+                // Gunakan RecipeDatabase.canPlayerCookRecipe untuk status craftable
+                boolean canCraft = RecipeDatabase.canPlayerCookRecipe(playerInventory, recipe); 
+
+                String prefix = (actualIdx == selectedRecipeIndex) ? "> " : "  ";
+                Color textColor = (actualIdx == selectedRecipeIndex) ? Color.YELLOW : (canCraft ? canCraftColor : cannotCraftColor);
+                drawTextWithShadow(prefix + recipe.getDisplayName(), listAreaX, listAreaY + (i * listLineHeight), listFont, textColor, darkTextShadow);
+            }
+        }
+
+        // 2. Detail Resep yang Dipilih
+        if (availableRecipesForUI != null && !availableRecipesForUI.isEmpty() && selectedRecipeIndex >= 0 && selectedRecipeIndex < availableRecipesForUI.size()) {
+            Recipe currentRecipe = availableRecipesForUI.get(selectedRecipeIndex);
+            if (currentRecipe == null) return; // Pengaman jika resep di list null
+            
+            Food resultingDish = currentRecipe.getResultingDish();
+            int currentDetailInternalY = detailAreaY;
+
+            if (resultingDish != null) {
+                if (resultingDish.getImage() != null) {
+                    int dishImageX = detailAreaX + (detailAreaContentWidth - gp.tileSize * 2) / 2; // Tengahkan gambar
+                    g2.drawImage(resultingDish.getImage(), dishImageX, currentDetailInternalY, gp.tileSize * 2, gp.tileSize * 2, null);
+                    currentDetailInternalY += gp.tileSize * 2 + 10; // Spasi setelah gambar
+                }
+                String producesText = "Produces: " + resultingDish.getName();
+                int producesTextX = getXforCenteredTextInWindow(producesText, detailAreaX, detailAreaContentWidth, detailHeaderFont);
+                drawTextWithShadow(producesText, producesTextX, currentDetailInternalY, detailHeaderFont);
+                currentDetailInternalY += listLineHeight;
+            }
+
+            String ingredientsTitle = "Ingredients:";
+            int ingredientsTitleX = getXforCenteredTextInWindow(ingredientsTitle, detailAreaX, detailAreaContentWidth, detailHeaderFont);
+            drawTextWithShadow(ingredientsTitle, ingredientsTitleX, currentDetailInternalY, detailHeaderFont);
+            currentDetailInternalY += listLineHeight;
+
+            Map<Items, Integer> ingredientsMap = currentRecipe.getIngredients();
+            if (ingredientsMap != null) {
+                for (Map.Entry<Items, Integer> entry : ingredientsMap.entrySet()) {
+                    Items requiredItem = entry.getKey();
+                    if (requiredItem == null) continue; // Skip jika bahan null di definisi resep
+
+                    int requiredQuantity = entry.getValue();
+                    int ownedQuantity;
+
+                    if (RecipeDatabase.ANY_FISH_INGREDIENT_NAME.equals(requiredItem.getName())) {
+                        ownedQuantity = (int) playerInventory.getInventory().entrySet().stream()
+                                          .filter(invE -> invE.getKey() instanceof Fish)
+                                          .mapToLong(Map.Entry::getValue).sum();
+                    } else {
+                        ownedQuantity = playerInventory.getItemQuantity(requiredItem.getName()); // Gunakan nama item (String)
+                    }
+                    boolean hasEnough = ownedQuantity >= requiredQuantity;
+                    
+                    int ingredientRowX = detailAreaX + gp.tileSize / 4; // Sedikit indent
+                    int textXOffset = 0;
+                    if (requiredItem.getImage() != null) {
+                         g2.drawImage(requiredItem.getImage(), ingredientRowX, currentDetailInternalY - (int)(gp.tileSize*0.6), (int)(gp.tileSize*0.7), (int)(gp.tileSize*0.7), null);
+                         textXOffset = (int)(gp.tileSize*0.8);
+                    }
+                    String ingredientText = requiredItem.getName() + ": " + ownedQuantity + "/" + requiredQuantity;
+                    drawTextWithShadow(ingredientText, ingredientRowX + textXOffset, currentDetailInternalY, detailFont, 
+                                       (hasEnough ? canCraftColor : missingIngredientColor), darkTextShadow);
+                    currentDetailInternalY += listLineHeight - 8; // Perkecil spasi antar bahan
+                }
+            }
+        } else if (availableRecipesForUI != null && !availableRecipesForUI.isEmpty()){
+             String selectRecipeText = "Select a recipe to see details.";
+             int selectX = getXforCenteredTextInWindow(selectRecipeText, detailAreaX, detailAreaContentWidth, listFont);
+                 drawTextWithShadow(selectRecipeText, selectX, detailAreaY + gp.tileSize * 2, listFont);
+            }
+        }
+
+
+    // Overload untuk warna default
+    private void drawTextWithShadow(String text, int x, int y, Font font) {
+        drawTextWithShadow(text, x, y, font, lightYellow, darkTextShadow);
+    }
+    private void drawTextWithShadow(String text, int x, int y) {
+        drawTextWithShadow(text, x, y, g2.getFont(), lightYellow, darkTextShadow); // Gunakan font g2 saat ini
+    }
+
+    private void drawTextWithShadow(String text, int x, int y, Font font, Color textColor, Color shadowColor) {
+        if (g2 == null || text == null) return;
+        Font originalFont = g2.getFont();
+        if (font != null) g2.setFont(font);
+        else g2.setFont(defaultFont);
+
+        g2.setColor(shadowColor);
+        g2.drawString(text, x + 1, y + 1); // Offset bayangan kecil
+        g2.setColor(textColor);
+        g2.drawString(text, x, y);
+        g2.setFont(originalFont); // Kembalikan font asli
     }
 
     @Override
@@ -301,21 +496,23 @@ public class GameStateUI implements TimeObserver {
         return windowX + (windowWidth - length) / 2;
     }
 
-    private void drawTextWithShadow(String text, int x, int y, Font font) {
-        Font originalFont = g2.getFont();
-        if (font != null) g2.setFont(font);
-        g2.setColor(darkTextShadow);
-        g2.drawString(text, x + 2, y + 2);
-        g2.setColor(lightYellow);
-        g2.drawString(text, x, y);
-        if (font != null) g2.setFont(originalFont);
+    // Removed duplicate drawTextWithShadow(String, int, int, Font) method to fix compilation error.
+
+
+    public void setDialogue(String message) {
+        this.uiMessage = message;
+        this.clearUiMessageNextFrame = false; 
+        System.out.println("GameStateUI: Dialogue set to - \"" + message + "\"");
     }
 
 
-    private void drawTextWithShadow(String text, int x, int y) {
-        g2.setColor(darkTextShadow);
-        g2.drawString(text, x + 2, y + 2);
-        g2.setColor(lightYellow);
-        g2.drawString(text, x, y);
+    public void resetCookingMenuState() {
+        this.selectedRecipeIndex = 0;
+        this.selectedFuelIndex = 0;
+        this.cookingMenuCommandNum = 0; // Default ke "COOK"
+        this.availableRecipesForUI = null; // Akan di-refresh saat menu digambar
+        this.uiMessage = null;
+        this.clearUiMessageNextFrame = false;
+        System.out.println("GameStateUI: Cooking menu state has been reset.");
     }
 }

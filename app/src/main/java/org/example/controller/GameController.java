@@ -167,22 +167,43 @@ public class GameController implements Runnable {
     }
 
     private void update() {
-        if (playerViewInstance == null || cChecker == null || gameState == null) return;
+        // Pengecekan null untuk komponen krusial di awal
+        if (playerViewInstance == null || cChecker == null || gameState == null || farm == null) {
+            // System.err.println("GameController.update() aborted: Critical component is null."); // Opsional: untuk debugging
+            return;
+        }
+        
         Player playerModel = farm.getPlayerModel();
+        if (playerModel == null) { // Pastikan playerModel juga tidak null
+            // System.err.println("GameController.update() aborted: PlayerModel is null."); // Opsional: untuk debugging
+            return;
+        }
+
+        // --- Update Progres Memasak ---
+        // Ini akan memeriksa apakah ada masakan yang selesai dan otomatis menambahkannya ke inventory.
+        // Dipanggil di setiap update loop agar proses memasak berjalan secara pasif.
+        farm.updateCookingProgress(); // <-- PEMANGGILAN updateCookingProgress() DITAMBAHKAN DI SINI
+
+        // Cek kondisi pingsan
         if (playerModel.isPassedOut()) {
             passedOutSleep();
-            System.out.println("Kamu pingsan dan seseorang membawamu pulang...");
+            System.out.println("Kamu pingsan dan seseorang membawamu pulang..."); // Pesan ini bisa juga dihandle oleh UI
         } 
-        if (playerModel.isForceSleepByTime()) {
+        // Cek kondisi tidur paksa karena waktu
+        // Tambahkan 'else if' agar tidak terjadi dua kali passedOutSleep jika keduanya true di frame yang sama
+        else if (playerModel.isForceSleepByTime()) { 
             passedOutSleep();
-            System.out.println("Sudah jam 02:00, kamu kelelahan dan pingsan");
+            System.out.println("Sudah jam 02:00, kamu kelelahan dan pingsan"); // Pesan ini bisa juga dihandle oleh UI
         }
+
+        // Logika update spesifik untuk state PLAY
         if (gameState.getGameState() == gameState.play) {
-             playerViewInstance.update(movementState, cChecker);
-             if (playerModel != null && playerViewInstance != null) {
-                playerModel.setTilePosition(playerViewInstance.worldX / getTileSize(), playerViewInstance.worldY / getTileSize());
-            }
+            playerViewInstance.update(movementState, cChecker);
+            // playerModel sudah dicek tidak null di atas
+            // playerViewInstance juga sudah dicek tidak null di awal metode
+            playerModel.setTilePosition(playerViewInstance.worldX / getTileSize(), playerViewInstance.worldY / getTileSize());
         }
+        // Anda bisa menambahkan logika update untuk state lain jika diperlukan (misalnya, animasi UI di state PAUSE)
     }
 
     public void handlePlayerMove(String direction, boolean isMoving) {

@@ -24,6 +24,9 @@ public class Player {
     private int tileX = 0;
     private int tileY = 0;
 
+    // Tambahkan field di class Player
+    private PlayerStats playerStats;
+
     public Player(String name, String gender, String farmname) {
         this.name = name;
         this.gender = gender;
@@ -33,6 +36,7 @@ public class Player {
         this.inventory = new Inventory(); 
         this.currentLocationType = LocationType.FARM; 
         this.currentHeldItem = null;
+        this.playerStats = new PlayerStats(); // atau sesuai kebutuhan konstruktor PlayerStats
     }
 
     public String getName() {
@@ -157,5 +161,15 @@ public class Player {
         } else {
             System.out.println("Hands are empty.");
         }
+    }
+
+    // Getter untuk playerStats
+    public PlayerStats getPlayerStats() {
+        return playerStats;
+    }
+
+    // Setter jika ingin mengubah stats dari luar
+    public void setPlayerStats(PlayerStats playerStats) {
+        this.playerStats = playerStats;
     }
 }
