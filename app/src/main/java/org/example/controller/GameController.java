@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
+import org.example.controller.action.PlantingAction;
 import org.example.controller.action.RecoverLandAction;
 import org.example.controller.action.TillingAction;
 import org.example.model.Farm;
@@ -14,9 +14,21 @@ import org.example.model.GameClock;
 import org.example.model.Inventory;
 import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
+import org.example.model.Items.Seeds;
+import org.example.model.Map.FarmMap;
+import org.example.model.Map.Plantedland;
+import org.example.model.Map.Tile;
+import org.example.model.NPC.AbigailNPC;
+import org.example.model.NPC.CarolineNPC;
+import org.example.model.NPC.DascoNPC;
+import org.example.model.NPC.EmilyNPC;
+import org.example.model.NPC.MayorTadiNPC;
+import org.example.model.NPC.PerryNPC;
 import org.example.model.Player;
 import org.example.model.Sound;
 import org.example.model.enums.LocationType;
+import org.example.model.enums.Season;
+import org.example.model.enums.Weather;
 import org.example.view.FishingPanel;
 import org.example.view.GamePanel;
 import org.example.view.GameStateUI;
@@ -25,6 +37,7 @@ import org.example.view.InteractableObject.MountainLakeObject;
 import org.example.view.InteractableObject.OceanObject;
 import org.example.view.InteractableObject.PondObject;
 import org.example.view.InteractableObject.RiverObject;
+import org.example.view.InteractableObject.UnplantedTileObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
 
@@ -35,6 +48,7 @@ public class GameController implements Runnable {
     private final PlayerView playerViewInstance;
     private final TileManager tileManager; 
     private final GameStateUI gameStateUI; 
+    private final JFrame mainFrame; 
 
     private final KeyHandler keyHandler;
     private final CollisionChecker cChecker;
@@ -50,9 +64,10 @@ public class GameController implements Runnable {
     private final int TILLABLE_AREA_MAP0_MIN_ROW = 19;
     private final int TILLABLE_AREA_MAP0_MAX_ROW = 28;
 
-    public GameController(GamePanel gamePanel, Farm farm) {
+    public GameController(JFrame frame,GamePanel gamePanel, Farm farm) {
         this.gamePanel = gamePanel;
         this.farm = farm;
+        this.mainFrame = frame; 
 
         this.gameState = new GameState();
         
@@ -84,6 +99,12 @@ public class GameController implements Runnable {
         movementState.put("left", false);
         movementState.put("right", false);
         setupGame();
+        farm.addNPC(new AbigailNPC());
+        farm.addNPC(new CarolineNPC());
+        farm.addNPC(new PerryNPC());
+        farm.addNPC(new EmilyNPC());
+        farm.addNPC(new DascoNPC());
+        farm.addNPC(new MayorTadiNPC());
     }
     
     public GamePanel getGamePanel() { 
@@ -184,10 +205,6 @@ public class GameController implements Runnable {
             InteractableObject[] currentObjects = farm.getObjectsForCurrentMap();
             if (currentObjects != null && objIndex < currentObjects.length && currentObjects[objIndex] != null) {
                 InteractableObject targetObject = currentObjects[objIndex];
-                // if (heldItem != null && heldItem.getName().equalsIgnoreCase("Fishing Rod") && targetObject.name.equalsIgnoreCase("Pond")) {
-                //     System.out.println(playerModel.getName() + " is fishing at the " + targetObject.name + "!");
-                //     return;
-                // }
                 targetObject.interact(this);
                 return;
             }
@@ -227,12 +244,24 @@ public class GameController implements Runnable {
                 } else {
                     System.out.println("Tidak bisa mencangkul di sini");
                 }
-            } else if (heldItem != null && heldItem.getName().equalsIgnoreCase("Pickaxe")) {
+            } else if (heldItem.getName().equalsIgnoreCase("Pickaxe")) {
                 RecoverLandAction recoverAction = new RecoverLandAction(this, targetCol, targetRow);
                 if (recoverAction.canExecute(farm)) {
                     recoverAction.execute(farm);
                 } else {
                     System.out.println("Tidak bisa mengembalikan tanah ini lagi");
+                }
+            } else if (heldItem instanceof Seeds) { 
+                Seeds seedBeingHeld = (Seeds) heldItem;
+                InteractableObject objectAtTargetTile = farm.getObjectAtTile(currentMap, targetCol, targetRow, tileSize);
+                if (objectAtTargetTile instanceof UnplantedTileObject) { 
+                    PlantingAction plantingAction = new PlantingAction(this, seedBeingHeld, targetCol, targetRow);
+                    if (plantingAction.canExecute(farm)) {
+                        plantingAction.execute(farm);
+                
+                    } else {
+                        System.out.println("PlantingAction tidak bisa dieksekusi.");
+                    }
                 }
             }
         } else {
@@ -321,7 +350,7 @@ public class GameController implements Runnable {
         movementState.put("left", false); movementState.put("right", false);
     }
     public void teleportPlayer(int mapIndex, int worldX, int worldY) {
-        int musicIdx = 0; // Default music
+        int musicIdx = 0; 
         teleportPlayer(mapIndex, worldX, worldY, musicIdx);
     }
     public void teleportPlayer(int mapIndex, int worldX, int worldY, int musicIndex) {
@@ -355,7 +384,9 @@ public class GameController implements Runnable {
         GameClock gameClock = farm.getGameClock();
         int tileSize = getTileSize();
         
+
         gameClock.nextDay(farm.getPlayerStats());
+        processEndOfDayEvents();
         playerModel.setEnergy(10); 
         playerModel.setCurrentHeldItem(null);
         if (farm.getCurrentMap() != 4) {
@@ -415,7 +446,7 @@ public class GameController implements Runnable {
     }
 
     public JFrame getMainFrame() {
-        return (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
+        return this.mainFrame;
     }
 
     public void openFishingPanel() {
@@ -427,11 +458,24 @@ public class GameController implements Runnable {
     }
 
     public void returnToGamePanel() {
-        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
-        frame.setContentPane(gamePanel);
-        frame.revalidate();
-        frame.repaint();
-        gamePanel.requestFocusInWindow();
+        if (this.mainFrame != null && this.gamePanel != null) {
+            System.out.println("GameController: Kembali ke GamePanel menggunakan referensi mainFrame.");
+            this.mainFrame.setContentPane(this.gamePanel);
+            this.mainFrame.revalidate();
+            this.mainFrame.repaint();
+            this.gamePanel.requestFocusInWindow(); 
+
+            if (gameState.getGameState() != gameState.play) {
+                gameState.setGameState(gameState.play);
+            }
+        } else {
+            if (this.mainFrame == null) {
+                System.err.println("Error in returnToGamePanel: mainFrame adalah null di GameController.");
+            }
+            if (this.gamePanel == null) {
+                System.err.println("Error in returnToGamePanel: gamePanel adalah null di GameController.");
+            }
+        }
     }
 
     public InteractableObject getNearestInteractableTile(Player player) {
@@ -469,6 +513,31 @@ public class GameController implements Runnable {
             return true;
         }
         return false;
+    }
+    public void processEndOfDayEvents() {
+        FarmMap farmMap = farm.getFarmMap();
+        if (farmMap == null || farm.getGameClock() == null) {
+            System.err.println("GameController: FarmMap atau GameClock null, tidak bisa proses pertumbuhan tanaman.");
+            return;
+        }
+
+        Season newDaySeason = farm.getGameClock().getCurrentSeason();
+        Weather newDayWeather = farm.getGameClock().getTodayWeather();
+
+        for (int y = 0; y < farmMap.getSize(); y++) { 
+            for (int x = 0; x < farmMap.getSize(); x++) {
+                Tile currentTile = farmMap.getTile(x, y);
+                if (currentTile instanceof Plantedland) {
+                    Plantedland plant = (Plantedland) currentTile;
+                    
+
+                    plant.dailyGrow(newDaySeason, newDayWeather);
+
+                   
+                }
+            }
+        }
+        System.out.println("===== END OF PLANT GROWTH PROCESSING =====\n");
     }
 
     

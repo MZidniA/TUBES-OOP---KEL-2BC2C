@@ -12,16 +12,6 @@ import org.example.controller.UtilityTool;
 import org.example.view.GamePanel;
 import org.example.view.entitas.PlayerView;
 
-
-
-// Asumsi ada file Tile.java di package yang sama atau di-import
-// package org.example.controller;
-// import java.awt.image.BufferedImage;
-// public class Tile {
-//     public BufferedImage image;
-//     public boolean collision = false;
-// }
-
 public class TileManager {
     GamePanel gp;
     public Tile[] tile;
@@ -31,15 +21,14 @@ public class TileManager {
     public TileManager(org.example.view.GamePanel gp) {
         this.gp = gp;
         tile = new Tile[850];
-        // Inisialisasi mapTileNum berdasarkan dimensi dari GamePanel
         mapTileNum = new int[6][gp.maxWorldCol][gp.maxWorldRow];
-// Nilai maxMap diambil dari gp
+
         getTileImage();
-        // Memuat semua peta saat inisialisasi
+
         loadMap("/maps/map.txt", 0);
         loadMap("/maps/beachmap.txt", 1);
-        loadMap("/maps/rivermap.txt", 2); // Mengganti rivermap dengan forest.txt sesuai GamePanel
-        loadMap("/maps/townmap.txt", 3);   // Mengganti townmap dengan lake.txt
+        loadMap("/maps/rivermap.txt", 2); 
+        loadMap("/maps/townmap.txt", 3);  
         loadMap("/maps/housemap.txt", 4);
     }
 
@@ -683,16 +672,12 @@ public class TileManager {
         int worldWidth = gp.maxWorldCol * gp.tileSize;
         int worldHeight = gp.maxWorldRow * gp.tileSize;
     
-        // 1. Hitung posisi kamera yang berpusat pada pemain
         double cameraX = playerView.worldX - (gp.screenWidth / 2.0);
         double cameraY = playerView.worldY - (gp.screenHeight / 2.0);
     
-        // 2. Clamp (jepit) kamera agar tidak menampilkan area di luar peta
         cameraX = Math.max(0, Math.min(cameraX, worldWidth - gp.screenWidth));
         cameraY = Math.max(0, Math.min(cameraY, worldHeight - gp.screenHeight));
         
-        // 3. Gunakan NESTED FOR LOOP untuk menggambar semua tile
-        // Ini adalah cara yang lebih aman dan mudah dibaca daripada while loop tunggal.
         for (int worldRow = 0; worldRow < gp.maxWorldRow; worldRow++) {
             for (int worldCol = 0; worldCol < gp.maxWorldCol; worldCol++) {
                 
@@ -706,11 +691,9 @@ public class TileManager {
                 int worldX = worldCol * gp.tileSize;
                 int worldY = worldRow * gp.tileSize;
                 
-                // Hitung posisi tile di layar relatif terhadap kamera
                 int screenX = (int) (worldX - cameraX);
                 int screenY = (int) (worldY - cameraY);
     
-                // Culling: Hanya gambar tile yang terlihat di layar untuk efisiensi
                 if (screenX > -gp.tileSize && screenX < gp.screenWidth && 
                     screenY > -gp.tileSize && screenY < gp.screenHeight) {
                     

@@ -25,7 +25,6 @@ public class AssetSetter {
         this.controller = controller;
     }
 
-   
     public void setInteractableObject() {
         Farm farmModel = controller.getFarmModel();
         if (farmModel == null) {
@@ -43,7 +42,6 @@ public class AssetSetter {
         int currentMapIndex = farmModel.getCurrentMap(); 
 
         System.out.println("AssetSetter: Setting objects for map index " + currentMapIndex);
-
 
         if (currentMapIndex == 0) { 
             InteractableObject[] farmObjects = {
@@ -113,7 +111,6 @@ public class AssetSetter {
                 System.err.println("AssetSetter Error: No available slot for OceanObject in mapIndex " + currentMapIndex);
             }
         } else if (currentMapIndex == 4) { 
-            // Definisikan semua objek untuk rumah
             InteractableObject[] houseObjects = {
                 new StoveObject(),
                 new BedObject()
@@ -127,9 +124,6 @@ public class AssetSetter {
             for (int i = 0; i < houseObjects.length; i++) {
                 if (houseObjects[i] == null) continue; 
             
-    
-        
-
                 if (houseObjects[i].image != null) {
                     houseObjects[i].image = uTool.scaleImage(houseObjects[i].image, tileSize, tileSize);
                 }

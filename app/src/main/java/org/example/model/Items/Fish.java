@@ -14,7 +14,7 @@ public class Fish extends Items implements EdibleItem {
     private EnumSet<FishType> fishType;
     private EnumSet<Weather> weather;
     private EnumSet<LocationType> locationType;
-    private List<GameTime> timeRanges; // GANTI: dari GameTime jadi List<GameTime>
+    private List<GameTime> timeRanges; 
     private int energyRestored;
 
     public Fish(String name, int sellprice, int buyprice,
@@ -30,7 +30,6 @@ public class Fish extends Items implements EdibleItem {
         this.energyRestored = energyRestored;
     }
 
-    // Untuk kompatibilitas lama (jika masih ada)
     public Fish(String name, int sellprice, int buyprice,
                 EnumSet<Season> season, EnumSet<FishType> fishType,
                 EnumSet<Weather> weather, EnumSet<LocationType> locationType,

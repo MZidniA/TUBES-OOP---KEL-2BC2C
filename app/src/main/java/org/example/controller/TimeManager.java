@@ -20,7 +20,7 @@ public class TimeManager {
 
     private List<TimeObserver> observers;
 
-    public TimeManager(Farm farm, GameClock gameClockModel) { // Terima Farm dan GameClock
+    public TimeManager(Farm farm, GameClock gameClockModel) { 
         this.farmModel = farm;
         this.gameClockModel = gameClockModel;
         this.observers = new ArrayList<>();

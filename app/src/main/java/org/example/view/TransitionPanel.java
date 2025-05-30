@@ -59,7 +59,7 @@ public class TransitionPanel extends JPanel {
         startButton.setFont(pixelFont.deriveFont(10f));
         startButton.setBounds(250, 380, 180, 40);
         startButton.setFocusPainted(false);
-        startButton.setBackground(new Color(139, 69, 19)); // coklat
+        startButton.setBackground(new Color(139, 69, 19)); 
         startButton.setForeground(Color.WHITE);
         startButton.setOpaque(true);
         startButton.setBorderPainted(false);
@@ -145,7 +145,7 @@ public class TransitionPanel extends JPanel {
         Player playerModel = new Player(playerName, playerGender, farmNameInput);
         Farm farmModel = new Farm(farmNameInput, playerModel);
         GamePanel newGamePanel = new GamePanel();
-        GameController gameController = new GameController(newGamePanel, farmModel);
+        GameController gameController = new GameController(frame, newGamePanel, farmModel);
         newGamePanel.setController(gameController);
 
         frame.getContentPane().removeAll();

@@ -89,7 +89,7 @@ public class FishingAction implements Action {
             .filter(f -> f.getSeason().contains(season))
             .filter(f -> f.getWeather().contains(weather))
             .filter(f -> f.getLocationType().contains(location))
-            .filter(f -> f.getTime().isWithin(now))
+            .filter(f -> f.getTimeRanges().stream().anyMatch(timeRange -> timeRange.isWithin(now)))
             .collect(Collectors.toList());
         
         if (validFish.isEmpty()) {

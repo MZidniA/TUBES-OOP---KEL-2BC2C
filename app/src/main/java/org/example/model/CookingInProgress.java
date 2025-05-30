@@ -1,13 +1,14 @@
-package org.example.model; // Atau package yang sesuai
+package org.example.model;
+
+import java.time.LocalTime;
 
 import org.example.model.Items.Food;
-import java.time.LocalTime;
 
 public class CookingInProgress {
     private Food resultingDish;
     private int quantity;
-    private LocalTime completionGameTime; // Waktu game saat masakan selesai
-    private boolean isClaimed; // Untuk menandai apakah sudah diambil pemain
+    private LocalTime completionGameTime;
+    private boolean isClaimed; 
 
     public CookingInProgress(Food resultingDish, int quantity, LocalTime startGameTime, int cookingDurationHours) {
         this.resultingDish = resultingDish;
@@ -29,10 +30,6 @@ public class CookingInProgress {
     }
 
     public boolean isCompleted(LocalTime currentGameTime) {
-        // Selesai jika waktu saat ini sama atau setelah waktu penyelesaian
-        // Perlu penanganan jika melewati tengah malam dan completionGameTime ada di hari berikutnya
-        // Untuk kesederhanaan awal, kita asumsikan durasi tidak melewati tengah malam,
-        // atau GameClock/Farm menangani progresi hari dengan benar.
         return !currentGameTime.isBefore(completionGameTime);
     }
     

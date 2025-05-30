@@ -1,48 +1,42 @@
 package org.example.model;
 
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.example.model.Map.FarmMap;
+import org.example.model.NPC.NPC;
 import org.example.model.enums.Season;
 import org.example.model.enums.Weather;
 import org.example.view.InteractableObject.InteractableObject;
-// Tidak perlu import PlayerView lagi di sini
 
 public class Farm {
     private final Player playerModel;
     private int currentDay;
-    // private final PlayerView playerView; // DIHAPUS: Farm tidak boleh tahu tentang PlayerView
-    private final InteractableObject[][] objects = new InteractableObject[6][100]; // maxMap, maxObjects
+    private final InteractableObject[][] objects = new InteractableObject[6][300]; 
     private int currentMap = 0;
-    // Tambahkan list untuk menyimpan CookingInProgress jika belum ada
     private List<CookingInProgress> activeCookings = new java.util.ArrayList<>();
     private final PlayerStats playerStats;
     private final GameClock gameClock;
-    private final FarmMap farmMap = new FarmMap(); // Tambahkan deklarasi dan inisialisasi FarmMap
-    private Weather currentWeather; // Tambahkan untuk menyimpan cuaca saat ini
-    private Season currentSeason; // Tambahkan untuk menyimpan musim saat ini   
+    private final FarmMap farmMap = new FarmMap(); 
+    private Weather currentWeather; 
+    private Season currentSeason;   
+    private Map<String, NPC> npcMap = new HashMap<>();
 
-    public Farm(String farmName, Player playerModel) { // Parameter hanya Player model
+    public Farm(String farmName, Player playerModel) { 
         this.playerModel = playerModel;
         this.playerModel.setFarmname(farmName);
-        this.playerStats = new PlayerStats(); // Atau sesuai konstruktor PlayerStats yang tersedia
-        this.gameClock = new GameClock(); // Atau sesuai konstruktor GameClock
-        // Inisialisasi PlayerView TIDAK LAGI dilakukan di sini
-        // this.playerView = new PlayerView(playerModel, ???); // DIHAPUS
-        this.currentDay = 1; // Inisialisasi hari pertama
-        this.currentWeather = Weather.SUNNY; // Inisialisasi cuaca awal
+        this.playerStats = new PlayerStats(); 
+        this.gameClock = new GameClock(); 
+        this.currentDay = 1; 
+        this.currentWeather = Weather.SUNNY; 
     }
     
-    // Getters
     public Player getPlayerModel() { return playerModel; }
-    // public PlayerView getPlayerView() { return playerView; } // DIHAPUS
-
     public int getCurrentMap() { return currentMap; }
     public InteractableObject[][] getAllObjects() { return objects; }
     public InteractableObject[] getObjectsForCurrentMap() { return objects[currentMap]; }
-
-    // Setters
     public void setCurrentMap(int map) { this.currentMap = map; }
 
     public String getMapPathFor(int mapIndex) {
@@ -50,10 +44,9 @@ public class Farm {
             case 0 -> "/maps/map.txt";
             case 1 -> "/maps/beachmap.txt";
             case 2 -> "/maps/rivermap.txt";
-            case 3 -> "/maps/townmap.txt";   // Disesuaikan dengan pemanggilan loadMap di TileManager
+            case 3 -> "/maps/townmap.txt";   
             case 4 -> "/maps/housemap.txt";
-            // ... dst, pastikan semua peta terdaftar di sini jika digunakan
-            default -> "/maps/map.txt"; // Default jika mapIndex tidak valid
+            default -> "/maps/map.txt"; 
         };
     }
     
@@ -73,19 +66,16 @@ public class Farm {
         return gameClock;
     }
 
-        // Method untuk menambahkan CookingInProgress ke list
     public void addActiveCooking(CookingInProgress cookingTask) {
         if (cookingTask != null) {
             activeCookings.add(cookingTask);
         }
     }
 
-        // (Pastikan ada getter jika dibutuhkan di tempat lain)
     public List<CookingInProgress> getActiveCookings() {
         return activeCookings;
     }
 
-    // Add this method to provide access to the FarmMap
     public FarmMap getFarmMap() {
         return this.farmMap;
     }
@@ -152,6 +142,13 @@ public class Farm {
             }
         }
         return false;
+    }   
+
+    public NPC getNPCByName(String name) {
+        return npcMap.get(name);
     }
-    
+
+    public void addNPC(NPC npc) {
+        npcMap.put(npc.getName(), npc);
+    }
 }

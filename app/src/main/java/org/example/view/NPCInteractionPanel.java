@@ -1,24 +1,35 @@
 package org.example.view;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GraphicsEnvironment;
-import java.awt.Image;
+import java.awt.*;
 import java.io.InputStream;
-
+import java.util.Arrays;
+import java.util.List;
+import javax.imageio.ImageIO;
 import javax.swing.*;
+
+import org.example.controller.GameController;
+import org.example.controller.action.ChattingAction;
+import org.example.model.Farm;
+import org.example.model.NPC.*;
 
 public class NPCInteractionPanel extends JPanel {
     private Image backgroundImage;
     private Font pixelFont;
     private JFrame parentFrame;
+    private GameController controller;
+    private Farm farm;
+    private String playerName;
 
-    public NPCInteractionPanel(JFrame parentFrame, String npcName) {
+    private JLabel infoLabel; // 👉 digabung jadi satu label
+
+    public NPCInteractionPanel(JFrame parentFrame, GameController controller, Farm farm, String npcName, String playerName) {
         this.parentFrame = parentFrame;
+        this.controller = controller;
+        this.farm = farm;
+        this.playerName = playerName;
+
         setLayout(null);
-        setPreferredSize(new Dimension(300, 250));
+        setPreferredSize(new Dimension(300, 320));
         setOpaque(false);
 
         loadFont();
@@ -26,99 +37,121 @@ public class NPCInteractionPanel extends JPanel {
 
         int buttonWidth = 140;
         int buttonHeight = 30;
-        int startY = 20;
+        int startY = 40;
         int gap = 10;
 
+        NPC npc = controller.getFarm().getNPCByName(npcName);
+
+        // Tombol aksi
         String[] actions = {"Chatting", "Gifting", "Proposing", "Marrying"};
         for (int i = 0; i < actions.length; i++) {
             String actionName = actions[i];
             JButton btn = createPixelButton(actionName);
             btn.setBounds(80, startY + i * (buttonHeight + gap), buttonWidth, buttonHeight);
+            add(btn);
 
-            btn.addActionListener(e -> {
-                JOptionPane.showMessageDialog(parentFrame,
+            if (actionName.equals("Chatting")) {
+                btn.addActionListener(e -> {
+                    List<String> dialogLines = Arrays.asList(
+                        "Hai, senang bertemu denganmu!",
+                        "Aku sedang bersantai hari ini.",
+                        "Cuaca sangat bagus, ya?",
+                        "Sampai jumpa lagi!"
+                    );
+
+                    ChattingAction action = new ChattingAction(npc, npc.getLocation());
+                    if (!action.canExecute(farm)) {
+                        EnergyWarningDialog warning = new EnergyWarningDialog(parentFrame);
+                        warning.setVisible(true);
+                        return;
+                    }
+
+                    ChattingDialogPanel dialogPanel = new ChattingDialogPanel(parentFrame, dialogLines, npcName, playerName, action, farm);
+
+                    JDialog dialog = new JDialog(parentFrame, "Chatting with " + npcName, true);
+                    dialog.setUndecorated(true);
+                    dialog.setContentPane(dialogPanel);
+                    dialog.pack();
+                    dialog.setLocationRelativeTo(parentFrame);
+                    dialog.setVisible(true);
+
+                    updateNPCInfo(npc); // realtime update
+                });
+            } else {
+                btn.addActionListener(e -> {
+                    JOptionPane.showMessageDialog(parentFrame,
                         "Kamu memilih aksi: " + actionName,
                         "Interaksi dengan " + npcName,
                         JOptionPane.INFORMATION_MESSAGE);
-            });
-
-            add(btn);
+                });
+            }
         }
 
-        // Tambah tombol Back di paling bawah
-        JButton backButton = new JButton("Back");
-        backButton.setFont(pixelFont);
+        // Tombol BACK
+        JButton backButton = new JButton("BACK");
+        backButton.setFont(pixelFont.deriveFont(10f));
         backButton.setForeground(Color.WHITE);
+        backButton.setBackground(new Color(76, 38, 38));
+        backButton.setBorder(BorderFactory.createLineBorder(new Color(60, 30, 30), 2));
         backButton.setFocusPainted(false);
-        backButton.setBackground(new Color(153, 102, 102)); // warna normal
         backButton.setOpaque(true);
-        backButton.setBorder(BorderFactory.createLineBorder(new Color(90, 60, 60), 2));
-
-        // Hover effect
-        backButton.getModel().addChangeListener(e -> {
-            if (backButton.getModel().isRollover()) {
-                backButton.setBackground(new Color(119, 68, 68)); // warna hover
-            } else {
-                backButton.setBackground(new Color(153, 102, 102)); // warna default
-            }
-        });
-
-        int backButtonWidth = 100;
-        int backButtonHeight = 25;
-        int totalHeight = startY + actions.length * (buttonHeight + gap) + 10;
-        backButton.setBounds((300 - backButtonWidth) / 2, totalHeight, backButtonWidth, backButtonHeight);
-
-        backButton.addActionListener(e -> {
-            SwingUtilities.getWindowAncestor(this).dispose();
-        });
+        int backY = startY + actions.length * (buttonHeight + gap) + 10;
+        backButton.setBounds(90, backY, buttonWidth - 20, buttonHeight - 10);
+        backButton.addActionListener(e -> SwingUtilities.getWindowAncestor(this).dispose());
         add(backButton);
+
+        // 🆕 Label info digabung jadi satu
+        infoLabel = new JLabel();
+        infoLabel.setFont(pixelFont.deriveFont(9f));
+        infoLabel.setForeground(Color.WHITE);
+        infoLabel.setBounds(40, backY + 50, 300, 15); // bawah BACK
+        add(infoLabel);
+
+        updateNPCInfo(npc);
+    }
+
+    private void updateNPCInfo(NPC npc) {
+        String info = "Heart: " + npc.getHeartPoints() + "    Status: " + npc.getRelationshipStatus();
+        infoLabel.setText(info);
     }
 
     private void loadFont() {
         try {
             InputStream is = getClass().getResourceAsStream("/font/PressStart2P.ttf");
-            pixelFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(10f);
-            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
+            Font baseFont = Font.createFont(Font.TRUETYPE_FONT, is);
+            pixelFont = baseFont.deriveFont(Font.PLAIN, 16f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(baseFont);
         } catch (Exception e) {
-            pixelFont = new Font("Arial", Font.PLAIN, 10);
+            e.printStackTrace();
+            pixelFont = new Font("Arial", Font.PLAIN, 16);
         }
     }
 
     private void loadBackground() {
         try {
-            backgroundImage = new ImageIcon(getClass().getResource("/box/box.png")).getImage();
+            backgroundImage = ImageIO.read(getClass().getResourceAsStream("/box/box.png"));
         } catch (Exception e) {
-            System.err.println("Gagal load box.png");
+            e.printStackTrace();
         }
     }
 
     private JButton createPixelButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(pixelFont);
-        button.setForeground(Color.BLACK);
+        button.setFont(pixelFont.deriveFont(12f));
+        button.setForeground(Color.WHITE);
+        button.setBackground(new Color(102, 51, 51));
+        button.setBorder(BorderFactory.createLineBorder(new Color(80, 40, 40), 2));
         button.setFocusPainted(false);
-        button.setBackground(new Color(204, 153, 102));
         button.setOpaque(true);
-        button.setBorder(BorderFactory.createLineBorder(new Color(120, 90, 60), 2));
-
-        button.getModel().addChangeListener(e -> {
-            if (button.getModel().isRollover()) {
-                button.setBackground(new Color(190, 130, 90));
-            } else {
-                button.setBackground(new Color(204, 153, 102));
-            }
-        });
-
         return button;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         if (backgroundImage != null) {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-        } else {
-            g.setColor(new Color(240, 240, 240));
-            g.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 }

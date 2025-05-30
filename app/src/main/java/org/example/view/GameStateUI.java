@@ -1,8 +1,7 @@
 package org.example.view;
 
-import org.example.view.GamePanel; // Tetap dibutuhkan untuk konstanta layout
-import org.example.controller.GameState; // Import GameState dari controller
-import org.example.controller.action.UpdateAndShowLocationAction;
+
+import org.example.controller.GameState; 
 import org.example.model.Inventory;
 import org.example.model.Items.Items;
 import org.example.model.enums.Season;
@@ -35,7 +34,7 @@ public class GameStateUI implements TimeObserver {
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
 
-    // Warna tema
+
     Color woodBrown = new Color(139, 69, 19);
     Color lightYellow = new Color(255, 253, 208);
     Color darkTextShadow = new Color(80, 40, 0, 150);

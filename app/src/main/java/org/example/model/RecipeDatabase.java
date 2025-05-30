@@ -187,12 +187,6 @@ public class RecipeDatabase {
         return new ArrayList<>(recipes.values());
     }
 
-    /**
-     * Mendapatkan daftar resep yang bisa dimasak oleh pemain berdasarkan inventory dan status unlock.
-     * @param playerInventory Inventory pemain.
-     * @param playerStats Statistik pemain (untuk cek unlock).
-     * @return List resep yang bisa dimasak.
-     */
     public static List<Recipe> getCookableRecipes(Inventory playerInventory, PlayerStats playerStats) {
         if (!isInitialized) initialize();
         List<Recipe> cookable = new ArrayList<>();
@@ -204,10 +198,6 @@ public class RecipeDatabase {
         return cookable;
     }
 
-    /**
-     * Helper method untuk mengecek apakah pemain memiliki cukup bahan untuk satu resep.
-     * Tidak termasuk bahan bakar.
-     */
     private static boolean canPlayerCookRecipe(Inventory playerInventory, Recipe recipe) {
         if (playerInventory == null || recipe == null || recipe.getIngredients() == null) {
             return false;
@@ -217,8 +207,7 @@ public class RecipeDatabase {
             Items requiredItem = entry.getKey();
             int requiredQuantity = entry.getValue();
 
-            if (requiredItem == null) { // Kemungkinan placeholder seperti "Any Fish"
-                // Jika nama item adalah placeholder "Any Fish"
+            if (requiredItem == null) { 
                 if (ANY_FISH_INGREDIENT_NAME.equals(requiredItem.getName())) {
                     int fishCount = 0;
                     for (Map.Entry<Items, Integer> invEntry : playerInventory.getInventory().entrySet()) {
@@ -228,12 +217,11 @@ public class RecipeDatabase {
                     }
                     if (fishCount < requiredQuantity) return false;
                 }
-                // Tambahkan logika untuk placeholder lain jika ada
                 else {
                      System.err.println("Warning: Unhandled null or placeholder ingredient in recipe: " + recipe.getDisplayName());
-                    return false; // Tidak bisa memproses bahan null/placeholder yang tidak dikenal
+                    return false; 
                 }
-            } else { // Bahan spesifik
+            } else { 
                 if (!playerInventory.hasItem(requiredItem, requiredQuantity)) {
                     return false;
                 }
@@ -242,13 +230,6 @@ public class RecipeDatabase {
         return true;
     }
 
-     /**
-     * Digunakan untuk mendapatkan item ikan yang akan dikonsumsi dari inventory.
-     * Memprioritaskan ikan common, lalu regular, lalu legendary.
-     * @param playerInventory Inventory pemain
-     * @param quantityBerapaBanyak Jumlah ikan yang dibutuhkan
-     * @return List ikan yang akan dikonsumsi, atau list kosong jika tidak cukup.
-     */
     public static List<Items> getFishIngredientsFromInventory(Inventory playerInventory, int quantityBerapaBanyak) {
         List<Items> fishToConsume = new ArrayList<>();
         Map<Items, Integer> currentInventory = new HashMap<>(playerInventory.getInventory());
