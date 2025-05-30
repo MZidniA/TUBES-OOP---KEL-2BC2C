@@ -31,7 +31,7 @@ public class GiftingDialogPanel extends JPanel {
         gridPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         for (Items item : inventory.keySet()) {
-            if (!item.isGiftable()) continue; // ❌ Skip equipment!
+            if (!item.isGiftable()) continue;
 
             int qty = inventory.get(item);
             JButton btn = new JButton("<html><center>" + item.getName() + "<br>x" + qty + "</center></html>");
@@ -45,18 +45,29 @@ public class GiftingDialogPanel extends JPanel {
             btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
             btn.addActionListener(e -> {
+                // Proses gifting
                 npc.receiveGift(item);
                 farm.getPlayerModel().getInventory().removeInventory(item, 1);
+
+                // Tampilkan pesan cantik 2 baris
+                UIManager.put("OptionPane.background", new Color(255, 228, 196));
+                UIManager.put("Panel.background", new Color(255, 228, 196));
+                UIManager.put("OptionPane.messageFont", pixelFont.deriveFont(12f));
+                UIManager.put("Button.background", new Color(139, 69, 19));
+                UIManager.put("Button.foreground", Color.WHITE);
+                UIManager.put("Button.font", pixelFont.deriveFont(10f));
+
                 JOptionPane.showMessageDialog(frame,
-                        "Kamu memberikan " + item.getName() + " kepada " + npc.getName(),
-                        "Gift Result", JOptionPane.INFORMATION_MESSAGE);
-                SwingUtilities.getWindowAncestor(this).dispose();
+                    "Kamu memberikan\n" + item.getName() + " kepada " + npc.getName(),
+                    "Gift Result", JOptionPane.INFORMATION_MESSAGE);
+
+                SwingUtilities.getWindowAncestor(this).dispose(); // Tutup panel setelah gifting
             });
 
             gridPanel.add(btn);
         }
 
-        // BACK BUTTON
+        // BACK button
         JButton backButton = new JButton("BACK");
         backButton.setFont(pixelFont.deriveFont(10f));
         backButton.setForeground(Color.WHITE);

@@ -12,8 +12,6 @@ import org.example.controller.action.ChattingAction;
 import org.example.model.Farm;
 import org.example.model.Items.Items;
 import org.example.model.NPC.NPC;
-import org.example.view.GiftingDialogPanel;
-
 
 public class NPCInteractionPanel extends JPanel {
     private Image backgroundImage;
@@ -65,7 +63,7 @@ public class NPCInteractionPanel extends JPanel {
 
                         ChattingAction action = new ChattingAction(npc, npc.getLocation());
                         if (!action.canExecute(farm)) {
-                            new EnergyWarningDialog(parentFrame).setVisible(true);
+                            showStyledMessage("Tidak Cukup Energi", "Kamu tidak punya\nenergi cukup untuk ngobrol.");
                             return;
                         }
 
@@ -84,48 +82,33 @@ public class NPCInteractionPanel extends JPanel {
                 case "Gifting":
                     btn.addActionListener(e -> {
                         if (npc.hasGiftedToday()) {
-                            JOptionPane.showMessageDialog(parentFrame, "Kamu sudah memberikan hadiah hari ini!", "Sudah Dikasih", JOptionPane.INFORMATION_MESSAGE);
+                            showStyledMessage("Sudah Dikasih", "Kamu sudah memberikan\nhadiah hari ini!");
                             return;
                         }
 
                         GiftingDialogPanel giftPanel = new GiftingDialogPanel(parentFrame, controller, npc, farm);
+
                         JDialog giftDialog = new JDialog(parentFrame, "Pilih Hadiah untuk " + npc.getName(), true);
                         giftDialog.setUndecorated(true);
                         giftDialog.setContentPane(giftPanel);
                         giftDialog.pack();
                         giftDialog.setLocationRelativeTo(parentFrame);
                         giftDialog.setVisible(true);
-
-                        updateNPCInfo(npc); // update info setelah gift
                     });
                     break;
 
-
                 case "Proposing":
-                    btn.addActionListener(e -> {
-                        JOptionPane.showMessageDialog(parentFrame,
-                            "Kamu mencoba melamar " + npc.getName() + ".",
-                            "Proposing", JOptionPane.INFORMATION_MESSAGE);
-                    });
+                    btn.addActionListener(e -> showStyledMessage("Proposing", "Kamu mencoba\nmelamar " + npc.getName() + "."));
                     break;
 
                 case "Marrying":
-                    btn.addActionListener(e -> {
-                        JOptionPane.showMessageDialog(parentFrame,
-                            "Kamu mencoba menikah dengan " + npc.getName() + ".",
-                            "Marrying", JOptionPane.INFORMATION_MESSAGE);
-                    });
+                    btn.addActionListener(e -> showStyledMessage("Marrying", "Kamu mencoba\nmenikah dengan " + npc.getName() + "."));
                     break;
             }
         }
 
-        JButton backButton = new JButton("BACK");
+        JButton backButton = createPixelButton("BACK");
         backButton.setFont(pixelFont.deriveFont(10f));
-        backButton.setForeground(Color.WHITE);
-        backButton.setBackground(new Color(76, 38, 38));
-        backButton.setBorder(BorderFactory.createLineBorder(new Color(60, 30, 30), 2));
-        backButton.setFocusPainted(false);
-        backButton.setOpaque(true);
         int backY = startY + actions.length * (buttonHeight + gap) + 10;
         backButton.setBounds((panelWidth - (buttonWidth - 20)) / 2, backY, buttonWidth - 20, buttonHeight - 10);
         backButton.addActionListener(e -> SwingUtilities.getWindowAncestor(this).dispose());
@@ -139,6 +122,18 @@ public class NPCInteractionPanel extends JPanel {
         add(infoLabel);
 
         updateNPCInfo(npc);
+    }
+
+    private void showStyledMessage(String title, String message) {
+        UIManager.put("OptionPane.background", new Color(255, 228, 196)); // Light brown
+        UIManager.put("Panel.background", new Color(255, 228, 196));
+        UIManager.put("OptionPane.messageFont", pixelFont.deriveFont(12f));
+        UIManager.put("Button.background", new Color(102, 51, 51)); // Dark brown
+        UIManager.put("Button.foreground", Color.WHITE);
+        UIManager.put("Button.font", pixelFont.deriveFont(10f));
+
+        String formatted = "<html><center>" + message.replace("\n", "<br>") + "</center></html>";
+        JOptionPane.showMessageDialog(parentFrame, formatted, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void updateNPCInfo(NPC npc) {
