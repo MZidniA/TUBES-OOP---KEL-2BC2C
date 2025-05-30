@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
+import org.example.controller.action.CookingAction;
 import org.example.controller.action.PlantingAction;
 import org.example.controller.action.RecoverLandAction;
 import org.example.controller.action.TillingAction;
@@ -25,6 +26,7 @@ import org.example.model.NPC.EmilyNPC;
 import org.example.model.NPC.MayorTadiNPC;
 import org.example.model.NPC.PerryNPC;
 import org.example.model.Player;
+import org.example.model.Recipe;
 import org.example.model.Sound;
 import org.example.model.enums.LocationType;
 import org.example.model.enums.Season;
@@ -542,5 +544,115 @@ public class GameController implements Runnable {
         System.out.println("===== END OF PLANT GROWTH PROCESSING =====\n");
     }
 
+    public void confirmCookingMenuSelection() {
+        if (gameState.getGameState() != gameState.cooking_menu || gameStateUI == null || farm == null) {
+            System.err.println("GameController: confirmCookingMenuSelection() - Invalid state or null components.");
+            return;
+        }
+
+        // Jika command adalah "Cancel"
+        if (gameStateUI.cookingMenuCommandNum == 1) {
+            exitCookingMenu();
+            return;
+        }
+
+        // Jika command adalah "Cook" (gameStateUI.cookingMenuCommandNum == 0)
+        if (gameStateUI.availableRecipesForUI == null || gameStateUI.availableRecipesForUI.isEmpty()) {
+            System.out.println("GameController: Attempted to cook with no available recipes.");
+            if (gameStateUI != null) gameStateUI.showTemporaryMessage("No recipes available to cook!");
+            // Jangan keluar dari menu, biarkan pemain memilih "Cancel" atau tunggu resep tersedia
+            return;
+        }
+
+        Recipe selectedRecipe = null;
+        if (gameStateUI.selectedRecipeIndex >= 0 &&
+            gameStateUI.selectedRecipeIndex < gameStateUI.availableRecipesForUI.size()) {
+            selectedRecipe = gameStateUI.availableRecipesForUI.get(gameStateUI.selectedRecipeIndex);
+        }
+
+        if (selectedRecipe == null) {
+            System.out.println("GameController: No recipe is currently selected to cook.");
+            if (gameStateUI != null) gameStateUI.showTemporaryMessage("Please select a recipe first!");
+            // Jangan keluar dari menu, biarkan pemain memilih resep atau "Cancel"
+            return;
+        }
+
+        // Lanjutkan dengan logika memasak jika resep sudah dipilih
+        Items selectedFuel = null; // Implementasi jika ada pemilihan fuel
+        CookingAction cookingAction = new CookingAction(selectedRecipe, selectedFuel); // Sesuaikan konstruktor
+
+        if (cookingAction.canExecute(farm)) {
+            cookingAction.execute(farm);
+            if (gameStateUI != null) gameStateUI.showTemporaryMessage("Memasak " + selectedRecipe.getDisplayName() + " dimulai!");
+            System.out.println("GameController: Cooking " + selectedRecipe.getDisplayName());
+        } else {
+            if (gameStateUI != null) gameStateUI.showTemporaryMessage("Tidak bisa memasak " + selectedRecipe.getDisplayName() + "."); // Pesan lebih spesifik
+            System.out.println("GameController: Cannot cook " + selectedRecipe.getDisplayName() + ". Ingredients/Fuel might be missing or energy too low.");
+        }
+
+        // Setelah mencoba memasak (berhasil atau gagal karena canExecute), kembali ke state play atau tetap di menu.
+        // Untuk sekarang, kita kembalikan ke play state.
+        exitCookingMenu();
+    }
+
+    public void exitCookingMenu() {
+        // Kembalikan state ke play
+        if (gameState != null) {
+            gameState.setGameState(gameState.play);
+        }
+        // Reset pilihan menu memasak jika perlu
+        if (gameStateUI != null) {
+            gameStateUI.cookingMenuCommandNum = 0;
+            gameStateUI.selectedRecipeIndex = 0;
+
+        }
+        // Pastikan movement state direset agar player bisa bergerak lagi
+        resetMovementState();
+        // Fokuskan kembali ke game panel agar input keyboard aktif
+        if (gamePanel != null) {
+            gamePanel.requestFocusInWindow();
+        }
+    }
+
+    public void navigateCookingMenu(String direction) {
+        if (gameState.getGameState() != gameState.cooking_menu || gameStateUI == null) { // Gunakan gameState.cooking_menu
+            System.err.println("GameController: navigateCookingMenu called in invalid state or gameStateUI is null.");
+            return;
+        }
+
+        System.out.println("GameController: navigateCookingMenu - Direction: " + direction); // DEBUG
+
+        if ("up_recipe".equalsIgnoreCase(direction)) {
+            if (gameStateUI.availableRecipesForUI != null && !gameStateUI.availableRecipesForUI.isEmpty()) {
+                gameStateUI.selectedRecipeIndex--;
+                if (gameStateUI.selectedRecipeIndex < 0) {
+                    gameStateUI.selectedRecipeIndex = gameStateUI.availableRecipesForUI.size() - 1;
+                }
+                // Saat mengganti resep, default-kan pilihan aksi ke "Cook" (commandNum = 0)
+                // gameStateUI.cookingMenuCommandNum = 0; // Opsional, tergantung desain navigasi Anda
+            }
+        } else if ("down_recipe".equalsIgnoreCase(direction)) {
+            if (gameStateUI.availableRecipesForUI != null && !gameStateUI.availableRecipesForUI.isEmpty()) {
+                gameStateUI.selectedRecipeIndex++;
+                if (gameStateUI.selectedRecipeIndex >= gameStateUI.availableRecipesForUI.size()) {
+                    gameStateUI.selectedRecipeIndex = 0;
+                }
+                // gameStateUI.cookingMenuCommandNum = 0; // Opsional
+            }
+        } else if ("left_command".equalsIgnoreCase(direction)) {
+            // Pindah dari Cancel (1) ke Cook (0)
+            if (gameStateUI.cookingMenuCommandNum == 1) {
+                gameStateUI.cookingMenuCommandNum = 0;
+            }
+            // Jika Anda punya lebih dari 2 tombol aksi horizontal, logikanya akan lebih kompleks
+        } else if ("right_command".equalsIgnoreCase(direction)) {
+            // Pindah dari Cook (0) ke Cancel (1)
+            if (gameStateUI.cookingMenuCommandNum == 0) {
+                gameStateUI.cookingMenuCommandNum = 1;
+            }
+        }
+        // DEBUG: Cetak state setelah navigasi
+        System.out.println("  -> RecipeIndex: " + gameStateUI.selectedRecipeIndex + ", CommandNum: " + gameStateUI.cookingMenuCommandNum);
+    }    
     
 }

@@ -17,6 +17,7 @@ import org.example.controller.GameState;
 import org.example.controller.action.UpdateAndShowLocationAction;
 import org.example.model.Farm;
 import org.example.model.Inventory;
+import org.example.model.Player;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
@@ -134,23 +135,38 @@ public class GamePanel extends JPanel {
         }
 
         Graphics2D g2 = (Graphics2D) g;
-        GamePanel gp = this;
+        // GamePanel gp = this; // Anda bisa menggunakan 'this' atau gp, konsisten saja.
 
+        // --- AWAL PENGAMBILAN DATA MODEL DENGAN AMAN ---
         Farm farmModel = gameController.getFarmModel();
-        PlayerView playerView = gameController.getPlayerViewInstance();
-        GameState currentGameState = gameController.getGameState();
-        Inventory playerInventory = farmModel.getPlayerModel().getInventory();
+        PlayerView playerView = gameController.getPlayerViewInstance(); // Asumsi PlayerView selalu ada jika controller ada
+        GameState currentGameState = gameController.getGameState();    // Asumsi GameState selalu ada jika controller ada
 
+        Player playerModel = null;
+        Inventory playerInventory = null;
+
+        if (farmModel != null) {
+            playerModel = farmModel.getPlayerModel();
+            if (playerModel != null) {
+                playerInventory = playerModel.getInventory();
+            }
+        }
+        // --- AKHIR PENGAMBILAN DATA MODEL DENGAN AMAN ---
+
+        // Menggambar dunia game (tile, objek, pemain)
         if (farmModel != null && playerView != null) {
             tileM.draw(g2, playerView, farmModel.getCurrentMap());
 
             InteractableObject[] objectsOnCurrentMap = farmModel.getObjectsForCurrentMap();
-            for (InteractableObject obj : objectsOnCurrentMap) {
-                if (obj != null) {
-                    obj.draw(g2, this, playerView);
+            if (objectsOnCurrentMap != null) { // Pengecekan null tambahan untuk array objek
+                for (InteractableObject obj : objectsOnCurrentMap) {
+                    if (obj != null) {
+                        obj.draw(g2, this, playerView); // 'this' merujuk ke GamePanel ini
+                    }
                 }
             }
 
+            // Logika kalkulasi posisi pemain di layar
             int playerScreenX = screenWidth / 2 - (tileSize / 2);
             int playerScreenY = screenHeight / 2 - (tileSize / 2);
             int worldWidth = maxWorldCol * tileSize;
@@ -168,9 +184,10 @@ public class GamePanel extends JPanel {
                 playerScreenY = playerView.worldY - (worldHeight - screenHeight);
             }
 
-            playerView.draw(g2, gp, playerScreenX, playerScreenY);
+            playerView.draw(g2, this, playerScreenX, playerScreenY); // 'this' merujuk ke GamePanel ini
 
-            if (currentGameState.getGameState() == currentGameState.play) {
+            // Menampilkan prompt interaksi jika dalam state PLAY dan ada objek dekat
+            if (currentGameState != null && currentGameState.getGameState() == currentGameState.play) { // Pastikan currentGameState tidak null
                 CollisionChecker cChecker = gameController.getCollisionChecker();
                 if (cChecker != null) {
                     int objIndex = cChecker.checkObject(playerView);
@@ -186,9 +203,9 @@ public class GamePanel extends JPanel {
                         String text = "[F] Interact with " + objectsOnCurrentMap[objIndex].name;
                         int textWidth = g2.getFontMetrics().stringWidth(text);
                         int x = (screenWidth - textWidth) / 2;
-                        int y = screenHeight - 40;
+                        int y = screenHeight - 40; // Posisi prompt interaksi
 
-                        g2.setColor(new Color(0, 0, 0, 150));
+                        g2.setColor(new Color(0, 0, 0, 150)); // Latar belakang semi-transparan
                         g2.fillRect(x - 10, y - g2.getFontMetrics().getAscent() - 2, textWidth + 20, g2.getFontMetrics().getHeight() + 4);
 
                         g2.setColor(Color.WHITE);
@@ -197,12 +214,45 @@ public class GamePanel extends JPanel {
                 }
             }
         } else {
+            // Jika farmModel atau playerView null, tampilkan pesan error
             g2.setColor(Color.RED);
-            g2.drawString("Data game (Farm/PlayerView) belum siap.", 20, 40);
+            String errorMessage = "Data game (";
+            if (farmModel == null) errorMessage += "FarmModel N/A";
+            if (playerView == null) {
+                if (farmModel == null) errorMessage += ", ";
+                errorMessage += "PlayerView N/A";
+            }
+            errorMessage += ") belum siap.";
+            g2.drawString(errorMessage, 20, 40);
         }
 
+        // Menggambar UI (GameStateUI)
+        // Pastikan semua parameter yang dibutuhkan oleh GameStateUI.draw() sudah valid
         if (currentGameState != null && gameStateUI != null) {
-            gameStateUI.draw(g2, currentGameState, playerInventory);
+            if (farmModel != null && playerModel != null && playerInventory != null) {
+                // Panggil GameStateUI.draw dengan SEMUA parameter yang dibutuhkan (sesuaikan dengan signature GameStateUI.draw Anda)
+                // Asumsi signature draw di GameStateUI adalah: draw(Graphics2D g2, GameState gs, Farm f, Player p, Inventory inv)
+                gameStateUI.draw(g2, currentGameState, farmModel, playerModel, playerInventory);
+            } else {
+                // Jika data penting untuk UI hilang, mungkin tampilkan pesan error atau UI minimal
+                // Ini penting terutama jika cooking_menu aktif dan membutuhkan farmModel & playerModel
+                if (currentGameState.getGameState() == currentGameState.cooking_menu) {
+                    System.err.println("GamePanel.paintComponent: Data (Farm/Player/Inventory) tidak lengkap untuk UI cooking_menu.");
+                    g2.setColor(Color.RED);
+                    g2.setFont(new Font("Arial", Font.BOLD, 14));
+                    String cookingErrorMsg = "Error: Tidak bisa menampilkan menu memasak (data tidak lengkap).";
+                    int errorMsgWidth = g2.getFontMetrics().stringWidth(cookingErrorMsg);
+                    g2.drawString(cookingErrorMsg, (screenWidth - errorMsgWidth) / 2, screenHeight / 2);
+                } else {
+                    // Untuk state lain, jika GameStateUI.draw() memiliki overload yang hanya butuh playerInventory:
+                    // gameStateUI.draw(g2, currentGameState, playerInventory); // HANYA JIKA ADA OVERLOAD INI
+                    // Jika tidak, dan state lain juga butuh farmModel/playerModel, maka error ini juga berlaku:
+                    System.err.println("GamePanel.paintComponent: Data (Farm/Player/Inventory) tidak lengkap untuk UI draw state: " + currentGameState.getGameState());
+                }
+            }
+        } else {
+            if (currentGameState == null) System.err.println("GamePanel.paintComponent: currentGameState is null.");
+            if (gameStateUI == null) System.err.println("GamePanel.paintComponent: gameStateUI is null.");
         }
 
         g2.dispose();
