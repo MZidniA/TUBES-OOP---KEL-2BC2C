@@ -16,6 +16,7 @@ public abstract class NPC {
     private List<Items> hatedItems;
     private int heartPoints;
     private RelationshipStats relationshipsStatus;
+    private int fianceSinceDay = -1; // default
 
     public NPC(String name, LocationType locationtype, List<Items> lovedItems, List<Items> likedItems, List<Items> hatedItems, int heartPoints, RelationshipStats relationshipsStatus) {
         this.name = name;
@@ -125,5 +126,13 @@ public abstract class NPC {
         if (!this.hatedItems.contains(item)) {
             this.hatedItems.add(item);
         }
+    }
+
+    public void setFianceSinceDay(int day) {
+        this.fianceSinceDay = day;
+    }
+
+    public int getFianceSinceDay() {
+        return this.fianceSinceDay;
     }
 }

@@ -34,24 +34,24 @@ public class ProposingAction implements Action {
     @Override
     public void execute(Farm farm) {
         Player player = farm.getPlayerModel();
-            boolean punyaCincin = player.getInventory().getInventory().containsKey(ItemDatabase.getItem("Proposal Ring"));
 
-            // Tambahkan validasi cincin ke dalam logika
-            if (punyaCincin &&
-                npc.getHeartPoints() >= MAX_HEART &&
-                npc.getRelationshipsStatus() == RelationshipStats.SINGLE) {
+        if (npc.getHeartPoints() >= MAX_HEART &&
+            npc.getRelationshipsStatus() == RelationshipStats.SINGLE) {
 
-                player.decreaseEnergy(ENERGY_SUCCESS);
-                npc.setRelationshipsStatus(RelationshipStats.FIANCE);
-                player.setPartner(npc);
+            player.decreaseEnergy(ENERGY_SUCCESS);
+            npc.setRelationshipsStatus(RelationshipStats.FIANCE);
+            player.setPartner(npc);
 
-                System.out.println("LAMARAN BERHASIL 💍");
+            // ✅ Ini baris yang kamu tambahkan
+            npc.setFianceSinceDay(farm.getGameClock().getDay());
 
-            } else {
-                player.decreaseEnergy(ENERGY_FAIL);
-                System.out.println("LAMARAN DITOLAK");
-            }
+            System.out.println("LAMARAN BERHASIL 💍");
 
-            player.getPlayerStats().addMinutes(TIME_COST);
+        } else {
+            player.decreaseEnergy(ENERGY_FAIL);
+            System.out.println("LAMARAN DITOLAK");
         }
+
+        player.getPlayerStats().addMinutes(TIME_COST);
+    }
 }

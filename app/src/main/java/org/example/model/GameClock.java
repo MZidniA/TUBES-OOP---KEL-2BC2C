@@ -124,6 +124,7 @@ public class GameClock {
 
         if (newHour >= 24) {
             nextDay(farm.getPlayerStats());
+            this.currentTime = LocalTime.of(newHour % 24, newMinute); // ✅ tetap set waktu baru meskipun hari baru
         } else {
             this.currentTime = LocalTime.of(newHour, newMinute);
         }

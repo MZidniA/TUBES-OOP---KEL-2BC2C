@@ -54,7 +54,7 @@ public class GiftingAction implements Action {
 
         // Kurangi energi dan waktu
         player.decreaseEnergy(ENERGY_COST);
-        farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
+        farm.getGameClock().advanceTimeByMinutes(farm, TIME_COST_MINUTES);
 
         // Kurangi item dari inventory
         player.getInventory().removeInventory(giftItem, 1);

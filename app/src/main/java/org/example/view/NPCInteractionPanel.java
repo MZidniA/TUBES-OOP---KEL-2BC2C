@@ -9,6 +9,7 @@ import javax.swing.*;
 
 import org.example.controller.GameController;
 import org.example.controller.action.ChattingAction;
+import org.example.controller.action.MarryingAction;
 import org.example.controller.action.ProposingAction;
 import org.example.model.Farm;
 import org.example.model.Items.ItemDatabase;
@@ -104,7 +105,9 @@ public class NPCInteractionPanel extends JPanel {
                         action.execute(farm); // ← SELALU DIPANGGIL
 
                         if (npc.getRelationshipsStatus() == RelationshipStats.FIANCE) {
-                            showStyledMessage("Lamaran Berhasil", npc.getName() + " menerima lamaranmu! 💍");
+                            showStyledMessage("Lamaran Berhasil 💍", npc.getName() + " menerima lamaranmu!");
+                        } else if (npc.getRelationshipsStatus() == RelationshipStats.SPOUSE) {
+                            showStyledMessage("Gagal Melamar", npc.getName() + " sudah menjadi pasangan hidupmu.");
                         } else {
                             showStyledMessage("Lamaran Gagal", "Lamaranmu ditolak atau belum memenuhi syarat.\nPastikan Heart Point maksimal,\nkamu masih SINGLE, dan punya Proposal Ring.");
                         }
@@ -114,7 +117,27 @@ public class NPCInteractionPanel extends JPanel {
                     break;
 
                 case "Marrying":
-                    btn.addActionListener(e -> showStyledMessage("Marrying", "Kamu mencoba\nmenikah dengan " + npc.getName() + "."));
+                    btn.addActionListener(e -> {
+                        MarryingAction action = new MarryingAction(npc);
+
+                        if (action.canExecute(farm)) {
+                            action.execute(farm);
+                            showStyledMessage("Pernikahan Berhasil ", npc.getName() + " kini menjadi pasangan hidupmu!");
+                        } else {
+                            if (npc.getRelationshipsStatus() == RelationshipStats.SPOUSE) {
+                                showStyledMessage("Gagal Menikah", npc.getName() + " sudah menjadi pasangan hidupmu.");
+                            } else if (npc.getRelationshipsStatus() != RelationshipStats.FIANCE) {
+                                showStyledMessage("Gagal Menikah", "Kamu belum bisa menikah.\nPastikan statusnya Fiance dan kamu sudah bertunangan.");
+                            } else if (farm.getGameClock().getDay() == npc.getFianceSinceDay()) {
+                                showStyledMessage("Belum Waktunya", "Kamu baru bertunangan hari ini.\nPernikahan bisa dilakukan mulai besok.");
+                            } else {
+                                showStyledMessage("Gagal Menikah", "Syarat pernikahan belum terpenuhi.");
+                            }
+                        }
+
+
+                        updateNPCInfo(npc);
+                    });
                     break;
             }
         }
