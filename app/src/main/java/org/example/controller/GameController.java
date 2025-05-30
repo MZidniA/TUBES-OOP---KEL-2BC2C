@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import org.example.controller.action.CookingAction;
 import org.example.controller.action.PlantingAction;
@@ -34,6 +35,7 @@ import org.example.model.enums.Weather;
 import org.example.view.FishingPanel;
 import org.example.view.GamePanel;
 import org.example.view.GameStateUI;
+import org.example.view.MenuPanel;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.InteractableObject.MountainLakeObject;
 import org.example.view.InteractableObject.OceanObject;
@@ -300,13 +302,76 @@ public class GameController implements Runnable {
             else if (direction.equals("down")) { ui.commandNum++; if (ui.commandNum > 1) ui.commandNum = 0; }
         }
     }
+
     public void confirmPauseUISelection() {
-        if (gameState.getGameState() == gameState.pause && gamePanel != null && gamePanel.gameStateUI != null) {
-            GameStateUI ui = gamePanel.gameStateUI;
-            if (ui.commandNum == 0) gameState.setGameState(gameState.play);
-            else if (ui.commandNum == 1) return;
+        if (gameState.getGameState() == gameState.pause && gameStateUI != null) {
+            if (gameStateUI.commandNum == 0) { // "Continue"
+                gameState.setGameState(gameState.play);
+                System.out.println("GameController: Resuming game. Game state set to PLAY.");
+                // if (music != null && !music.isPlaying()) playMusic(); // Putar musik lagi jika dihentikan saat pause
+            } else if (gameStateUI.commandNum == 1) { // "Exit Game"
+                System.out.println("GameController: Exit Game selected from pause menu.");
+                exitToMainMenu();
+            }
+        } else {
+            System.err.println("GameController: confirmPauseUISelection called in invalid state or gameStateUI is null.");
         }
     }
+
+    private void cleanUpForExit() {
+        System.out.println("GameController: Cleaning up current game session...");
+        if (timeManager != null) {
+            timeManager.stopTimeSystem();
+            System.out.println("GameController: Time system stopped.");
+        }
+        stopMusic(); // Hentikan musik game
+
+        if (gameThread != null) {
+            Thread threadToStop = gameThread;
+            gameThread = null; // Ini akan menghentikan loop 'run()'
+            try {
+                if (threadToStop.isAlive()) {
+                    System.out.println("GameController: Waiting for game thread to stop...");
+                    // threadToStop.interrupt(); // Gunakan jika loop run menangani InterruptedException
+                    threadToStop.join(100); // Tunggu maks 100ms
+                    if (threadToStop.isAlive()) {
+                        System.err.println("GameController: Game thread did not stop in time.");
+                    } else {
+                        System.out.println("GameController: Game thread stopped successfully.");
+                    }
+                }
+            } catch (InterruptedException e) {
+                System.err.println("GameController: Interrupted while waiting for game thread to stop: " + e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+        } else {
+            System.out.println("GameController: Game thread was already null during cleanup.");
+        }
+        // Hapus KeyListener dari GamePanel lama agar tidak ada konflik jika GamePanel dibuat ulang
+        if (gamePanel != null && keyHandler != null) {
+            gamePanel.removeKeyListener(keyHandler);
+        }
+    }
+
+    public void exitToMainMenu() {
+        cleanUpForExit(); // Hentikan semua proses game saat ini
+
+        if (mainFrame != null) {
+            System.out.println("GameController: Returning to MenuPanel.");
+            MenuPanel menuPanel = new MenuPanel(mainFrame); // Buat instance MenuPanel baru
+            mainFrame.setContentPane(menuPanel);
+            mainFrame.revalidate();
+            mainFrame.repaint();
+            // Penting untuk memastikan panel baru mendapatkan fokus untuk input
+            SwingUtilities.invokeLater(menuPanel::requestFocusInWindow);
+        } else {
+            System.err.println("GameController: mainFrame is null, cannot switch to MenuPanel.");
+            // Sebagai fallback jika tidak ada frame, atau jika ini bukan cara yang diinginkan,
+            // mungkin keluar dari aplikasi adalah pilihan terakhir.
+            // System.exit(0);
+        }
+    }
+
     public void navigateInventoryUI(String direction) {
         if (gameState.getGameState() == gameState.inventory && gamePanel != null && gamePanel.gameStateUI != null) {
             GameStateUI ui = gamePanel.gameStateUI;
