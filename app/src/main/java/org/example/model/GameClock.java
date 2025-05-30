@@ -109,4 +109,10 @@ public class GameClock {
         }
     }
 
+    // Add this method to provide weather forecast
+    public Weather getWeatherForecast() {
+        // Replace this with your actual logic for forecasting weather
+        // For now, return the current weather or a random one as a placeholder
+        return Weather.SUNNY; // or your actual logic
+    }
 }

@@ -140,6 +140,7 @@ public class GamePanel extends JPanel {
         PlayerView playerView = gameController.getPlayerViewInstance();
         GameState currentGameState = gameController.getGameState();
         Inventory playerInventory = farmModel.getPlayerModel().getInventory();
+        
 
         if (farmModel != null && playerView != null) {
             tileM.draw(g2, playerView, farmModel.getCurrentMap());

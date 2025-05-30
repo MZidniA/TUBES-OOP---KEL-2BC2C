@@ -16,6 +16,7 @@ import org.example.view.InteractableObject.PondObject;
 import org.example.view.InteractableObject.RiverObject;
 import org.example.view.InteractableObject.ShippingBinObject;
 import org.example.view.InteractableObject.StoveObject;
+import org.example.view.InteractableObject.TVObject;
 
 public class AssetSetter {
     private final GameController controller;
@@ -113,12 +114,14 @@ public class AssetSetter {
         } else if (currentMapIndex == 4) { 
             InteractableObject[] houseObjects = {
                 new StoveObject(),
-                new BedObject()
+                new BedObject(),
+                new TVObject()
             };
         
             int[][] housePositions = {
                 {6, 3},  
-                {9, 10}  
+                {9, 10},
+                {3, 3}
             };
 
             for (int i = 0; i < houseObjects.length; i++) {
