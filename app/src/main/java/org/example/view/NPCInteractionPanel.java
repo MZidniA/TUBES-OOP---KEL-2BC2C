@@ -9,9 +9,12 @@ import javax.swing.*;
 
 import org.example.controller.GameController;
 import org.example.controller.action.ChattingAction;
+import org.example.controller.action.ProposingAction;
 import org.example.model.Farm;
+import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
 import org.example.model.NPC.NPC;
+import org.example.model.enums.RelationshipStats;
 
 public class NPCInteractionPanel extends JPanel {
     private Image backgroundImage;
@@ -81,10 +84,6 @@ public class NPCInteractionPanel extends JPanel {
 
                 case "Gifting":
                     btn.addActionListener(e -> {
-                        if (npc.hasGiftedToday()) {
-                            showStyledMessage("Sudah Dikasih", "Kamu sudah memberikan\nhadiah hari ini!");
-                            return;
-                        }
 
                         GiftingDialogPanel giftPanel = new GiftingDialogPanel(parentFrame, controller, npc, farm);
 
@@ -94,11 +93,24 @@ public class NPCInteractionPanel extends JPanel {
                         giftDialog.pack();
                         giftDialog.setLocationRelativeTo(parentFrame);
                         giftDialog.setVisible(true);
+                        updateNPCInfo(npc);
                     });
                     break;
 
                 case "Proposing":
-                    btn.addActionListener(e -> showStyledMessage("Proposing", "Kamu mencoba\nmelamar " + npc.getName() + "."));
+                    btn.addActionListener(e -> {
+                        ProposingAction action = new ProposingAction(npc, farm);
+
+                        action.execute(farm); // ← SELALU DIPANGGIL
+
+                        if (npc.getRelationshipsStatus() == RelationshipStats.FIANCE) {
+                            showStyledMessage("Lamaran Berhasil", npc.getName() + " menerima lamaranmu! 💍");
+                        } else {
+                            showStyledMessage("Lamaran Gagal", "Lamaranmu ditolak atau belum memenuhi syarat.\nPastikan Heart Point maksimal,\nkamu masih SINGLE, dan punya Proposal Ring.");
+                        }
+
+                        updateNPCInfo(npc);
+                    });
                     break;
 
                 case "Marrying":
@@ -161,6 +173,7 @@ public class NPCInteractionPanel extends JPanel {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    
     }
 
     private JButton createPixelButton(String text) {

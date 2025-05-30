@@ -23,6 +23,7 @@ public class PlayerStats {
 
     private Set<String> unlockedRecipeIds;
     private Set<String> obtainedItemsLog; // Untuk melacak item yang pernah diperoleh
+    private int totalMinutesPlayed = 0;
 
     public PlayerStats() {
         this.totalIncome = 0;
@@ -154,4 +155,11 @@ public class PlayerStats {
     public int getTotalCropsHarvested() { return totalCropsHarvested; }
     public Map<FishType, Integer> getTotalFishCaught() { return totalFishCaught; } 
     public int getTotalDaysPlayed() { return totalDaysPlayed; }
+    public void addMinutes(int minutes) {
+        if (minutes > 0) {
+            this.totalMinutesPlayed += minutes;
+            System.out.println("PlayerStats LOG: Waktu bertambah " + minutes + " menit (Total: " + totalMinutesPlayed + ")");
+        }
+    }
+
 }

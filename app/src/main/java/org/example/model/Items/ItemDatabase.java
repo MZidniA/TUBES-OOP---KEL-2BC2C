@@ -35,6 +35,7 @@ public class ItemDatabase {
         items.putAll(EquipmentFactory.createEquipment());
         items.putAll(MiscFactory.createMisc());
         items.putAll(FurnitureFactory.createFurniture());
+
         isInitialized = true;
         System.out.println("LOG: ItemDatabase initialized with " + items.size() + " items.");
 

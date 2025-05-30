@@ -25,12 +25,19 @@ public class GiftingAction implements Action {
     @Override
     public boolean canExecute(Farm farm) {
         Player player = farm.getPlayerModel();
-        return player.getEnergy() >= ENERGY_COST && !targetNpc.hasGiftedToday();
+        return player.getEnergy() >= ENERGY_COST &&
+               player.getInventory().getInventory().getOrDefault(giftItem, 0) > 0;
     }
 
     @Override
     public void execute(Farm farm) {
         Player player = farm.getPlayerModel();
+
+        if (giftItem.getName().equals("Proposal Ring")) {
+            System.out.println("Proposal Ring tidak bisa diberikan sebagai hadiah.");
+            return;
+        }
+
 
         int effect = 0;
         if (targetNpc.getLovedItems().contains(giftItem)) {
@@ -41,20 +48,15 @@ public class GiftingAction implements Action {
             effect = -25;
         }
 
-        // Update heartPoints dan pastikan max 100
+        // Update heartPoints (maksimum 150)
         int updatedHeart = Math.min(150, targetNpc.getHeartPoints() + effect);
         targetNpc.setHeartPoints(updatedHeart);
 
-        // Set tanggal hadiah hari ini
-        targetNpc.setLastGiftDateToday();
-
-        // Kurangi energi
+        // Kurangi energi dan waktu
         player.decreaseEnergy(ENERGY_COST);
-
-        // Waktu maju
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
 
-        // Hapus item dari inventory
+        // Kurangi item dari inventory
         player.getInventory().removeInventory(giftItem, 1);
 
         // Log
