@@ -98,7 +98,6 @@ public class UpdateAndShowLocationAction implements Action {
         
         if (currentActualLocationInPlayerModel != newDeterminedLocation) {
             player.setCurrentLocationType(newDeterminedLocation);
-            System.out.println("UpdateAndShowLocationAction: Player location UPDATED from " + currentActualLocationInPlayerModel + " to " + newDeterminedLocation);
         }
     
         return newDeterminedLocation.toString().replace("_", " ") + " (" + playerTileX + ", " + playerTileY + ")";
@@ -106,8 +105,7 @@ public class UpdateAndShowLocationAction implements Action {
     
     @Override
     public void execute(Farm farm) { 
-        String detailedLocation = updateAndGetDetailedLocationString(farm); 
-        System.out.println("Lokasi: " + detailedLocation);
+        updateAndGetDetailedLocationString(farm); 
         
     }
     @Override

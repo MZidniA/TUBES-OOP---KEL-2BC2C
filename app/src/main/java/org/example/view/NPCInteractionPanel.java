@@ -10,7 +10,8 @@ import javax.swing.*;
 import org.example.controller.GameController;
 import org.example.controller.action.ChattingAction;
 import org.example.model.Farm;
-import org.example.model.NPC.*;
+import org.example.model.Items.Items;
+import org.example.model.NPC.NPC;
 
 public class NPCInteractionPanel extends JPanel {
     private Image backgroundImage;
@@ -20,7 +21,7 @@ public class NPCInteractionPanel extends JPanel {
     private Farm farm;
     private String playerName;
 
-    private JLabel infoLabel; // 👉 digabung jadi satu label
+    private JLabel infoLabel;
 
     public NPCInteractionPanel(JFrame parentFrame, GameController controller, Farm farm, String npcName, String playerName) {
         this.parentFrame = parentFrame;
@@ -29,89 +30,115 @@ public class NPCInteractionPanel extends JPanel {
         this.playerName = playerName;
 
         setLayout(null);
-        setPreferredSize(new Dimension(300, 320));
+        setPreferredSize(new Dimension(360, 360));
         setOpaque(false);
 
         loadFont();
         loadBackground();
 
+        int panelWidth = 360;
         int buttonWidth = 140;
         int buttonHeight = 30;
-        int startY = 40;
+        int startY = 60;
         int gap = 10;
 
         NPC npc = controller.getFarm().getNPCByName(npcName);
 
-        // Tombol aksi
         String[] actions = {"Chatting", "Gifting", "Proposing", "Marrying"};
         for (int i = 0; i < actions.length; i++) {
             String actionName = actions[i];
             JButton btn = createPixelButton(actionName);
-            btn.setBounds(80, startY + i * (buttonHeight + gap), buttonWidth, buttonHeight);
+            btn.setBounds((panelWidth - buttonWidth) / 2, startY + i * (buttonHeight + gap), buttonWidth, buttonHeight);
             add(btn);
 
-            if (actionName.equals("Chatting")) {
-                btn.addActionListener(e -> {
-                    List<String> dialogLines = Arrays.asList(
-                        "Hai, senang bertemu denganmu!",
-                        "Aku sedang bersantai hari ini.",
-                        "Cuaca sangat bagus, ya?",
-                        "Sampai jumpa lagi!"
-                    );
+            switch (actionName) {
+                case "Chatting":
+                    btn.addActionListener(e -> {
+                        List<String> dialogLines = Arrays.asList(
+                            "Hai, senang bertemu denganmu!",
+                            "Aku sedang bersantai hari ini.",
+                            "Cuaca sangat bagus, ya?",
+                            "Sampai jumpa lagi!"
+                        );
 
-                    ChattingAction action = new ChattingAction(npc, npc.getLocation());
-                    if (!action.canExecute(farm)) {
-                        EnergyWarningDialog warning = new EnergyWarningDialog(parentFrame);
-                        warning.setVisible(true);
-                        return;
-                    }
+                        ChattingAction action = new ChattingAction(npc, npc.getLocation());
+                        if (!action.canExecute(farm)) {
+                            showStyledMessage("Tidak Cukup Energi", "Kamu tidak punya\nenergi cukup untuk ngobrol.");
+                            return;
+                        }
 
-                    ChattingDialogPanel dialogPanel = new ChattingDialogPanel(parentFrame, dialogLines, npcName, playerName, action, farm);
+                        ChattingDialogPanel dialogPanel = new ChattingDialogPanel(parentFrame, dialogLines, npcName, playerName, action, farm);
+                        JDialog dialog = new JDialog(parentFrame, "Chatting with " + npcName, true);
+                        dialog.setUndecorated(true);
+                        dialog.setContentPane(dialogPanel);
+                        dialog.pack();
+                        dialog.setLocationRelativeTo(parentFrame);
+                        dialog.setVisible(true);
 
-                    JDialog dialog = new JDialog(parentFrame, "Chatting with " + npcName, true);
-                    dialog.setUndecorated(true);
-                    dialog.setContentPane(dialogPanel);
-                    dialog.pack();
-                    dialog.setLocationRelativeTo(parentFrame);
-                    dialog.setVisible(true);
+                        updateNPCInfo(npc);
+                    });
+                    break;
 
-                    updateNPCInfo(npc); // realtime update
-                });
-            } else {
-                btn.addActionListener(e -> {
-                    JOptionPane.showMessageDialog(parentFrame,
-                        "Kamu memilih aksi: " + actionName,
-                        "Interaksi dengan " + npcName,
-                        JOptionPane.INFORMATION_MESSAGE);
-                });
+                case "Gifting":
+                    btn.addActionListener(e -> {
+                        if (npc.hasGiftedToday()) {
+                            showStyledMessage("Sudah Dikasih", "Kamu sudah memberikan\nhadiah hari ini!");
+                            return;
+                        }
+
+                        GiftingDialogPanel giftPanel = new GiftingDialogPanel(parentFrame, controller, npc, farm);
+
+                        JDialog giftDialog = new JDialog(parentFrame, "Pilih Hadiah untuk " + npc.getName(), true);
+                        giftDialog.setUndecorated(true);
+                        giftDialog.setContentPane(giftPanel);
+                        giftDialog.pack();
+                        giftDialog.setLocationRelativeTo(parentFrame);
+                        giftDialog.setVisible(true);
+                    });
+                    break;
+
+                case "Proposing":
+                    btn.addActionListener(e -> showStyledMessage("Proposing", "Kamu mencoba\nmelamar " + npc.getName() + "."));
+                    break;
+
+                case "Marrying":
+                    btn.addActionListener(e -> showStyledMessage("Marrying", "Kamu mencoba\nmenikah dengan " + npc.getName() + "."));
+                    break;
             }
         }
 
-        // Tombol BACK
-        JButton backButton = new JButton("BACK");
+        JButton backButton = createPixelButton("BACK");
         backButton.setFont(pixelFont.deriveFont(10f));
-        backButton.setForeground(Color.WHITE);
-        backButton.setBackground(new Color(76, 38, 38));
-        backButton.setBorder(BorderFactory.createLineBorder(new Color(60, 30, 30), 2));
-        backButton.setFocusPainted(false);
-        backButton.setOpaque(true);
         int backY = startY + actions.length * (buttonHeight + gap) + 10;
-        backButton.setBounds(90, backY, buttonWidth - 20, buttonHeight - 10);
+        backButton.setBounds((panelWidth - (buttonWidth - 20)) / 2, backY, buttonWidth - 20, buttonHeight - 10);
         backButton.addActionListener(e -> SwingUtilities.getWindowAncestor(this).dispose());
         add(backButton);
 
-        // 🆕 Label info digabung jadi satu
         infoLabel = new JLabel();
         infoLabel.setFont(pixelFont.deriveFont(9f));
         infoLabel.setForeground(Color.WHITE);
-        infoLabel.setBounds(40, backY + 50, 300, 15); // bawah BACK
+        infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        infoLabel.setBounds(0, backY + 35, panelWidth, 15);
         add(infoLabel);
 
         updateNPCInfo(npc);
     }
 
+    private void showStyledMessage(String title, String message) {
+        UIManager.put("OptionPane.background", new Color(255, 228, 196)); // Light brown
+        UIManager.put("Panel.background", new Color(255, 228, 196));
+        UIManager.put("OptionPane.messageFont", pixelFont.deriveFont(12f));
+        UIManager.put("Button.background", new Color(102, 51, 51)); // Dark brown
+        UIManager.put("Button.foreground", Color.WHITE);
+        UIManager.put("Button.font", pixelFont.deriveFont(10f));
+
+        String formatted = "<html><center>" + message.replace("\n", "<br>") + "</center></html>";
+        JOptionPane.showMessageDialog(parentFrame, formatted, title, JOptionPane.INFORMATION_MESSAGE);
+    }
+
     private void updateNPCInfo(NPC npc) {
-        String info = "Heart: " + npc.getHeartPoints() + "    Status: " + npc.getRelationshipStatus();
+        int heartPoints = Math.min(npc.getHeartPoints(), 150);
+        String info = "Heart: " + heartPoints + " / 150    Status: " + npc.getRelationshipsStatus();
         infoLabel.setText(info);
     }
 

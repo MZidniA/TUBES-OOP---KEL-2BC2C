@@ -129,20 +129,34 @@ public class Farm {
 
    
     public boolean removeObjectAtTile(int mapIndex, int col, int row, int tileSize) {
-        if (mapIndex < 0 || mapIndex >= objects.length) return false;
+        if (mapIndex < 0 || mapIndex >= objects.length || tileSize <= 0) {
+            System.err.println("Farm.removeObjectAtTile: Invalid mapIndex or tileSize.");
+            return false;
+        }
+        if (objects[mapIndex] == null) {
+            System.err.println("Farm.removeObjectAtTile: Object array for map " + mapIndex + " is null.");
+            return false;
+        }
+    
         for (int i = 0; i < objects[mapIndex].length; i++) {
             InteractableObject obj = objects[mapIndex][i];
             if (obj != null) {
                 int objCol = obj.worldX / tileSize;
                 int objRow = obj.worldY / tileSize;
+    
                 if (objCol == col && objRow == row) {
-                    objects[mapIndex][i] = null; 
+                    System.out.println("Farm.removeObjectAtTile: MENEMUKAN objek '" + obj.name + "' di slot " + i + 
+                                       " pada (" + col + "," + row + ") untuk dihapus.");
+                    objects[mapIndex][i] = null; // Hapus objek
+                    System.out.println("Farm.removeObjectAtTile: Objek '" + obj.name + "' BERHASIL DIHAPUS dari slot " + i + ".");
                     return true;
                 }
             }
         }
+        System.out.println("Farm.removeObjectAtTile: TIDAK ADA objek ditemukan di peta " + mapIndex + 
+                           " pada (" + col + "," + row + ") untuk dihapus.");
         return false;
-    }   
+    }
 
     public NPC getNPCByName(String name) {
         return npcMap.get(name);

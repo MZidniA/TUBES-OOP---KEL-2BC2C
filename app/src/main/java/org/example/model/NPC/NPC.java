@@ -1,6 +1,9 @@
 package org.example.model.NPC;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.example.model.Items.Items;
 import org.example.model.enums.LocationType;
 import org.example.model.Items.ItemDatabase;
@@ -14,6 +17,7 @@ public abstract class NPC {
     private List<Items> hatedItems;
     private int heartPoints;
     private RelationshipStats relationshipsStatus;
+    private LocalDate lastGiftDate;
 
     public NPC(String name, LocationType locationtype, List<Items> lovedItems, List<Items> likedItems, List<Items> hatedItems, int heartPoints, RelationshipStats relationshipsStatus) {
         this.name = name;
@@ -49,16 +53,6 @@ public abstract class NPC {
         return hatedItems;
     }
 
-    public List<Items> HatedItemsExceptLovednLiked(List<Items> loved, List<Items> liked) {
-        List<Items> hated = new ArrayList<>();
-        for (Items item : ItemDatabase.getAllItems().values()) {
-            if (!loved.contains(item) && !liked.contains(item)) {
-                hated.add(item);
-            }
-        }
-        return hated;
-    }
-
     public RelationshipStats getRelationshipsStatus() {
         return relationshipsStatus;
     }
@@ -76,31 +70,56 @@ public abstract class NPC {
     }
 
     public void setLovedItems(List<Items> lovedItems) {
-        for (Items item : lovedItems) {
-            if (!this.lovedItems.contains(item)) {
-                this.lovedItems.add(item);
-            }
-        }
+        this.lovedItems = lovedItems;
     }
 
     public void setLikedItems(List<Items> likedItems) {
-        for (Items item : likedItems) {
-            if (!this.likedItems.contains(item)) {
-                this.likedItems.add(item);
-            }
-        }
+        this.likedItems = likedItems;
     }
 
     public void setHatedItems(List<Items> hatedItems) {
-        for (Items item : hatedItems) {
-            if (!this.hatedItems.contains(item)) {
-                this.hatedItems.add(item);
-            }
-        }
+        this.hatedItems = hatedItems;
     }
 
     public void setRelationshipsStatus(RelationshipStats relationshipsStatus) {
         this.relationshipsStatus = relationshipsStatus;
+    }
+
+    public boolean hasGiftedToday() {
+        return LocalDate.now().equals(lastGiftDate);
+    }
+
+    public void receiveGift(Items item) {
+        if (hasGiftedToday()) return;
+
+        if (lovedItems.contains(item)) {
+            heartPoints += 25;
+        } else if (likedItems.contains(item)) {
+            heartPoints += 20;
+        } else if (hatedItems.contains(item)) {
+            heartPoints -= 25;
+        } else {
+            // Neutral item: tidak ada perubahan
+        }
+
+        if (heartPoints > 150) heartPoints = 150;
+        if (heartPoints < 0) heartPoints = 0;
+
+        lastGiftDate = LocalDate.now();
+    }
+
+    public boolean isItemLiked(Items item) {
+        return likedItems.contains(item) || lovedItems.contains(item);
+    }
+
+    public List<Items> HatedItemsExceptLovednLiked(List<Items> loved, List<Items> liked) {
+        List<Items> hated = new ArrayList<>();
+        for (Items item : ItemDatabase.getAllItems().values()) {
+            if (!loved.contains(item) && !liked.contains(item)) {
+                hated.add(item);
+            }
+        }
+        return hated;
     }
 
     public void addLovedItem(Items item) {
@@ -121,12 +140,8 @@ public abstract class NPC {
         }
     }
 
-    public boolean isItemLiked(Items item) {
-        return likedItems.contains(item) || lovedItems.contains(item);
-    }
-
-    public RelationshipStats getRelationshipStatus() {
-        return this.relationshipsStatus;
+    public void setLastGiftDateToday() {
+        this.lastGiftDate = java.time.LocalDate.now();
     }
 
 }

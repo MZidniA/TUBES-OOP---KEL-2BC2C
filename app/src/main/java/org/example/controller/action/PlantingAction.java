@@ -76,57 +76,78 @@ public class PlantingAction implements Action {
         if (!canExecute(farm)) {
             return;
         }
-
+    
         Player player = farm.getPlayerModel();
         GameClock gameClock = farm.getGameClock();
-        FarmMap farmMap = farm.getFarmMap(); 
         int currentMap = farm.getCurrentMap();
         int tileSize = controller.getTileSize();
-
-
+    
+        
         player.decreaseEnergy(ENERGY_COST);
-        player.getInventory().removeInventory(seedToPlant, 1);
-
-        farm.removeObjectAtTile(currentMap, targetCol, targetRow, tileSize);
-     
-
-   
-        boolean dataTilePlanted = farmMap.plantSeedOnTile(targetCol, targetRow, seedToPlant);
-        
-        if (!dataTilePlanted) {
-            System.err.println("PlantingAction GAGAL: Tidak bisa mengubah tile data di FarmMap menjadi Plantedland di (" + targetCol + "," + targetRow + ").");
-            player.increaseEnergy(ENERGY_COST); 
-            player.getInventory().addInventory(seedToPlant, 1); 
- 
-            return;
+        if (player.getEnergy() <= player.getMinEnergyOperational()) {
+            player.setPassedOut(true); 
+            return; 
         }
-        
-        
-        int worldX = targetCol * tileSize;
-        int worldY = targetRow * tileSize;
-        
-        PlantedTileObject newPlantedCropVisual = new PlantedTileObject(seedToPlant.getName(), worldX, worldY, controller);
-        
+        player.getInventory().removeInventory(seedToPlant, 1);
+    
 
-
-        InteractableObject[][] allObjects = farm.getAllObjects();
-        boolean placedVisual = false;
+        int freedSlotIndex = -1;
+        InteractableObject[][] allObjects = farm.getAllObjects(); 
         for (int i = 0; i < allObjects[currentMap].length; i++) {
-            if (allObjects[currentMap][i] == null) {
-                allObjects[currentMap][i] = newPlantedCropVisual;
-                placedVisual = true;
+            InteractableObject obj = allObjects[currentMap][i];
+            if (obj != null) {
+                int objCol = obj.worldX / tileSize;
+                int objRow = obj.worldY / tileSize;
+                if (objCol == targetCol && objRow == targetRow && obj instanceof UnplantedTileObject) {
+                    System.out.println("PlantingAction: Menemukan UnplantedTileObject di slot " + i + " pada (" + targetCol + "," + targetRow + ") untuk dihapus.");
+                    allObjects[currentMap][i] = null; 
+                    freedSlotIndex = i;
+                    System.out.println("PlantingAction: UnplantedTileObject di slot " + i + " BERHASIL DIHAPUS.");
+                    break; 
+                }
             }
         }
+    
+        
+    
 
-        if (!placedVisual) {
-            System.err.println("PlantingAction Error: Tidak ada slot objek kosong untuk menempatkan PlantedTileObject baru!");
-            farmMap.setTileToTillable(targetCol, targetRow); 
-            player.increaseEnergy(ENERGY_COST); 
-            player.getInventory().addInventory(seedToPlant, 1); 
+        FarmMap farmMap = farm.getFarmMap();
+        boolean dataTilePlanted = farmMap.plantSeedOnTile(targetCol, targetRow, seedToPlant);
+        if (!dataTilePlanted) {
+            player.increaseEnergy(ENERGY_COST);
+            player.getInventory().addInventory(seedToPlant, 1);
             return;
         }
+    
 
-   
+        int worldX = targetCol * tileSize;
+        int worldY = targetRow * tileSize;
+        PlantedTileObject plantedTile = new PlantedTileObject(seedToPlant.getName(), worldX, worldY, controller);
+    
+  
+        boolean placed = false;
+    
+        if (freedSlotIndex != -1 && allObjects[currentMap][freedSlotIndex] == null) {
+            allObjects[currentMap][freedSlotIndex] = plantedTile;
+            placed = true;
+        } else {
+            for (int i = 0; i < allObjects[currentMap].length; i++) {
+                if (allObjects[currentMap][i] == null) {
+                    allObjects[currentMap][i] = plantedTile;
+                    placed = true;
+                    break;
+                }
+            }
+        }
+    
+        if (!placed) {
+            farmMap.setTileToTillable(targetCol, targetRow); 
+            player.increaseEnergy(ENERGY_COST);
+            player.getInventory().addInventory(seedToPlant, 1);
+
+            return;
+        }
+    
         if (gameClock != null) {
             gameClock.advanceTimeMinutes(TIME_COST_MINUTES);
         }
