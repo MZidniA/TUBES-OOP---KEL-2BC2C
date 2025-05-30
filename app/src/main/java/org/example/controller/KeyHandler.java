@@ -42,6 +42,22 @@ public class KeyHandler implements KeyListener {
             else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) gameController.navigateInventoryUI("left");
             else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) gameController.navigateInventoryUI("right");
             else if (code == KeyEvent.VK_ENTER) gameController.confirmInventoryUISelection();
+        } else if (currentGameState.getGameState() == currentGameState.shipping_bin) { // << TAMBAHKAN BLOK INI
+            if (code == KeyEvent.VK_ESCAPE) {
+                gameController.closeShippingBinMenu();
+            } else if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
+                gameController.navigateShippingBinUI("up");
+            } else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
+                gameController.navigateShippingBinUI("down");
+            } else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
+                gameController.navigateShippingBinUI("left");
+            } else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
+                gameController.navigateShippingBinUI("right");
+            } else if (code == KeyEvent.VK_ENTER) {
+                gameController.confirmShipItem();
+            }
+        } else if (currentGameState.getGameState() == currentGameState.day_report) {
+                gameController.proceedToNextDayFromReport();
         } else if (currentGameState.getGameState() == currentGameState.cooking_menu) { 
             switch (code) {
                 case KeyEvent.VK_W: case KeyEvent.VK_UP:

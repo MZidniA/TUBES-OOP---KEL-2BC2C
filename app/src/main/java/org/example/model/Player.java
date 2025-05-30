@@ -3,6 +3,7 @@ package org.example.model;
 import java.util.EnumSet;
  
 import org.example.model.Items.Items;
+import org.example.model.enums.SleepReason;
 import org.example.model.NPC.NPC;
 import org.example.model.enums.LocationType;
 
@@ -20,6 +21,7 @@ public class Player {
     private Inventory inventory;
     private LocationType currentLocationType;
     private Items currentHeldItem;
+    private SleepReason sleepReason;
 
     private int tileX = 0;
     private int tileY = 0;
@@ -32,11 +34,14 @@ public class Player {
         this.gender = gender;
         this.energy = MAX_ENERGY;
         this.farmname = farmname;
+        this.partner = null;
         this.gold = 500;
         this.inventory = new Inventory(); 
         this.currentLocationType = LocationType.FARM; 
         this.currentHeldItem = null;
-        this.playerStats = new PlayerStats(); // atau sesuai kebutuhan konstruktor PlayerStats
+        this.playerStats = new PlayerStats(); 
+        this.sleepReason = SleepReason.NOT_SLEEPING;
+
     }
 
     public String getName() {
@@ -95,14 +100,35 @@ public class Player {
     }
 
 
-    public String getFarmname() { return farmname; }
-    public void setFarmname(String farmname) { this.farmname = farmname; }
-    public NPC getPartner() { return partner; }
-    public void setPartner(NPC partner) { this.partner = partner; }
-    public int getGold() { return gold; }
-    public void setGold(int gold) { this.gold = gold; }
-    public Inventory getInventory() { return inventory; }
-    public void setInventory(Inventory inventory) { this.inventory = inventory; }
+    public String getFarmname() { 
+        return farmname; 
+    }
+    public void setFarmname(String farmname) { 
+        this.farmname = farmname; 
+    }
+    public NPC getPartner() { 
+        return partner; 
+    }
+    public void setPartner(NPC partner) { 
+        this.partner = partner; 
+    }
+    public int getGold() { 
+        return gold; 
+    }
+    public void setGold(int gold) { 
+        this.gold = gold; 
+    }
+    public void addGold(int amount) {
+        if (amount > 0) { 
+            this.gold += amount;
+        }
+    }
+    public Inventory getInventory() { 
+        return inventory; 
+    }
+    public void setInventory(Inventory inventory) { 
+        this.inventory = inventory; 
+    }
 
     public LocationType getCurrentLocationType() { 
         return currentLocationType;
@@ -171,5 +197,12 @@ public class Player {
     // Setter jika ingin mengubah stats dari luar
     public void setPlayerStats(PlayerStats playerStats) {
         this.playerStats = playerStats;
+    }
+
+    public SleepReason getSleepReason() {
+        return sleepReason;
+    }
+    public void setSleepReason(SleepReason sleepReason) {
+        this.sleepReason = sleepReason;
     }
 }

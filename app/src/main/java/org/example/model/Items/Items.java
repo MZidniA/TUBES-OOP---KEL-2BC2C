@@ -64,18 +64,13 @@ public abstract class Items {
         return name != null ? name.hashCode() : 0;
     }
 
-    /**
-     * Menentukan apakah item bisa diberikan ke NPC.
-     * Misalnya, item seperti Hoe, Pickaxe, dll tidak bisa diberikan.
-     */
+   
     public boolean isGiftable() {
         String type = getType();
         return !(type.equalsIgnoreCase("Tool") || type.equalsIgnoreCase("Equipment"));
     }
 
-    /**
-     * Method tambahan untuk mendeteksi tipe item (berdasarkan instanceof).
-     */
+    
     public String getType() {
         if (this instanceof Food) return "Food";
         if (this instanceof Seeds) return "Seeds";
@@ -85,5 +80,9 @@ public abstract class Items {
         if (this instanceof Misc) return "Misc";
         if (this instanceof Furniture) return "Furniture";
         return "Unknown";
+    }
+
+    public boolean isShippable() {
+        return getSellprice() > 0 && isGiftable();
     }
 }

@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import org.example.controller.GameController;
+import org.example.controller.GameState;
+import org.example.view.GameStateUI; 
 
 public class ShippingBinObject extends InteractableObject {
 
@@ -26,6 +28,14 @@ public class ShippingBinObject extends InteractableObject {
 
     @Override
     public void interact(GameController controller) {
-        System.out.println("Interacting with the Shipping Bin");
+        GameState gs = controller.getGameState();
+        GameStateUI ui = controller.getGameStateUI();
+
+        if (gs != null &&  ui != null) {
+            gs.setGameState(gs.shipping_bin);
+            ui.slotCol = 0; 
+            ui.slotRow = 0; 
+            return;
+        }
     }
 }
