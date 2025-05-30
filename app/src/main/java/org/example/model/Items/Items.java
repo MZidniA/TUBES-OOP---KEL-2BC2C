@@ -48,4 +48,17 @@ public abstract class Items {
     public String toString() {
         return getName();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Items)) return false;
+        Items other = (Items) obj;
+        return name.equals(other.name) && sellprice == other.sellprice && buyprice == other.buyprice;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 }

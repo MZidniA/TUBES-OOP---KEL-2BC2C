@@ -84,6 +84,10 @@ public class PlantingAction implements Action {
     
         
         player.decreaseEnergy(ENERGY_COST);
+        if (player.getEnergy() <= player.getMinEnergyOperational()) {
+            player.setPassedOut(true); 
+            return; 
+        }
         player.getInventory().removeInventory(seedToPlant, 1);
     
 
@@ -110,7 +114,6 @@ public class PlantingAction implements Action {
         FarmMap farmMap = farm.getFarmMap();
         boolean dataTilePlanted = farmMap.plantSeedOnTile(targetCol, targetRow, seedToPlant);
         if (!dataTilePlanted) {
-            System.err.println("PlantingAction GAGAL: Tidak bisa mengubah tile data di FarmMap menjadi Plantedland.");
             player.increaseEnergy(ENERGY_COST);
             player.getInventory().addInventory(seedToPlant, 1);
             return;
