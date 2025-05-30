@@ -1,9 +1,12 @@
 package org.example.model;
 
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.example.model.Map.FarmMap;
+import org.example.model.NPC.NPC;
 import org.example.model.enums.Season;
 import org.example.model.enums.Weather;
 import org.example.view.InteractableObject.InteractableObject;
@@ -19,6 +22,7 @@ public class Farm {
     private final FarmMap farmMap = new FarmMap(); 
     private Weather currentWeather; 
     private Season currentSeason;   
+    private Map<String, NPC> npcMap = new HashMap<>();
 
     public Farm(String farmName, Player playerModel) { 
         this.playerModel = playerModel;
@@ -139,4 +143,12 @@ public class Farm {
         }
         return false;
     }   
+
+    public NPC getNPCByName(String name) {
+        return npcMap.get(name);
+    }
+
+    public void addNPC(NPC npc) {
+        npcMap.put(npc.getName(), npc);
+    }
 }

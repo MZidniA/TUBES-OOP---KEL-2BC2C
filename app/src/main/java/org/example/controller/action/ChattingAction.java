@@ -5,7 +5,7 @@ import org.example.model.NPC.NPC;
 import org.example.model.enums.LocationType;
 import org.example.model.Player;
 
-public class ChattingAction implements Action{
+public class ChattingAction implements Action {
 
     private static final int ENERGY_COST = 10;
     private static final int TIME_COST_MINUTES = 10;
@@ -47,18 +47,22 @@ public class ChattingAction implements Action{
 
         if (!canExecute(farm)) return;
 
+        // Cari NPC asli dari farm (bukan instance baru)
+        NPC npc = farm.getNPCByName(targetNpc.getName());
+
+        if (npc == null) {
+            System.out.println("NPC " + targetNpc.getName() + " tidak ditemukan dalam farm.");
+            return;
+        }
+
+        npc.setHeartPoints(npc.getHeartPoints() + HEART_POINT_GAIN);
 
         player.decreaseEnergy(ENERGY_COST);
-
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
 
-
-        targetNpc.setHeartPoints(targetNpc.getHeartPoints() + HEART_POINT_GAIN);
-
-  
-        System.out.println("Kamu ngobrol hangat dengan " + targetNpc.getName() + ".");
-        System.out.println("HeartPoint +10 (sekarang: " + targetNpc.getHeartPoints() + ")");
+        System.out.println("Kamu ngobrol hangat dengan " + npc.getName() + ".");
+        System.out.println("HeartPoint +10 (sekarang: " + npc.getHeartPoints() + ")");
+        System.out.println("Relationship Status: " + npc.getRelationshipStatus());
         System.out.println("Energi -10. Waktu maju 10 menit.");
     }
 }
-

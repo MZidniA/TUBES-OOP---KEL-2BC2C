@@ -18,6 +18,12 @@ import org.example.model.Items.Seeds;
 import org.example.model.Map.FarmMap;
 import org.example.model.Map.Plantedland;
 import org.example.model.Map.Tile;
+import org.example.model.NPC.AbigailNPC;
+import org.example.model.NPC.CarolineNPC;
+import org.example.model.NPC.DascoNPC;
+import org.example.model.NPC.EmilyNPC;
+import org.example.model.NPC.MayorTadiNPC;
+import org.example.model.NPC.PerryNPC;
 import org.example.model.Player;
 import org.example.model.Sound;
 import org.example.model.enums.LocationType;
@@ -93,6 +99,12 @@ public class GameController implements Runnable {
         movementState.put("left", false);
         movementState.put("right", false);
         setupGame();
+        farm.addNPC(new AbigailNPC());
+        farm.addNPC(new CarolineNPC());
+        farm.addNPC(new PerryNPC());
+        farm.addNPC(new EmilyNPC());
+        farm.addNPC(new DascoNPC());
+        farm.addNPC(new MayorTadiNPC());
     }
     
     public GamePanel getGamePanel() { 

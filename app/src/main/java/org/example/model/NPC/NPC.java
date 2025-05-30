@@ -125,4 +125,8 @@ public abstract class NPC {
         return likedItems.contains(item) || lovedItems.contains(item);
     }
 
+    public RelationshipStats getRelationshipStatus() {
+        return this.relationshipsStatus;
+    }
+
 }

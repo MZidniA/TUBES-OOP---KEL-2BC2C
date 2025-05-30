@@ -33,7 +33,8 @@ public class MayorHouse extends InteractableObject {
 
         JDialog dialog = new JDialog(frame, "Interaction", true);
         dialog.setUndecorated(true); 
-        NPCInteractionPanel panel = new NPCInteractionPanel(frame, "Mayor Tadi");
+        String playerName = controller.getFarm().getPlayerModel().getName();
+        NPCInteractionPanel panel = new NPCInteractionPanel(frame, controller, controller.getFarm(), "Mayor Tadi", playerName);
         dialog.setContentPane(panel); 
         dialog.pack(); 
         dialog.setLocationRelativeTo(frame);

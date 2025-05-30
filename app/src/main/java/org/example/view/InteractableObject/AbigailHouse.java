@@ -33,7 +33,8 @@ public class AbigailHouse extends InteractableObject {
 
         JDialog dialog = new JDialog(frame, "Interaction", true);
         dialog.setUndecorated(true);
-        NPCInteractionPanel panel = new NPCInteractionPanel(frame, "Abigail");
+        String playerName = controller.getFarm().getPlayerModel().getName();
+        NPCInteractionPanel panel = new NPCInteractionPanel(frame, controller, controller.getFarm(), "Abigail", playerName);
         dialog.setContentPane(panel); 
         dialog.pack(); 
         dialog.setLocationRelativeTo(frame);
