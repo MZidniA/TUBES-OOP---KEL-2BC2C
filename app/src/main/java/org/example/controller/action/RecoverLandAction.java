@@ -8,6 +8,7 @@ import org.example.model.Items.Items;
 import org.example.model.GameClock;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.InteractableObject.UnplantedTileObject; // Atau Tilledland jika itu nama kelasnya
+import org.example.view.InteractableObject.PlantedTileObject; // Jika Anda perlu memeriksa objek yang ditanam
 import org.example.view.tile.TileManager; // Untuk mengubah tile visual (opsional)
 
 public class RecoverLandAction implements Action {
@@ -61,7 +62,7 @@ public class RecoverLandAction implements Action {
 
     
         InteractableObject targetObject = farm.getObjectAtTile(farm.getCurrentMap(), targetCol, targetRow, controller.getTileSize());
-        if (!(targetObject instanceof UnplantedTileObject)) { 
+        if (!(targetObject instanceof UnplantedTileObject || targetObject instanceof PlantedTileObject)) { 
             return false; 
         }
 

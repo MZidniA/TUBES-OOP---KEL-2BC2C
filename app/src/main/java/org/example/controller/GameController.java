@@ -265,26 +265,7 @@ public class GameController implements Runnable {
                 } else {
                     System.out.println("Tidak bisa mencangkul di sini");
                 }
-            } else if (heldItem.getName().equalsIgnoreCase("Pickaxe")) {
-                RecoverLandAction recoverAction = new RecoverLandAction(this, targetCol, targetRow);
-                if (recoverAction.canExecute(farm)) {
-                    recoverAction.execute(farm);
-                } else {
-                    System.out.println("Tidak bisa mengembalikan tanah ini lagi");
-                }
-            } else if (heldItem instanceof Seeds) { 
-                Seeds seedBeingHeld = (Seeds) heldItem;
-                InteractableObject objectAtTargetTile = farm.getObjectAtTile(currentMap, targetCol, targetRow, tileSize);
-                if (objectAtTargetTile instanceof UnplantedTileObject) { 
-                    PlantingAction plantingAction = new PlantingAction(this, seedBeingHeld, targetCol, targetRow);
-                    if (plantingAction.canExecute(farm)) {
-                        plantingAction.execute(farm);
-                
-                    } else {
-                        System.out.println("PlantingAction tidak bisa dieksekusi.");
-                    }
-                }
-            }
+            } 
         } else {
             if (playerViewInstance.solidArea == null) return;
             int playerCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width / 2) / tileSize;

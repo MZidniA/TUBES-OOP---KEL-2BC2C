@@ -220,7 +220,13 @@ public class FishingPanel extends JPanel {
 
             endFishing(true);
         } else {
-            appendToLog(guess < targetNumber ? "Too low." : "Too high.");
+            if (guess < targetNumber && guess >= 1) {
+                appendToLog("Too low.");
+            } else if (guess > targetNumber && guess <= Integer.parseInt(getRangeText(currentFishType).split("–")[1])) {
+                appendToLog("Too high.");
+            } else {
+                appendToLog("Invalid guess. Must be within range " + getRangeText(currentFishType));
+            }
         }
 
         if (currentAttempt >= maxAttempts && gameActive) {
