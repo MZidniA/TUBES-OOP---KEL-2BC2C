@@ -57,6 +57,8 @@ public class GiftingAction implements Action {
         // Hapus item dari inventory
         player.getInventory().removeInventory(giftItem, 1);
 
+        player.getPlayerStats().incrementNpcVisitInteraction(targetNpc.getName());
+
         // Log
         System.out.println("Kamu memberikan " + giftItem.getName() + " ke " + targetNpc.getName());
         System.out.println("Efek: " + effect + " heartPoints, sekarang: " + updatedHeart);

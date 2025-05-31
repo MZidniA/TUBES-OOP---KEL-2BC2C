@@ -94,4 +94,8 @@ public class TimeManager {
         }
         System.out.println("TimeManager: Time system stopped.");
     }
+
+    public boolean isRunning() {
+        return running;    
+    }
 }

@@ -4,11 +4,14 @@ package org.example.view;
 import org.example.controller.GameState; 
 import org.example.model.Inventory;
 import org.example.model.Player;
+import org.example.model.PlayerStats;
 import org.example.model.Recipe;
 import org.example.model.RecipeDatabase;
 import org.example.model.Items.Fish;
 import org.example.model.Items.Food;
 import org.example.model.Items.Items;
+import org.example.model.NPC.NPC;
+import org.example.model.enums.FishType;
 import org.example.model.enums.Season;
 import java.time.LocalTime;
 import org.example.model.GameClock; 
@@ -42,12 +45,12 @@ public class GameStateUI implements TimeObserver {
     private java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
     // Cooking Menu State
-    private Farm farm;
-    private int selectedRecipeIndex = 0;
-    private int selectedFuelIndex = 0;
-    private int cookingMenuCommandNum = 0; // 0: Cook, 1: Cancel
-    private List<Recipe> availableRecipesForUI; 
-    private List<Items> availableFuelsForUI; 
+    public Farm farm;
+    public int selectedRecipeIndex = 0;
+    public int selectedFuelIndex = 0;
+    public int cookingMenuCommandNum = 0; // 0: Cook, 1: Cancel
+    public List<Recipe> availableRecipesForUI; 
+    public List<Items> availableFuelsForUI; 
 
     // UI Message State
     private String uiMessage = null;
@@ -63,6 +66,10 @@ public class GameStateUI implements TimeObserver {
     public List<Integer> mapOptionTargetMapIndices; // Daftar index map tujuan
     public List<int[]> mapOptionTargetCoords; // Daftar koordinat spawn [tileX, tileY]
 
+
+    // Fields for end-of-day info
+    private String sleepMessage;
+    private int goldFromShipment;
 
     Color woodBrown = new Color(139, 69, 19);
     Color lightYellow = new Color(255, 253, 208);
@@ -107,24 +114,34 @@ public class GameStateUI implements TimeObserver {
         } else if (currentGameState.getGameState() == currentGameState.inventory) {
             drawInventoryScreen(playerInventory); 
         } else if (currentGameState.getGameState() == currentGameState.cooking_menu) {
-<<<<<<< Updated upstream
             drawCookingMenuScreen(farm, player, playerInventory);
-        } 
-=======
-            if (farmInstance != null && playerInstance != null && playerInventory != null) {
-                drawCookingMenuScreen(farmInstance, playerInstance, playerInventory);
-            } else {
-                System.err.println("GameStateUI.draw(): Data penting (Farm/Player/Inventory) null saat akan menggambar cooking menu.");
-                // Opsional: gambar pesan error sederhana di layar
-            }
         } else if (currentGameState.getGameState() == currentGameState.map_selection) { 
-            if (farmInstance != null) { 
-                drawMapSelectionMenu(farmInstance.getCurrentMap());
+            if (farm != null) { 
+                drawMapSelectionMenu(farm.getCurrentMap());
             } else {
                 System.err.println("GameStateUI.draw(): farmInstance null saat akan menggambar map selection menu.");
             }
+        } else if (currentGameState.getGameState() == currentGameState.end_game_stats) { // Gunakan konstanta yang sudah didefinisikan
+            // Pastikan controller dan model sudah diinisialisasi di GamePanel (gp)
+            // dan bisa diakses dari sini jika diperlukan.
+            // Asumsi GamePanel (gp) memiliki akses ke GameController, dan GameController ke Farm dan PlayerStats.
+            if (gp != null && gp.getController() != null && 
+                gp.getController().getFarmModel() != null && 
+                gp.getController().getFarmModel().getPlayerStats() != null) {
+                
+                PlayerStats playerStats = gp.getController().getFarmModel().getPlayerStats();
+                Farm farmModel = gp.getController().getFarmModel();
+                drawEndGameStatisticsScreen(playerStats, farmModel);
+            } else {
+                // Handle jika ada yang null, misalnya tampilkan pesan error di layar
+                if (this.g2 != null) { // Gunakan this.g2 karena kita di dalam GameStateUI
+                    this.g2.setColor(Color.RED);
+                    this.g2.setFont(stardewFont_30); // Pastikan font ini valid
+                    this.g2.drawString("Error: Stats Data Unavailable.", this.gp.tileSize, this.gp.screenHeight / 2);
+                }
+                System.err.println("GameStateUI.draw() ERROR: Cannot display END_GAME_STATS. Critical components (GamePanel, Controller, Farm, or PlayerStats) are null.");
+            }
         }
->>>>>>> Stashed changes
 
         if (temporaryMessage != null) {
             long currentTime = System.currentTimeMillis();
@@ -147,9 +164,7 @@ public class GameStateUI implements TimeObserver {
         }
     }
 
-<<<<<<< Updated upstream
     // --- Metode untuk Menggambar Menu Memasak ---
-=======
     private void drawMapSelectionMenu(int currentMapIndex) {
         if (g2 == null || gp == null) return;
 
@@ -232,7 +247,6 @@ public class GameStateUI implements TimeObserver {
     }
 
 
->>>>>>> Stashed changes
     private void drawCookingMenuScreen(Farm farm, Player player, Inventory playerInventory) {
         if (g2 == null || gp == null) { // Pastikan g2 dan gp tidak null
             System.err.println("GameStateUI ERROR: Graphics2D (g2) or GamePanel (gp) is null in drawCookingMenuScreen.");
@@ -663,4 +677,141 @@ public class GameStateUI implements TimeObserver {
         System.out.println("GameStateUI: Map Selection Menu state has been reset.");
     }
 
+    // (Place this method in the GameStateUI class, for example after other public methods)
+    public void setEndOfDayInfo(String sleepMessage, int goldFromShipment) {
+        // Store the info in fields for rendering in the UI
+        this.sleepMessage = sleepMessage;
+        this.goldFromShipment = goldFromShipment;
+    }
+
+    private void drawEndGameStatisticsScreen(PlayerStats stats, Farm farm) {
+        if (g2 == null || gp == null || stats == null || farm == null) {
+            System.err.println("GameStateUI ERROR: Cannot draw end game stats. Critical component is null.");
+            // Anda bisa menggambar pesan error sederhana di layar jika g2 dan gp tidak null
+            if (g2 != null && gp != null) {
+                g2.setColor(Color.RED);
+                g2.setFont(stardewFont_30); // Asumsi font ini ada
+                g2.drawString("Error displaying statistics.", gp.tileSize, gp.screenHeight / 2);
+            }
+            return;
+        }
+
+        // 1. Latar Belakang Gelap (Menutupi seluruh layar)
+        g2.setColor(new Color(0, 0, 0, 230)); // Hitam semi-transparan
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        // 2. Frame Utama untuk Statistik
+        int frameX = gp.tileSize;
+        int frameY = gp.tileSize;
+        int frameWidth = gp.screenWidth - (gp.tileSize * 2);
+        int frameHeight = gp.screenHeight - (gp.tileSize * 2);
+        // Gunakan metode drawSubWindow Anda jika ada, atau gambar manual
+        // Asumsikan Anda memiliki drawSubWindow(int x, int y, int width, int height, Color backgroundColor)
+        drawSubWindow(frameX, frameY, frameWidth, frameHeight, woodBrown); // 'woodBrown' dari field Anda
+
+        // 3. Font yang Akan Digunakan
+        Font titleFont = stardewFont_40.deriveFont(20f); // Sesuaikan ukuran
+        Font headerFont = stardewFont_30.deriveFont(Font.BOLD, 14f);
+        Font statFont = stardewFont_30.deriveFont(12f);
+        Font npcStatFont = stardewFont_20.deriveFont(11f); // Lebih kecil untuk detail NPC
+        Font continueFont = stardewFont_30.deriveFont(Font.ITALIC, 13f);
+
+        // 4. Posisi Awal Teks
+        int currentX = frameX + gp.tileSize / 2;
+        int currentY = frameY + gp.tileSize;
+        int lineHeightLarge = (int)(gp.tileSize * 0.9);
+        int lineHeightMedium = (int)(gp.tileSize * 0.7);
+        int lineHeightSmall = (int)(gp.tileSize * 0.6);
+
+        // Kolom Kedua (jika diperlukan untuk layout yang lebih baik)
+        int secondColumnX = frameX + frameWidth / 2 + gp.tileSize / 4;
+        int initialYForSecondCol = currentY + lineHeightLarge; // Akan disesuaikan
+
+        // 5. Judul
+        String title = "Game Statistics";
+        drawTextWithShadow(title, getXforCenteredTextInWindow(title, frameX, frameWidth, titleFont), currentY, titleFont, Color.YELLOW, darkTextShadow);
+        currentY += lineHeightLarge * 1.5; // Spasi setelah judul
+
+        // --- Kolom Kiri ---
+        int leftColumnY = currentY;
+
+        // Data Statistik Utama
+        drawTextWithShadow("Total Income: " + stats.getTotalIncome() + "g", currentX, leftColumnY, statFont);
+        leftColumnY += lineHeightMedium;
+        drawTextWithShadow("Total Expenditure: " + stats.getTotalGoldSpent() + "g", currentX, leftColumnY, statFont);
+        leftColumnY += lineHeightMedium;
+
+        long totalDays = stats.getTotalDaysPlayed();
+        if (totalDays == 0) totalDays = 1; // Hindari pembagian dengan nol
+        double totalSeasons = Math.max(1.0, Math.ceil((double)totalDays / 10.0)); // 1 season = 10 hari
+
+        long avgIncome = (long) (stats.getTotalIncome() / totalSeasons);
+        long avgExpenditure = (long) (stats.getTotalGoldSpent() / totalSeasons);
+
+        drawTextWithShadow("Avg. Season Income: " + avgIncome + "g", currentX, leftColumnY, statFont);
+        leftColumnY += lineHeightMedium;
+        drawTextWithShadow("Avg. Season Expenditure: " + avgExpenditure + "g", currentX, leftColumnY, statFont);
+        leftColumnY += lineHeightMedium;
+        drawTextWithShadow("Total Days Played: " + stats.getTotalDaysPlayed(), currentX, leftColumnY, statFont);
+        leftColumnY += lineHeightLarge; // Spasi sebelum bagian berikutnya
+
+        // Statistik Panen
+        drawTextWithShadow("Crops Harvested: " + stats.getTotalCropsHarvested(), currentX, leftColumnY, statFont);
+        leftColumnY += lineHeightLarge;
+
+        // Statistik Ikan
+        drawTextWithShadow("Fish Caught:", currentX, leftColumnY, headerFont);
+        leftColumnY += lineHeightMedium;
+        int totalFish = 0;
+        Map<FishType, Integer> fishCaughtMap = stats.getTotalFishCaught();
+        if (fishCaughtMap != null) {
+            for (int count : fishCaughtMap.values()) {
+                totalFish += count;
+            }
+        }
+        drawTextWithShadow("  Total: " + totalFish, currentX + gp.tileSize/2, leftColumnY, statFont);
+        leftColumnY += lineHeightSmall;
+        drawTextWithShadow("    Common: " + (fishCaughtMap != null ? fishCaughtMap.getOrDefault(FishType.COMMON, 0) : 0), currentX + gp.tileSize, leftColumnY, npcStatFont, Color.LIGHT_GRAY, darkTextShadow);
+        leftColumnY += lineHeightSmall;
+        drawTextWithShadow("    Regular: " + (fishCaughtMap != null ? fishCaughtMap.getOrDefault(FishType.REGULAR, 0) : 0), currentX + gp.tileSize, leftColumnY, npcStatFont, Color.LIGHT_GRAY, darkTextShadow);
+        leftColumnY += lineHeightSmall;
+        drawTextWithShadow("    Legendary: " + (fishCaughtMap != null ? fishCaughtMap.getOrDefault(FishType.LEGENDARY, 0) : 0), currentX + gp.tileSize, leftColumnY, npcStatFont, Color.LIGHT_GRAY, darkTextShadow);
+
+        // --- Kolom Kanan ---
+        int rightColumnY = currentY; // Mulai dari Y yang sama dengan kolom kiri untuk bagian NPC
+
+        // Statistik NPC
+        drawTextWithShadow("NPC Status:", secondColumnX, rightColumnY, headerFont);
+        rightColumnY += lineHeightMedium;
+
+        Map<String, NPC> npcMap = farm.getNPCMap(); // Akses npcMap dari Farm
+        if (npcMap == null || npcMap.isEmpty()) {
+            drawTextWithShadow("  No NPC data available.", secondColumnX + gp.tileSize/2, rightColumnY, npcStatFont, Color.LIGHT_GRAY, darkTextShadow);
+        } else {
+            int npcCount = 0;
+            for (NPC npc : npcMap.values()) {
+                if (npcCount >= 5 && npcMap.size() > 5) { // Batasi jumlah NPC yang ditampilkan jika terlalu banyak, atau buat scroll
+                    drawTextWithShadow("  ...and more.", secondColumnX + gp.tileSize/2, rightColumnY, npcStatFont, Color.LIGHT_GRAY, darkTextShadow);
+                    break;
+                }
+                String npcName = npc.getName();
+                String relationship = npc.getRelationshipsStatus() != null ? npc.getRelationshipsStatus().toString() : "N/A";
+                int chats = stats.getNpcTotalChat() != null ? stats.getNpcTotalChat().getOrDefault(npcName, 0) : 0;
+                int gifts = stats.getNpcTotalGift() != null ? stats.getNpcTotalGift().getOrDefault(npcName, 0) : 0;
+                int visits = stats.getNpcTotalVisit() != null ? stats.getNpcTotalVisit().getOrDefault(npcName, 0) : 0;
+
+                drawTextWithShadow("  " + npcName + ": " + relationship, secondColumnX + gp.tileSize/2, rightColumnY, statFont);
+                rightColumnY += lineHeightSmall;
+                drawTextWithShadow("    Chats: " + chats + ", Gifts: " + gifts + ", Visits: " + visits, secondColumnX + gp.tileSize, rightColumnY, npcStatFont, Color.LIGHT_GRAY, darkTextShadow);
+                rightColumnY += lineHeightMedium; // Beri spasi antar NPC
+                npcCount++;
+            }
+        }
+
+        // 6. Instruksi untuk Melanjutkan
+        String continueMsg = "Press Enter to Continue";
+        // Tempatkan di bagian bawah tengah frame
+        int continueY = frameY + frameHeight - gp.tileSize + (gp.tileSize / 4) ;
+        drawTextWithShadow(continueMsg, getXforCenteredTextInWindow(continueMsg, frameX, frameWidth, continueFont), continueY, continueFont, Color.WHITE, darkTextShadow);
+    }
 }

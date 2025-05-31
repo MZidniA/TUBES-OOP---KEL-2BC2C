@@ -42,8 +42,6 @@ public class KeyHandler implements KeyListener {
             else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) gameController.navigateInventoryUI("left");
             else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) gameController.navigateInventoryUI("right");
             else if (code == KeyEvent.VK_ENTER) gameController.confirmInventoryUISelection();
-<<<<<<< Updated upstream
-=======
         } else if (currentGameState.getGameState() == currentGameState.cooking_menu) { 
             switch (code) {
                 case KeyEvent.VK_W: case KeyEvent.VK_UP:
@@ -84,7 +82,10 @@ public class KeyHandler implements KeyListener {
                     gameController.exitMapSelectionMenu(); // Kembali ke play state tanpa teleport
                     break;
             }
->>>>>>> Stashed changes
+        } else if (currentGameState.getGameState() == currentGameState.end_game_stats) { // Gunakan konstanta yang benar
+            if (code == KeyEvent.VK_ENTER) {
+                gameController.dismissEndGameStatisticsScreen();
+            }
         }
 
     }

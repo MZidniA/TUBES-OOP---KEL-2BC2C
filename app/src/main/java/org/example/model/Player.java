@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import org.example.model.Items.Items;
 import org.example.model.NPC.NPC;
 import org.example.model.enums.LocationType;
+import org.example.model.enums.SleepReason;
 
 public class Player {
     private String name;
@@ -26,6 +27,7 @@ public class Player {
 
     // Tambahkan field di class Player
     private PlayerStats playerStats;
+    private SleepReason sleepReason; // Tambahkan field untuk alasan tidur
 
     public Player(String name, String gender, String farmname) {
         this.name = name;
@@ -171,5 +173,19 @@ public class Player {
     // Setter jika ingin mengubah stats dari luar
     public void setPlayerStats(PlayerStats playerStats) {
         this.playerStats = playerStats;
+    }
+
+    public void addGold(int amount) {
+        this.gold += amount;
+    }
+
+    // Add this getter if not present
+    public SleepReason getSleepReason() {
+        return this.sleepReason;
+    }
+
+    public void setSleepReason(SleepReason passedOutTime) {
+        this.sleepReason = passedOutTime;
+        System.out.println("Player.setSleepReason: " + this.name + " tidur karena " + passedOutTime);
     }
 }

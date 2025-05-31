@@ -122,6 +122,8 @@ public class ProposingAction implements Action {
 
             // "Proposal Ring tidak hilang setelah digunakan (reusable)" -> jadi tidak perlu removeItem
             // farm.getPlayerStats().recordEvent("Proposed", targetNpc.getName()); // Contoh event logging
+            System.out.println("LAMARAN BERHASIL 💍");
+            player.getPlayerStats().incrementNpcVisitInteraction(targetNpc.getName());
 
         } else {
             // Lamaran DITOLAK

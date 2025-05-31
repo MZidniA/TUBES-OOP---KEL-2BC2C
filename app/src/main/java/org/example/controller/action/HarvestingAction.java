@@ -111,8 +111,10 @@ public class HarvestingAction implements Action {
         if (yield != null) {
             quantityYielded = yield.getJumlahcropperpanen(); 
             player.getInventory().addInventory(yield, quantityYielded);
+            player.getPlayerStats().recordCropsHarvested(quantityYielded);
+            System.out.println("Berhasil memanen " + quantityYielded + " " + yield.getName());
         } else {
-            
+            System.err.println("Gagal mendapatkan hasil panen untuk " + seedName);
         }
 
         farm.removeObjectAtTile(farm.getCurrentMap(), targetCol, targetRow, controller.getTileSize());

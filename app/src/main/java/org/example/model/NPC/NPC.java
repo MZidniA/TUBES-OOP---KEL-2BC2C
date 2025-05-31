@@ -18,6 +18,7 @@ public abstract class NPC {
     private int heartPoints;
     private RelationshipStats relationshipsStatus;
     private LocalDate lastGiftDate;
+    private int fianceSinceDay = -1; // default value, set appropriately elsewhere
 
     public NPC(String name, LocationType locationtype, List<Items> lovedItems, List<Items> likedItems, List<Items> hatedItems, int heartPoints, RelationshipStats relationshipsStatus) {
         this.name = name;
@@ -57,6 +58,10 @@ public abstract class NPC {
         return relationshipsStatus;
     }
 
+    public int getFianceSinceDay() {
+        return fianceSinceDay;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -83,6 +88,10 @@ public abstract class NPC {
 
     public void setRelationshipsStatus(RelationshipStats relationshipsStatus) {
         this.relationshipsStatus = relationshipsStatus;
+    }
+
+    public void setFianceSinceDay(int day) {
+        this.fianceSinceDay = day;
     }
 
     public boolean hasGiftedToday() {

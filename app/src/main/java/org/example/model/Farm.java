@@ -24,6 +24,8 @@ public class Farm {
     private Season currentSeason;   
     private Map<String, NPC> npcMap = new HashMap<>();
 
+    private int goldFromLastShipment = 0;
+
     public Farm(String farmName, Player playerModel) { 
         this.playerModel = playerModel;
         this.playerModel.setFarmname(farmName);
@@ -180,5 +182,25 @@ public class Farm {
                 System.out.println("Masakan " + cooking.getCookedDish().getName() + " selesai dimasak dan otomatis masuk ke inventory.");
             }
         }
+    }
+
+    /**
+     * Returns the gold from the last shipment and resets it to zero.
+     */
+    public int getAndClearGoldFromLastShipment() {
+        int gold = this.goldFromLastShipment;
+        this.goldFromLastShipment = 0;
+        return gold;
+    }
+
+    /**
+     * Call this method to add gold to the last shipment (e.g., when shipping items).
+     */
+    public void addGoldToLastShipment(int amount) {
+        this.goldFromLastShipment += amount;
+    }
+
+    public Map<String, NPC> getNPCMap() {
+        return this.npcMap;
     }
 }

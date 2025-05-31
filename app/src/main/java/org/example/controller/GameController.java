@@ -6,6 +6,9 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
+import org.example.controller.action.Action;
+import org.example.controller.action.CookingAction;
+import org.example.controller.action.MarryingAction;
 import org.example.controller.action.PlantingAction;
 import org.example.controller.action.RecoverLandAction;
 import org.example.controller.action.TillingAction;
@@ -26,9 +29,16 @@ import org.example.model.NPC.MayorTadiNPC;
 import org.example.model.NPC.PerryNPC;
 import org.example.model.Player;
 import org.example.model.Sound;
+import org.example.model.NPC.NPC;
+import org.example.model.PlayerStats;
+import org.example.model.Recipe;
 import org.example.model.enums.LocationType;
 import org.example.model.enums.Season;
 import org.example.model.enums.Weather;
+import org.example.model.enums.SleepReason;
+import org.example.model.enums.RelationshipStats; 
+
+
 import org.example.view.FishingPanel;
 import org.example.view.GamePanel;
 import org.example.view.GameStateUI;
@@ -49,6 +59,8 @@ public class GameController implements Runnable {
     private final TileManager tileManager; 
     private final GameStateUI gameStateUI; 
     private final JFrame mainFrame; 
+    private final Player playerModel; // Bisa juga didapat dari farmModel.getPlayerModel()
+
 
     private final KeyHandler keyHandler;
     private final CollisionChecker cChecker;
@@ -64,47 +76,65 @@ public class GameController implements Runnable {
     private final int TILLABLE_AREA_MAP0_MIN_ROW = 19;
     private final int TILLABLE_AREA_MAP0_MAX_ROW = 28;
 
-    public GameController(JFrame frame,GamePanel gamePanel, Farm farm) {
+    private static final int END_GAME_GOLD_MILESTONE = 17209;
+
+    public GameController(JFrame frame, GamePanel gamePanel, Farm farm) {
         this.gamePanel = gamePanel;
-        this.farm = farm;
-        this.mainFrame = frame; 
+        this.farm = farm; // Menggunakan 'farm'
+        this.mainFrame = frame;
 
-        this.gameState = new GameState();
-        
-        this.tileManager = gamePanel.tileM; 
-        this.gameStateUI = gamePanel.gameStateUI; 
+        this.gameState = new GameState(); // Inisialisasi di sini
+        this.playerModel = farm.getPlayerModel();
 
-        this.playerViewInstance = new PlayerView(farm.getPlayerModel(), gamePanel);
-        this.cChecker = new CollisionChecker(this);
-        this.aSetter = new AssetSetter(this);
-        this.keyHandler = new KeyHandler(this);
-        this.music = new Sound();
-        this.music.setFile();
-        
+        if (this.playerModel == null) {
+            throw new IllegalStateException("Player model cannot be null (obtained from Farm) in GameController constructor.");
+        }
+        // Pastikan PlayerStats diinisialisasi di dalam constructor Player
+        if (this.playerModel.getPlayerStats() == null) {
+            System.err.println("GameController CRITICAL: PlayerStats is null for playerModel. Ensure it's initialized within Player constructor or Player.java.");
+            // Jika perlu, this.playerModel.setPlayerStats(new PlayerStats()); tapi ini sebaiknya di Player.
+        }
+
+
+        this.tileManager = gamePanel.tileM;
+        this.gameStateUI = gamePanel.gameStateUI; // Diambil dari gamePanel
+
+        // Inisialisasi TimeManager dari konstruktor Anda
         if (farm.getGameClock() != null && this.gameStateUI != null) {
             this.timeManager = new TimeManager(farm, farm.getGameClock());
             this.timeManager.addObserver(this.gameStateUI);
         } else {
-            this.timeManager = null; 
-            System.err.println("GameController Error: Farm, GameClock, atau GameStateUI null saat membuat TimeManager.");
+            this.timeManager = null;
+            System.err.println("GameController Constructor: Farm.getGameClock() or GameStateUI is null. TimeManager not initialized.");
         }
+
+        this.playerViewInstance = new PlayerView(farm.getPlayerModel(), gamePanel);
+        this.cChecker = new CollisionChecker(this);
+        this.aSetter = new AssetSetter(this);
+        // KeyHandler di-pass 'this' (GameController)
+        this.keyHandler = new KeyHandler(this); // Pastikan KeyHandler menerima GameController
+        this.music = new Sound();
+        // this.music.setFile(); // Anda mungkin punya cara spesifik untuk path file
 
         if (this.gamePanel != null) {
             this.gamePanel.addKeyListener(this.keyHandler);
             this.gamePanel.setFocusable(true);
         }
-        
+
         movementState.put("up", false);
         movementState.put("down", false);
         movementState.put("left", false);
         movementState.put("right", false);
-        setupGame();
-        farm.addNPC(new AbigailNPC());
-        farm.addNPC(new CarolineNPC());
-        farm.addNPC(new PerryNPC());
-        farm.addNPC(new EmilyNPC());
-        farm.addNPC(new DascoNPC());
-        farm.addNPC(new MayorTadiNPC());
+        setupGame(); // Metode setupGame Anda
+        // Penambahan NPC dari konstruktor Anda
+        farm.addNPC(new org.example.model.NPC.AbigailNPC()); // Gunakan full qualified name jika ada ambiguitas
+        farm.addNPC(new org.example.model.NPC.CarolineNPC());
+        farm.addNPC(new org.example.model.NPC.PerryNPC());
+        farm.addNPC(new org.example.model.NPC.EmilyNPC());
+        farm.addNPC(new org.example.model.NPC.DascoNPC());
+        farm.addNPC(new org.example.model.NPC.MayorTadiNPC());
+
+        System.out.println("GameController initialized.");
     }
     
     public GamePanel getGamePanel() { 
@@ -167,50 +197,53 @@ public class GameController implements Runnable {
     }
 
     private void update() {
-        // Pengecekan null untuk komponen krusial di awal
         if (playerViewInstance == null || cChecker == null || gameState == null || farm == null) {
-            // System.err.println("GameController.update() aborted: Critical component is null."); // Opsional: untuk debugging
             return;
         }
-        
-        Player playerModel = farm.getPlayerModel();
-        if (playerModel == null) { // Pastikan playerModel juga tidak null
-            // System.err.println("GameController.update() aborted: PlayerModel is null."); // Opsional: untuk debugging
+        // Player playerModel = farm.getPlayerModel(); // playerModel sudah menjadi field kelas
+        if (this.playerModel == null) {
             return;
         }
 
-        // --- Update Progres Memasak ---
-        // Ini akan memeriksa apakah ada masakan yang selesai dan otomatis menambahkannya ke inventory.
-        // Dipanggil di setiap update loop agar proses memasak berjalan secara pasif.
-        farm.updateCookingProgress(); // <-- PEMANGGILAN updateCookingProgress() DITAMBAHKAN DI SINI
-
-        // Cek kondisi pingsan
-        if (playerModel.isPassedOut()) {
-            passedOutSleep();
-            System.out.println("Kamu pingsan dan seseorang membawamu pulang..."); // Pesan ini bisa juga dihandle oleh UI
-        } 
-        // Cek kondisi tidur paksa karena waktu
-        // Tambahkan 'else if' agar tidak terjadi dua kali passedOutSleep jika keduanya true di frame yang sama
-        else if (playerModel.isForceSleepByTime()) { 
-            passedOutSleep();
-            System.out.println("Sudah jam 02:00, kamu kelelahan dan pingsan"); // Pesan ini bisa juga dihandle oleh UI
+        // Kontrol TimeManager berdasarkan GameState
+        if (this.gameState.getGameState() == this.gameState.play) {
+            if (this.timeManager != null && !this.timeManager.isRunning()) { // Perlu method isRunning() di TimeManager
+                 this.timeManager.startTimeSystem();
+            }
+        } else {
+            // Jika bukan state play (misal: pause, inventory, menu, stats, day_report), pastikan waktu berhenti
+            if (this.timeManager != null && this.timeManager.isRunning()) {
+                 this.timeManager.stopTimeSystem();
+            }
         }
 
-        // Logika update spesifik untuk state PLAY
+        farm.updateCookingProgress();
+
+        // Cek kondisi pingsan atau tidur paksa hanya jika game dalam state 'play'
+        if (gameState.getGameState() == gameState.play) {
+            if (playerModel.isPassedOut()) { // Flag ini di-set oleh Player.java saat energi <= MIN_ENERGY_OPERATIONAL
+                System.out.println("GameController: Player passed out due to energy."); // DEBUG
+                playerModel.setSleepReason(SleepReason.PASSED_OUT_ENERGY);
+                initiateSleepSequence(); // Memulai urutan tidur/laporan hari
+            } else if (playerModel.isForceSleepByTime()) { // Flag ini di-set oleh TimeManager
+                System.out.println("GameController: Player forced to sleep due to time."); // DEBUG
+                playerModel.setSleepReason(SleepReason.PASSED_OUT_TIME);
+                initiateSleepSequence(); // Memulai urutan tidur/laporan hari
+            }
+        }
+
         if (gameState.getGameState() == gameState.play) {
             playerViewInstance.update(movementState, cChecker);
-            // playerModel sudah dicek tidak null di atas
-            // playerViewInstance juga sudah dicek tidak null di awal metode
             playerModel.setTilePosition(playerViewInstance.worldX / getTileSize(), playerViewInstance.worldY / getTileSize());
         }
-        // Anda bisa menambahkan logika update untuk state lain jika diperlukan (misalnya, animasi UI di state PAUSE)
     }
-
+    
     public void handlePlayerMove(String direction, boolean isMoving) {
         if (gameState.getGameState() == gameState.play) {
             movementState.put(direction, isMoving);
         }
     }
+
 
     public void handleInteraction() {
         if (gameState.getGameState() != gameState.play) return;
@@ -542,8 +575,6 @@ public class GameController implements Runnable {
         System.out.println("===== END OF PLANT GROWTH PROCESSING =====\n");
     }
 
-<<<<<<< Updated upstream
-=======
     public void confirmCookingMenuSelection() {
         if (gameState.getGameState() != gameState.cooking_menu || gameStateUI == null || farm == null) {
             System.err.println("GameController: confirmCookingMenuSelection() - Invalid state or null components.");
@@ -654,9 +685,7 @@ public class GameController implements Runnable {
         // DEBUG: Cetak state setelah navigasi
         System.out.println("  -> RecipeIndex: " + gameStateUI.selectedRecipeIndex + ", CommandNum: " + gameStateUI.cookingMenuCommandNum);
     }    
- 
->>>>>>> Stashed changes
-    
+
     public void navigateMapSelectionMenu(String direction) {
         if (gameState.getGameState() != gameState.map_selection || gameStateUI == null || gameStateUI.mapOptions == null) {
             return;
@@ -725,5 +754,237 @@ public class GameController implements Runnable {
             System.out.println("GameController: Exited Map Selection Menu. Game state set to PLAY.");
         }
     }
+  
+    // === METODE BARU / DISESUAIKAN UNTUK END GAME STATISTICS ===
 
+
+    /**
+     * Dipanggil ketika pemain menutup layar statistik (misalnya, oleh KeyHandler setelah Enter ditekan).
+     */
+    public void dismissEndGameStatisticsScreen() {
+        if (this.gameState != null && this.gameState.getGameState() == this.gameState.end_game_stats) {
+            this.gameState.setGameState(this.gameState.play); // Kembali ke state bermain normal
+            if (this.timeManager != null) {
+                this.timeManager.startTimeSystem();
+            } else {
+                System.out.println("GameController WARNING: TimeManager is null, cannot resume time system.");
+            }
+            System.out.println("GameController LOG: End game statistics dismissed. GameState changed to PLAY. Time system (if available) resumed.");
+            
+            if (this.gamePanel != null) {
+                this.gamePanel.repaint();
+            }
+        }
+    }
+
+    /**
+     * Memproses logika akhir hari, termasuk pendapatan dan pengecekan statistik.
+     * Dipanggil setelah laporan harian ditutup.
+     */
+    public void processEndOfDayAndCheckStats() {
+        System.out.println("GameController LOG: Processing end of day procedures and checking stats...");
+
+        // 1. Proses pendapatan dari shipping bin
+        int goldFromShipment = this.farm.getAndClearGoldFromLastShipment();
+        if (goldFromShipment > 0) {
+            this.playerModel.addGold(goldFromShipment);
+            if (this.playerModel.getPlayerStats() != null) {
+                this.playerModel.getPlayerStats().recordIncome(goldFromShipment);
+            }
+            System.out.println("GameController LOG: Player received " + goldFromShipment + "g from shipment.");
+        }
+        // Info untuk UI sudah di-set sebelumnya saat transisi ke DAY_REPORT
+
+        // 2. Cek pemicu statistik End Game
+        checkForEndGameStatsTrigger();
+        System.out.println("GameController LOG: End of day and stats check procedures complete.");
+    }
+
+    /**
+     * Dipanggil oleh SleepAction atau ketika TimeManager memaksa tidur.
+     * Metode ini akan mengatur transisi ke layar laporan harian.
+     */
+
+    /**
+     * Dipanggil saat pemain menutup (dismiss) layar laporan akhir hari (misalnya, oleh KeyHandler).
+     */
+    public void handleEndOfDayReportDismissal() {
+        // Hanya proses jika memang sedang di state day_report
+        if (this.gameState.getGameState() != this.gameState.day_report) return;
+
+        System.out.println("GameController: End of day report dismissed by player.");
+        
+        // 1. Proses pendapatan hari ini (tambahkan gold ke pemain & catat di PlayerStats)
+        //    dan kemudian cek statistik end game.
+        processDayRevenueAndCheckStats(); 
+
+        // 2. Setelah semua proses selesai, kembalikan ke state bermain normal,
+        //    KECUALI jika checkForEndGameStatsTrigger mengubah state ke END_GAME_STATS.
+        if (this.gameState.getGameState() != this.gameState.end_game_stats) { // Perhatikan konstanta yang benar
+            this.gameState.setGameState(this.gameState.play);
+            if (this.timeManager != null) {
+                this.timeManager.startTimeSystem(); // Mulai lagi waktu permainan
+            }
+            System.out.println("GameController LOG: Returned to PLAY state. Time system (if available) resumed.");
+        }
+        
+        // Reset alasan tidur pemain ke default setelah laporan selesai
+        playerModel.setSleepReason(SleepReason.NOT_SLEEPING);
+
+        if (this.gamePanel != null) this.gamePanel.repaint();
+    }
+
+
+    /**
+     * Dipanggil oleh MarryingAction setelah pernikahan berhasil.
+     */
+    // Duplicate method removed to resolve compile error.
+
+    /**
+     * Metode untuk menjalankan aksi pemain.
+     * Kelas Aksi akan memanggil metode di PlayerStats secara langsung melalui objek Farm.
+     */
+    public void executePlayerAction(Action action) {
+        if (action == null) {
+            System.err.println("GameController ERROR: Attempted to execute a null action.");
+            return;
+        }
+
+        if (action.canExecute(this.farm)) {
+            action.execute(this.farm); // Metode execute di Action akan memanggil PlayerStats jika perlu
+
+            // Penanganan khusus setelah aksi tertentu
+            if (action instanceof MarryingAction) {
+                if (playerModel.getPartner() != null && 
+                    playerModel.getPartner().getRelationshipsStatus() == RelationshipStats.MARRIED) {
+                    handleSuccessfulMarriage(playerModel, playerModel.getPartner());
+                }
+            }
+            // Untuk aksi lain, checkForEndGameStatsTrigger() umumnya dipanggil di akhir hari.
+        } else {
+            String cantExecuteMsg = "Cannot do: " + action.getActionName();
+            System.out.println("GameController: " + cantExecuteMsg);
+            if (this.gameStateUI != null) {
+                this.gameStateUI.showTemporaryMessage(cantExecuteMsg);
+            }
+        }
+        if (this.gamePanel != null) this.gamePanel.repaint(); // Update UI setelah setiap aksi
+    }
+
+    public void initiateSleepSequence() {
+        // Mencegah pemanggilan ganda jika sudah dalam proses transisi
+        if (gameState.getGameState() != gameState.play) {
+            System.out.println("GameController: initiateSleepSequence called, but game not in PLAY state. Current state: " + gameState.getGameState());
+            return;
+        }
+
+        System.out.println("GameController: Initiating sleep sequence. Current SleepReason: " + playerModel.getSleepReason());
+
+        // 1. Hentikan TimeManager terlebih dahulu
+        if (this.timeManager != null) {
+            this.timeManager.stopTimeSystem();
+        }
+
+        // 2. Majukan hari (GameClock.nextDay akan mengupdate PlayerStats.totalDaysPlayed)
+        if (this.farm.getGameClock() != null && this.playerModel.getPlayerStats() != null) {
+            this.farm.getGameClock().nextDay(this.playerModel.getPlayerStats()); // Ini juga merandomize weather untuk hari berikutnya
+        } else {
+             System.err.println("GameController ERROR: GameClock or PlayerStats is null during sleep sequence.");
+        }
+        
+        // 3. Proses event akhir hari (pertumbuhan tanaman, kalkulasi revenue shipping bin)
+        // Ini penting dilakukan SEBELUM mengambil goldFromLastShipment untuk laporan UI.
+        processEndOfDayEvents(); // Metode ini sudah ada di file Anda
+
+        // 4. Siapkan info untuk laporan harian UI
+        String sleepMessage = "Kamu tidur nyenyak hingga pagi."; // Default
+        if (playerModel.getSleepReason() == SleepReason.PASSED_OUT_ENERGY) {
+            sleepMessage = "Kamu pingsan karena kelelahan dan \nseseorang membawamu pulang.";
+            playerModel.setEnergy(playerModel.getMaxEnergy() / 2); // Penalti energi
+        } else if (playerModel.getSleepReason() == SleepReason.PASSED_OUT_TIME) {
+            sleepMessage = "Kamu begadang hingga larut dan \nakhirnya pingsan di tempat!";
+            playerModel.setEnergy(playerModel.getMaxEnergy() / 2); // Penalti energi
+        } else { // Tidur Normal
+            playerModel.setEnergy(playerModel.getMaxEnergy()); // Energi penuh
+        }
+        // Reset flag pingsan dan tidur paksa di PlayerModel setelah diproses
+        playerModel.setPassedOut(false);
+        playerModel.setForceSleepByTime(false);
+
+        if (this.gameStateUI != null) {
+            // Menampilkan gold yang AKAN diterima (dari bin hari yang baru saja berakhir)
+            this.gameStateUI.setEndOfDayInfo(sleepMessage, this.farm.getAndClearGoldFromLastShipment());
+        }
+
+        // 5. Ubah game state ke laporan harian
+        this.gameState.setGameState(this.gameState.day_report);
+        System.out.println("GameController LOG: GameState changed to DAY_REPORT.");
+
+        if (this.gamePanel != null) this.gamePanel.repaint();
+    }
+
+    private void processDayRevenueAndCheckStats() {
+        System.out.println("GameController LOG: Processing day revenue and checking stats...");
+
+        int goldFromShipment = this.farm.getAndClearGoldFromLastShipment(); // Ambil dan reset di Farm
+        if (goldFromShipment > 0) {
+            this.playerModel.addGold(goldFromShipment);
+            if (this.playerModel.getPlayerStats() != null) {
+                this.playerModel.getPlayerStats().recordIncome(goldFromShipment);
+            }
+            System.out.println("GameController LOG: Player received " + goldFromShipment + "g from shipment. Player total gold: " + playerModel.getGold());
+        }
+        
+        checkForEndGameStatsTrigger(); // Cek pemicu statistik End Game
+        System.out.println("GameController LOG: Day revenue and stats check procedures complete.");
+    }
+
+
+    /**
+     * Metode utama untuk memeriksa apakah kondisi End Game Statistics tercapai.
+     */
+    public void checkForEndGameStatsTrigger() {
+        if (playerModel == null || playerModel.getPlayerStats() == null || gameState == null) {
+            System.err.println("GameController ERROR: Cannot check stats trigger. playerModel, PlayerStats, or GameState is null.");
+            return;
+        }
+
+        PlayerStats stats = playerModel.getPlayerStats();
+
+        if (stats.hasShownEndGameStats()) { // Flag ini dicek untuk mencegah penampilan berulang
+            return;
+        }
+
+        boolean playerIsMarried = playerModel.getPartner() != null &&
+                                 playerModel.getPartner().getRelationshipsStatus() == RelationshipStats.MARRIED;
+        boolean goldMilestoneReached = playerModel.getGold() >= END_GAME_GOLD_MILESTONE;
+
+        if (playerIsMarried || goldMilestoneReached) {
+            String triggerReason = playerIsMarried ? "player is married" : ("gold milestone (" + playerModel.getGold() + "g) reached");
+            System.out.println("GameController LOG: End game milestone triggered because " + triggerReason);
+            
+            stats.setHasShownEndGameStats(true); // Set flag agar tidak tampil lagi untuk pemicu yang sama
+
+            // Hentikan TimeManager jika sedang berjalan (seharusnya sudah berhenti jika dari day_report)
+            if (this.timeManager != null && this.timeManager.isRunning()) {
+                this.timeManager.stopTimeSystem();
+            }
+            this.gameState.setGameState(this.gameState.end_game_stats); // Gunakan konstanta dari GameState.java
+            System.out.println("GameController LOG: GameState changed to END_GAME_STATS.");
+            
+            if (this.gamePanel != null) {
+                this.gamePanel.repaint();
+            }
+        }
+    }
+
+    /**
+     * Dipanggil oleh MarryingAction atau setelah aksi menikah berhasil.
+     */
+    public void handleSuccessfulMarriage(Player player, NPC spouse) {
+        System.out.println("GameController LOG: Handling successful marriage for " + player.getName() + " and " + spouse.getName());
+        // Status pemain dan NPC diasumsikan sudah diupdate oleh MarryingAction
+        checkForEndGameStatsTrigger(); // Langsung cek pemicu setelah menikah
+        if (this.gamePanel != null) this.gamePanel.repaint();
+    }
 }
