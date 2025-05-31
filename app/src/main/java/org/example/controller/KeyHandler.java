@@ -139,7 +139,7 @@ public class KeyHandler implements KeyListener {
                 System.out.println("KeyHandler: ENTER pressed in END_GAME_STATS state."); // DEBUG
                 gameController.dismissEndGameStatisticsScreen();
             }
-            // Tidak ada input lain yang dihandle di state ini selain Enter untuk melanjutkan
+      // Tidak ada input lain yang dihandle di state ini selain Enter untuk melanjutkan
         }
     }
 
