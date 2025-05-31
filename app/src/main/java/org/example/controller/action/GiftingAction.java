@@ -1,3 +1,4 @@
+// --- GiftingAction.java ---
 package org.example.controller.action;
 
 import org.example.model.Farm;
@@ -26,18 +27,19 @@ public class GiftingAction implements Action {
     public boolean canExecute(Farm farm) {
         Player player = farm.getPlayerModel();
         return player.getEnergy() >= ENERGY_COST &&
-               player.getInventory().getInventory().getOrDefault(giftItem, 0) > 0;
+               player.getInventory().getInventory().getOrDefault(giftItem, 0) > 0 &&
+               !giftItem.getName().equals("Proposal Ring"); // ⛔ tidak boleh gift cincin
     }
 
     @Override
     public void execute(Farm farm) {
         Player player = farm.getPlayerModel();
 
+        // Cegah jika tetap dipanggil manual
         if (giftItem.getName().equals("Proposal Ring")) {
             System.out.println("Proposal Ring tidak bisa diberikan sebagai hadiah.");
             return;
         }
-
 
         int effect = 0;
         if (targetNpc.getLovedItems().contains(giftItem)) {
@@ -48,18 +50,13 @@ public class GiftingAction implements Action {
             effect = -25;
         }
 
-        // Update heartPoints (maksimum 150)
         int updatedHeart = Math.min(150, targetNpc.getHeartPoints() + effect);
         targetNpc.setHeartPoints(updatedHeart);
 
-        // Kurangi energi dan waktu
         player.decreaseEnergy(ENERGY_COST);
         farm.getGameClock().advanceTimeByMinutes(farm, TIME_COST_MINUTES);
-
-        // Kurangi item dari inventory
         player.getInventory().removeInventory(giftItem, 1);
 
-        // Log
         System.out.println("Kamu memberikan " + giftItem.getName() + " ke " + targetNpc.getName());
         System.out.println("Efek: " + effect + " heartPoints, sekarang: " + updatedHeart);
     }

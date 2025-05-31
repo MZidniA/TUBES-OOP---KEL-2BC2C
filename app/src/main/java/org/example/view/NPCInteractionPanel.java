@@ -101,15 +101,18 @@ public class NPCInteractionPanel extends JPanel {
                 case "Proposing":
                     btn.addActionListener(e -> {
                         ProposingAction action = new ProposingAction(npc, farm);
+                        action.execute(farm);
 
-                        action.execute(farm); // ← SELALU DIPANGGIL
-
-                        if (npc.getRelationshipsStatus() == RelationshipStats.FIANCE) {
+                        if (action.isAlreadySpouse()) {
+                            showStyledMessage("Sudah Menikah", npc.getName() + " sudah menjadi pasangan hidupmu.");
+                        } else if (action.isAlreadyFiance()) {
+                            showStyledMessage("Sudah Bertunangan", "Kamu sudah bertunangan dengan " + npc.getName());
+                        } else if (action.isNoRing()) {
+                            showStyledMessage("Tidak Ada Proposal Ring", "Kamu tidak memiliki Proposal Ring!");
+                        } else if (action.isSuccess()) {
                             showStyledMessage("Lamaran Berhasil 💍", npc.getName() + " menerima lamaranmu!");
-                        } else if (npc.getRelationshipsStatus() == RelationshipStats.SPOUSE) {
-                            showStyledMessage("Gagal Melamar", npc.getName() + " sudah menjadi pasangan hidupmu.");
-                        } else {
-                            showStyledMessage("Lamaran Gagal", "Lamaranmu ditolak :(");
+                        } else if (action.isRejected()) {
+                            showStyledMessage("Lamaran Ditolak", "Lamaranmu ditolak. Bangun relasi lebih kuat dulu ya");
                         }
 
                         updateNPCInfo(npc);
@@ -122,17 +125,15 @@ public class NPCInteractionPanel extends JPanel {
 
                         if (action.canExecute(farm)) {
                             action.execute(farm);
-                            showStyledMessage("Pernikahan Berhasil ", npc.getName() + " kini menjadi pasangan hidupmu!");
+                            showStyledMessage("Pernikahan Berhasil 💍", npc.getName() + " kini menjadi pasangan hidupmu!");
+                        } else if (action.isNoRing()) {
+                            showStyledMessage("Tidak Ada Proposal Ring", "Kamu tidak memiliki Proposal Ring!");
+                        } else if (action.isFailedNotFiance()) {
+                            showStyledMessage("Gagal Menikah", npc.getName() + " belum menjadi tunanganmu.");
+                        } else if (action.isFailedSameDay()) {
+                            showStyledMessage("Belum Waktunya", "Kamu baru bertunangan hari ini. Menikah bisa dilakukan mulai besok.");
                         } else {
-                            if (npc.getRelationshipsStatus() == RelationshipStats.SPOUSE) {
-                                showStyledMessage("Gagal Menikah", npc.getName() + " sudah menjadi pasangan hidupmu.");
-                            } else if (npc.getRelationshipsStatus() != RelationshipStats.FIANCE) {
-                                showStyledMessage("Gagal Menikah", "Kamu belum bisa menikah.");
-                            } else if (farm.getGameClock().getDay() == npc.getFianceSinceDay()) {
-                                showStyledMessage("Belum Waktunya", "Kamu baru bertunangan hari ini.\nPernikahan bisa dilakukan mulai besok.");
-                            } else {
-                                showStyledMessage("Gagal Menikah", "Syarat pernikahan belum terpenuhi.");
-                            }
+                            showStyledMessage("Gagal Menikah", "Syarat pernikahan belum terpenuhi.");
                         }
 
 
