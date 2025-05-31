@@ -18,7 +18,6 @@ import org.example.model.GameClock;
 import org.example.model.Inventory;
 import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
-import org.example.model.Items.Seeds;
 import org.example.model.Map.FarmMap;
 import org.example.model.Map.Plantedland;
 import org.example.model.Map.Tile;
@@ -36,18 +35,17 @@ import org.example.model.Sound;
 import org.example.model.enums.LocationType;
 import org.example.model.enums.RelationshipStats;
 import org.example.model.enums.Season;
-import org.example.model.enums.Weather;
 import org.example.model.enums.SleepReason;
+import org.example.model.enums.Weather;
 import org.example.view.FishingPanel;
 import org.example.view.GamePanel;
 import org.example.view.GameStateUI;
-import org.example.view.MenuPanel;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.InteractableObject.MountainLakeObject;
 import org.example.view.InteractableObject.OceanObject;
 import org.example.view.InteractableObject.PondObject;
 import org.example.view.InteractableObject.RiverObject;
-import org.example.view.InteractableObject.UnplantedTileObject;
+import org.example.view.MenuPanel;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
 
@@ -297,13 +295,24 @@ public class GameController implements Runnable {
             if (playerViewInstance.solidArea == null) return;
             int playerCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width / 2) / tileSize;
             int playerRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y + playerViewInstance.solidArea.height / 2) / tileSize;
-            if (currentMap == 0 && playerCol == 31 && playerRow == 15) { teleportPlayer(1, 1 * tileSize, 1 * tileSize); } 
-            else if (currentMap == 1 && playerCol == 1 && playerRow == 1) { teleportPlayer(0, 31 * tileSize, 15 * tileSize); } 
-            else if (currentMap == 1 && playerCol == 30 && playerRow == 1) { teleportPlayer(2, 29 * tileSize, 0 * tileSize); } 
-            else if (currentMap == 2 && playerCol == 29 && playerRow == 0) { teleportPlayer(1, 30 * tileSize, 1 * tileSize); } 
-            else if (currentMap == 2 && playerCol == 0 && playerRow == 31) { teleportPlayer(3, 15 * tileSize, 31* tileSize); } 
-            else if (currentMap == 3 && playerCol == 15 && playerRow == 31) { teleportPlayer(2, 0 * tileSize, 31 * tileSize); } 
-            else if (currentMap == 4 && playerCol == 3 && playerRow == 11) { teleportPlayer(0, 4 * tileSize, 9 * tileSize); }
+
+            if (currentMap == 0 && playerCol == 31 && playerRow == 15) {
+                teleportPlayer(1, 1 * tileSize, 1 * tileSize);
+            } else if (currentMap == 1 && playerCol == 1 && playerRow == 1) {
+                teleportPlayer(0, 31 * tileSize, 15 * tileSize);
+            } else if (currentMap == 1 && playerCol == 30 && playerRow == 1) {
+                teleportPlayer(2, 29 * tileSize, 0 * tileSize);
+            } else if (currentMap == 2 && playerCol == 29 && playerRow == 0) {
+                teleportPlayer(1, 30 * tileSize, 1 * tileSize);
+            } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) {
+                teleportPlayer(3, 15 * tileSize, 31 * tileSize);
+            } else if (currentMap == 3 && playerCol == 15 && playerRow == 31) {
+                teleportPlayer(2, 0 * tileSize, 31 * tileSize);
+            } else if (currentMap == 4 && playerCol == 3 && playerRow == 11) {
+                teleportPlayer(0, 4 * tileSize, 9 * tileSize);
+            } else if (currentMap == 5 && playerCol == 5 && playerRow == 9) {
+                teleportPlayer(3, 29 * tileSize, 5 * tileSize);
+            }
         }
     }
 
@@ -315,6 +324,7 @@ public class GameController implements Runnable {
             gameState.setGameState(gameState.play);
         }
     }
+
     public void toggleInventory() {
         if (gameState.getGameState() == gameState.play) gameState.setGameState(gameState.inventory);
         else if (gameState.getGameState() == gameState.inventory) {
@@ -462,7 +472,8 @@ public class GameController implements Runnable {
                     case 2: player.setCurrentLocationType(LocationType.FOREST_RIVER); break;
                     case 3: player.setCurrentLocationType(LocationType.TOWN); break;
                     case 4: player.setCurrentLocationType(LocationType.HOUSE); break;
-                    case 5: player.setCurrentLocationType(LocationType.POND); break; 
+                    case 5: player.setCurrentLocationType(LocationType.STORE); break;
+                    case 6: player.setCurrentLocationType(LocationType.POND); break;  
                     default: player.setCurrentLocationType(LocationType.FARM); break; 
                 }
             }
@@ -476,13 +487,10 @@ public class GameController implements Runnable {
         if (gameState.getGameState() == gameState.day_report) {
             return;
         }
-    
-    
 
         if (timeManager != null) {
             timeManager.stopTimeSystem();
         }
-    
 
         gameState.setGameState(gameState.day_report);
     
@@ -508,10 +516,7 @@ public class GameController implements Runnable {
         if (getGameStateUI() != null) {
             getGameStateUI().setEndOfDayInfo(reasonMessage, farm.getGoldFromLastShipment());
         }
-
-
     }
-    
 
     public void activateSetTimeTo2AMCheat() {
         if (farm == null || farm.getGameClock() == null || timeManager == null) {
@@ -522,8 +527,6 @@ public class GameController implements Runnable {
         gameClock.setCurrentTime(java.time.LocalTime.of(1, 50));
         
         this.timeManager.notifyObservers(); 
-    
-;
     }
     
     public Farm getFarmModel() { return this.farm; }
@@ -624,14 +627,12 @@ public class GameController implements Runnable {
         farm.setGoldFromLastShipment(revenue);
     }
 
-
     public void closeShippingBinMenu() {
         if (gameState.getGameState() == gameState.shipping_bin) {
             gameState.setGameState(gameState.play);
             resetMovementState();
         }
     }
-
 
     public void navigateShippingBinUI(String direction) {
         if (gameState.getGameState() == gameState.shipping_bin && gamePanel != null && gamePanel.gameStateUI != null) {
@@ -659,12 +660,12 @@ public class GameController implements Runnable {
                     break;
                 case "down":
                     if (currentRow < (maxSlotIndex / slotsPerRow)) ui.slotRow++;
-                    else ui.slotRow = 0; // Wrap ke baris pertama
+                    else ui.slotRow = 0; 
                     break;
                 case "left":
                     if (currentCol > 0) ui.slotCol--;
                     else {
-                        ui.slotCol = slotsPerRow - 1; // Pindah ke kolom terakhir
+                        ui.slotCol = slotsPerRow - 1; 
                         if (currentRow > 0) ui.slotRow--; 
                         else ui.slotRow = (maxSlotIndex / slotsPerRow); 
                     }
@@ -672,14 +673,13 @@ public class GameController implements Runnable {
                 case "right":
                     if (currentCol < slotsPerRow - 1) ui.slotCol++;
                     else {
-                        ui.slotCol = 0; // Pindah ke kolom pertama
-                        if (currentRow < (maxSlotIndex / slotsPerRow)) ui.slotRow++; // Pindah ke baris berikutnya jika bukan baris terakhir
+                        ui.slotCol = 0; 
+                        if (currentRow < (maxSlotIndex / slotsPerRow)) ui.slotRow++; 
                         else ui.slotRow = 0; 
                     }
                     break;
             }
             
-            // Pastikan kursor tetap dalam batas item yang ada
             int newLinearIndex = ui.slotRow * slotsPerRow + ui.slotCol;
             if (newLinearIndex > maxSlotIndex) {
                 ui.slotCol = maxSlotIndex % slotsPerRow;
@@ -741,21 +741,17 @@ public class GameController implements Runnable {
     public void proceedToNextDayFromReport() {
         if (gameState.getGameState() != gameState.day_report) return; 
 
-
         Player playerModel = farm.getPlayerModel();
         GameClock gameClock = farm.getGameClock();
         PlayerView playerView = getPlayerViewInstance(); 
         int tileSize = getTileSize();
 
-    
         gameClock.nextDay(playerModel.getPlayerStats());
 
         int shippedGold = farm.getAndClearGoldFromLastShipment();
         if (shippedGold > 0) {
             playerModel.addGold(shippedGold);
         }
-
-
 
         if (farm.getCurrentMap() != 4) {
              teleportPlayer(4, 6 * tileSize, 10 * tileSize); 
@@ -766,11 +762,11 @@ public class GameController implements Runnable {
                 playerView.direction = "down";
             }
         }
+
         playerModel.setCurrentHeldItem(null);
         playerModel.setPassedOut(false);
         playerModel.setForceSleepByTime(false);
         playerModel.setSleepReason(SleepReason.NOT_SLEEPING); 
-
 
         gameState.setGameState(gameState.play);
         if (timeManager != null) {
@@ -783,7 +779,6 @@ public class GameController implements Runnable {
             return;
         }
 
-        // Jika command adalah "Cancel"
         if (gameStateUI.cookingMenuCommandNum == 1) {
             exitCookingMenu();
             return;
@@ -805,7 +800,6 @@ public class GameController implements Runnable {
             return;
         }
 
-
         Items selectedFuel = null; 
         CookingAction cookingAction = new CookingAction(selectedRecipe, selectedFuel); // Sesuaikan konstruktor
 
@@ -824,7 +818,7 @@ public class GameController implements Runnable {
         if (gameState != null) {
             gameState.setGameState(gameState.play);
         }
-        // Reset pilihan menu memasak jika perlu
+
         if (gameStateUI != null) {
             gameStateUI.cookingMenuCommandNum = 0;
             gameStateUI.selectedRecipeIndex = 0;
@@ -841,7 +835,6 @@ public class GameController implements Runnable {
             return;
         }
 
-
         if ("up_recipe".equalsIgnoreCase(direction)) {
             if (gameStateUI.availableRecipesForUI != null && !gameStateUI.availableRecipesForUI.isEmpty()) {
                 gameStateUI.selectedRecipeIndex--;
@@ -855,21 +848,16 @@ public class GameController implements Runnable {
                 if (gameStateUI.selectedRecipeIndex >= gameStateUI.availableRecipesForUI.size()) {
                     gameStateUI.selectedRecipeIndex = 0;
                 }
-                // gameStateUI.cookingMenuCommandNum = 0; // Opsional
             }
         } else if ("left_command".equalsIgnoreCase(direction)) {
-            // Pindah dari Cancel (1) ke Cook (0)
             if (gameStateUI.cookingMenuCommandNum == 1) {
                 gameStateUI.cookingMenuCommandNum = 0;
             }
-            // Jika Anda punya lebih dari 2 tombol aksi horizontal, logikanya akan lebih kompleks
         } else if ("right_command".equalsIgnoreCase(direction)) {
-            // Pindah dari Cook (0) ke Cancel (1)
             if (gameStateUI.cookingMenuCommandNum == 0) {
                 gameStateUI.cookingMenuCommandNum = 1;
             }
         }
-        // DEBUG: Cetak state setelah navigasi
         System.out.println("  -> RecipeIndex: " + gameStateUI.selectedRecipeIndex + ", CommandNum: " + gameStateUI.cookingMenuCommandNum);
     }    
 

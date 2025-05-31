@@ -100,6 +100,4 @@ public class Seeds extends Items {
             this.image = null;
         }
     }
- 
-
 }

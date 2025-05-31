@@ -3,9 +3,9 @@ package org.example.model;
 import java.util.EnumSet;
  
 import org.example.model.Items.Items;
-import org.example.model.enums.SleepReason;
 import org.example.model.NPC.NPC;
 import org.example.model.enums.LocationType;
+import org.example.model.enums.SleepReason;
 
 public class Player {
     private String name;
@@ -26,7 +26,6 @@ public class Player {
     private int tileX = 0;
     private int tileY = 0;
 
-    // Tambahkan field di class Player
     private PlayerStats playerStats;
 
     public Player(String name, String gender, String farmname) {
@@ -84,6 +83,7 @@ public class Player {
     public void setPassedOut(boolean status) {
         this.passedOut = status;
     }
+
     public boolean isForceSleepByTime() {
         return this.forceSleepByTime;
     }
@@ -95,10 +95,10 @@ public class Player {
     public int getMaxEnergy() {
         return MAX_ENERGY;
     }
-     public int getMinEnergyOperational() {
+
+    public int getMinEnergyOperational() {
         return MIN_ENERGY_OPERATIONAL;
     }
-
 
     public String getFarmname() { 
         return farmname; 
@@ -126,6 +126,7 @@ public class Player {
     public Inventory getInventory() { 
         return inventory; 
     }
+
     public void setInventory(Inventory inventory) { 
         this.inventory = inventory; 
     }
@@ -173,13 +174,16 @@ public class Player {
     public void setTileY(int tileY) {
         this.tileY = tileY;
     }
+
     public void setTilePosition(int tileX, int tileY) {
         this.tileX = tileX;
         this.tileY = tileY;
     }
+
     public Items getCurrentHeldItem() {
         return currentHeldItem;
     }
+
     public void setCurrentHeldItem(Items currentHeldItem) {
         this.currentHeldItem = currentHeldItem;
         if (currentHeldItem != null) {
@@ -189,12 +193,10 @@ public class Player {
         }
     }
 
-    // Getter untuk playerStats
     public PlayerStats getPlayerStats() {
         return playerStats;
     }
 
-    // Setter jika ingin mengubah stats dari luar
     public void setPlayerStats(PlayerStats playerStats) {
         this.playerStats = playerStats;
     }
@@ -202,6 +204,7 @@ public class Player {
     public SleepReason getSleepReason() {
         return sleepReason;
     }
+    
     public void setSleepReason(SleepReason sleepReason) {
         this.sleepReason = sleepReason;
     }

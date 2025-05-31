@@ -17,18 +17,18 @@ public class RecipeDatabase {
     private static boolean isInitialized = false;
 
     public static final String ANY_FISH_INGREDIENT_NAME = "Any Fish";
-    // Definisikan konstanta nama placeholder lain jika ada
-    // public static final String ANY_COMMON_FISH_INGREDIENT_NAME = "Any Common Fish";
+    public static final String ANY_COMMON_FISH_INGREDIENT_NAME = "Any Common Fish";
+    public static final String ANY_REGULAR_FISH_INGREDIENT_NAME = "Any Regular Fish";
+    public static final String ANY_LEGENDARY_FISH_INGREDIENT_NAME = "Any Legendary Fish";
 
     public static synchronized void initialize() {
         if (isInitialized) return;
 
         if (!ItemDatabase.isInitialized()) {
-            ItemDatabase.initialize(); // Pastikan ItemDatabase siap (terutama placeholder)
+            ItemDatabase.initialize();
         }
         recipes.clear();
 
-        // --- Dapatkan semua objek Items dari ItemDatabase SEKALI di awal ---
         Items wheat = ItemDatabase.getItem("Wheat");
         Items potato = ItemDatabase.getItem("Potato");
         Items salmon = ItemDatabase.getItem("Salmon");
@@ -47,13 +47,10 @@ public class RecipeDatabase {
         Items eggplant = ItemDatabase.getItem("Eggplant");
 
         Items anyFishPlaceholder = ItemDatabase.getItem(ANY_FISH_INGREDIENT_NAME);
-        if (anyFishPlaceholder == null) { // Pengecekan kritis untuk placeholder
-            System.err.println("RecipeDatabase Init CRITICAL ERROR: Placeholder '" + ANY_FISH_INGREDIENT_NAME + 
-                               "' not found in ItemDatabase. Recipes using it will be invalid.");
-            // Resep yang menggunakan anyFishPlaceholder tidak akan bisa dibuat jika ini null.
+        if (anyFishPlaceholder == null) {
+            System.err.println("RecipeDatabase Init CRITICAL ERROR: Placeholder '" + ANY_FISH_INGREDIENT_NAME + "' not found in ItemDatabase. Recipes using it will be invalid.");
         }
 
-        // Dapatkan objek hasil masakan (Food)
         Food fishNChipsDish = (Food) ItemDatabase.getItem("Fish n’ Chips");
         Food baguetteDish = (Food) ItemDatabase.getItem("Baguette");
         Food sashimiDish = (Food) ItemDatabase.getItem("Sashimi");
@@ -66,117 +63,100 @@ public class RecipeDatabase {
         Food fishSandwichDish = (Food) ItemDatabase.getItem("Fish Sandwich");
         Food legendsOfSpakborDish = (Food) ItemDatabase.getItem("The Legends of Spakbor");
 
-        // --- Mulai Definisi Resep dengan Validasi ---
-        Map<Items, Integer> tempIngredients;
+        // Recipe 1: Fish n' Chips
+        Map<Items, Integer> r1Ingredients = new HashMap<>();
+        r1Ingredients.put(anyFishPlaceholder, 2);
+        r1Ingredients.put(wheat, 1);
+        r1Ingredients.put(potato, 1);
+        recipes.put("recipe_1", new Recipe("recipe_1", "Fish n' Chips", fishNChipsDish, r1Ingredients, "Beli di store", "Beli di store", null));
 
-        // recipe_1: Fish n' Chips
-        if (fishNChipsDish != null && anyFishPlaceholder != null && wheat != null && potato != null) {
-            tempIngredients = new HashMap<>();
-            tempIngredients.put(anyFishPlaceholder, 2);
-            tempIngredients.put(wheat, 1);
-            tempIngredients.put(potato, 1);
-            recipes.put("recipe_1", new Recipe("recipe_1", "Fish n' Chips", fishNChipsDish, tempIngredients, "Beli di store", "Beli di store", null));
-        } else { System.err.println("RecipeDatabase Init ERROR: Could not create 'Fish n' Chips'. Missing components."); }
+        // Recipe 2: Baguette
+        Map<Items, Integer> r2Ingredients = new HashMap<>();
+        r2Ingredients.put(wheat, 3);
+        recipes.put("recipe_2", new Recipe("recipe_2", "Baguette", baguetteDish, r2Ingredients, "Default/Bawaan", "Default/Bawaan", null));
 
-        // recipe_2: Baguette
-        if (baguetteDish != null && wheat != null) {
-            tempIngredients = new HashMap<>();
-            tempIngredients.put(wheat, 3);
-            recipes.put("recipe_2", new Recipe("recipe_2", "Baguette", baguetteDish, tempIngredients, "Default/Bawaan", "Default/Bawaan", null));
-        } else { System.err.println("RecipeDatabase Init ERROR: Could not create 'Baguette'. Missing components."); }
+        // Recipe 3: Sashimi
+        Map<Items, Integer> r3Ingredients = new HashMap<>();
+        r3Ingredients.put(salmon, 3);
+        recipes.put("recipe_3", new Recipe("recipe_3", "Sashimi", sashimiDish, r3Ingredients, "achievement", "Setelah memancing 10 ikan (total)",
+            stats -> {
+                if (stats == null) return false;
+                int totalFish = 0;
+                Map<FishType, Integer> fishMap = stats.getTotalFishCaught();
+                if (fishMap == null) return false;
+                for (Integer count : fishMap.values()) {
+                    totalFish += count;
+                }
+                return totalFish >= 10;
+            }));
 
-        // recipe_3: Sashimi
-        if (sashimiDish != null && salmon != null) {
-            tempIngredients = new HashMap<>();
-            tempIngredients.put(salmon, 3);
-            recipes.put("recipe_3", new Recipe("recipe_3", "Sashimi", sashimiDish, tempIngredients, "achievement", "Setelah memancing 10 ikan (total)",
-                stats -> {
-                    if (stats == null) return false;
-                    Map<FishType, Integer> fishMap = stats.getTotalFishCaught();
-                    if (fishMap == null) return false;
-                    return fishMap.values().stream().mapToInt(Integer::intValue).sum() >= 10;
-                }));
-        } else { System.err.println("RecipeDatabase Init ERROR: Could not create 'Sashimi'. Missing components."); }
-        
-        // recipe_4: Fugu
-        if (fuguDish != null && pufferfish != null) {
-            tempIngredients = new HashMap<>();
-            tempIngredients.put(pufferfish, 1);
-            recipes.put("recipe_4", new Recipe("recipe_4", "Fugu", fuguDish, tempIngredients, "achievement", "Memancing pufferfish",
-                stats -> stats != null && stats.hasObtainedItem("Pufferfish"))); // Membutuhkan PlayerStats.hasObtainedItem()
-        } else { System.err.println("RecipeDatabase Init ERROR: Could not create 'Fugu'. Missing components."); }
+        // Recipe 4: Fugu
+        Map<Items, Integer> r4Ingredients = new HashMap<>();
+        r4Ingredients.put(pufferfish, 1);
+        recipes.put("recipe_4", new Recipe("recipe_4", "Fugu", fuguDish, r4Ingredients, "achievement", "Memancing pufferfish",
+            stats -> stats != null && stats.hasObtainedItem("Pufferfish")));
 
-        // recipe_5: Wine
-        if (wineDish != null && grape != null) {
-            tempIngredients = new HashMap<>();
-            tempIngredients.put(grape, 2);
-            recipes.put("recipe_5", new Recipe("recipe_5", "Wine", wineDish, tempIngredients, "Default/Bawaan", "Default/Bawaan", null));
-        } else { System.err.println("RecipeDatabase Init ERROR: Could not create 'Wine'. Missing components."); }
+        // Recipe 5: Wine
+        Map<Items, Integer> r5Ingredients = new HashMap<>();
+        r5Ingredients.put(grape, 2);
+        recipes.put("recipe_5", new Recipe("recipe_5", "Wine", wineDish, r5Ingredients, "Default/Bawaan", "Default/Bawaan", null));
 
-        // recipe_6: Pumpkin Pie
-        if (pumpkinPieDish != null && egg != null && wheat != null && pumpkin != null) {
-            tempIngredients = new HashMap<>();
-            tempIngredients.put(egg, 1);
-            tempIngredients.put(wheat, 1);
-            tempIngredients.put(pumpkin, 1);
-            recipes.put("recipe_6", new Recipe("recipe_6", "Pumpkin Pie", pumpkinPieDish, tempIngredients, "Default/Bawaan", "Default/Bawaan", null));
-        } else { System.err.println("RecipeDatabase Init ERROR: Could not create 'Pumpkin Pie'. Missing components."); }
+        // Recipe 6: Pumpkin Pie
+        Map<Items, Integer> r6Ingredients = new HashMap<>();
+        r6Ingredients.put(egg, 1);
+        r6Ingredients.put(wheat, 1);
+        r6Ingredients.put(pumpkin, 1);
+        recipes.put("recipe_6", new Recipe("recipe_6", "Pumpkin Pie", pumpkinPieDish, r6Ingredients, "Default/Bawaan", "Default/Bawaan", null));
 
-        // recipe_7: Veggie Soup
-        if (veggieSoupDish != null && cauliflower != null && parsnip != null && potato != null && tomato != null) {
-            tempIngredients = new HashMap<>();
-            tempIngredients.put(cauliflower, 1);
-            tempIngredients.put(parsnip, 1);
-            tempIngredients.put(potato, 1);
-            tempIngredients.put(tomato, 1);
-            recipes.put("recipe_7", new Recipe("recipe_7", "Veggie Soup", veggieSoupDish, tempIngredients, "achievement", "Memanen untuk pertama kalinya",
-                stats -> stats != null && stats.getTotalCropsHarvested() > 0));
-        } else { System.err.println("RecipeDatabase Init ERROR: Could not create 'Veggie Soup'. Missing components."); }
+        // Recipe 7: Veggie Soup
+        Map<Items, Integer> r7Ingredients = new HashMap<>();
+        r7Ingredients.put(cauliflower, 1);
+        r7Ingredients.put(parsnip, 1);
+        r7Ingredients.put(potato, 1);
+        r7Ingredients.put(tomato, 1);
+        recipes.put("recipe_7", new Recipe("recipe_7", "Veggie Soup", veggieSoupDish, r7Ingredients, "achievement", "Memanen untuk pertama kalinya",
+            stats -> stats != null && stats.getTotalCropsHarvested() > 0));
 
-        // recipe_8: Fish Stew (Bahan: Any Fish x2, Hot Pepper x1, Cauliflower x2)
-        if (fishStewDish != null && anyFishPlaceholder != null && hotPepper != null && cauliflower != null) {
-            tempIngredients = new HashMap<>();
-            tempIngredients.put(anyFishPlaceholder, 2);
-            tempIngredients.put(hotPepper, 1);
-            tempIngredients.put(cauliflower, 2);
-            recipes.put("recipe_8", new Recipe("recipe_8", "Fish Stew", fishStewDish, tempIngredients, "achievement", "Dapatkan \"Hot Pepper\"",
-                stats -> stats != null && stats.hasObtainedItem("Hot Pepper")));
-        } else { System.err.println("RecipeDatabase Init ERROR: Could not create 'Fish Stew'. Missing components."); }
+        // Recipe 8: Fish Stew
+        Map<Items, Integer> r8Ingredients = new HashMap<>();
+        r8Ingredients.put(anyFishPlaceholder, 2);
+        r8Ingredients.put(hotPepper, 1);
+        r8Ingredients.put(cauliflower, 2);
+        recipes.put("recipe_8", new Recipe("recipe_8", "Fish Stew", fishStewDish, r8Ingredients, "achievement", "Dapatkan \"Hot Pepper\"",
+            stats -> stats != null && stats.hasObtainedItem("Hot Pepper")));
 
-        // recipe_9: Spakbor Salad
-        if (spakborSaladDish != null && melon != null && cranberry != null && blueberry != null && tomato != null) {
-            tempIngredients = new HashMap<>();
-            tempIngredients.put(melon, 1);
-            tempIngredients.put(cranberry, 1);
-            tempIngredients.put(blueberry, 1);
-            tempIngredients.put(tomato, 1);
-            recipes.put("recipe_9", new Recipe("recipe_9", "Spakbor Salad", spakborSaladDish, tempIngredients, "Default/Bawaan", "Default/Bawaan", null));
-        } else { System.err.println("RecipeDatabase Init ERROR: Could not create 'Spakbor Salad'. Missing components."); }
+        // Recipe 9: Spakbor Salad
+        Map<Items, Integer> r9Ingredients = new HashMap<>();
+        r9Ingredients.put(melon, 1);
+        r9Ingredients.put(cranberry, 1);
+        r9Ingredients.put(blueberry, 1);
+        r9Ingredients.put(tomato, 1);
+        recipes.put("recipe_9", new Recipe("recipe_9", "Spakbor Salad", spakborSaladDish, r9Ingredients, "Default/Bawaan", "Default/Bawaan", null));
 
-        // recipe_10: Fish Sandwich (Bahan: Any fish x1, Wheat 2x, Tomato 1x, Hot Pepper 1x)
-        if (fishSandwichDish != null && anyFishPlaceholder != null && wheat != null && tomato != null && hotPepper != null) {
-            tempIngredients = new HashMap<>();
-            tempIngredients.put(anyFishPlaceholder, 1);
-            tempIngredients.put(wheat, 2);
-            tempIngredients.put(tomato, 1);
-            tempIngredients.put(hotPepper, 1);
-            recipes.put("recipe_10", new Recipe("recipe_10", "Fish Sandwich", fishSandwichDish, tempIngredients, "Beli di store", "Beli di store", null));
-        } else { System.err.println("RecipeDatabase Init ERROR: Could not create 'Fish Sandwich'. Missing components."); }
-        
-        // recipe_11: The Legends of Spakbor (Bahan: Legend fish 1x, Potato 2x, Parsnip 1x, Tomato 1x, Eggplant 1x)
-        if (legendsOfSpakborDish != null && legendFishItem != null && potato != null && parsnip != null && tomato != null && eggplant != null) {
-            tempIngredients = new HashMap<>();
-            tempIngredients.put(legendFishItem, 1);
-            tempIngredients.put(potato, 2);
-            tempIngredients.put(parsnip, 1);
-            tempIngredients.put(tomato, 1);
-            tempIngredients.put(eggplant, 1);
-            recipes.put("recipe_11", new Recipe("recipe_11", "The Legends of Spakbor", legendsOfSpakborDish, tempIngredients, "achievement", "Memancing \"Legend\"",
-                stats -> stats != null && stats.hasObtainedItem("Legend"))); // Atau cek statistik ikan Legend jika ada
-        } else { System.err.println("RecipeDatabase Init ERROR: Could not create 'The Legends of Spakbor'. Missing components."); }
+        // Recipe 10: Fish Sandwich
+        Map<Items, Integer> r10Ingredients = new HashMap<>();
+        r10Ingredients.put(anyFishPlaceholder, 1);
+        r10Ingredients.put(wheat, 2);
+        r10Ingredients.put(tomato, 1);
+        r10Ingredients.put(hotPepper, 1);
+        recipes.put("recipe_10", new Recipe("recipe_10", "Fish Sandwich", fishSandwichDish, r10Ingredients, "Beli di store", "Beli di store", null));
+
+        // Recipe 11: The Legends of Spakbor
+        Map<Items, Integer> r11Ingredients = new HashMap<>();
+        r11Ingredients.put(legendFishItem, 1);
+        r11Ingredients.put(potato, 2);
+        r11Ingredients.put(parsnip, 1);
+        r11Ingredients.put(tomato, 1);
+        r11Ingredients.put(eggplant, 1);
+        recipes.put("recipe_11", new Recipe("recipe_11", "The Legends of Spakbor", legendsOfSpakborDish, r11Ingredients, "achievement", "Memancing \"Legend\"",
+            stats -> {
+                if (stats == null || legendFishItem == null) return false;
+                return stats.getTotalFishCaught().getOrDefault(FishType.LEGENDARY, 0) > 0 &&
+                       stats.getTotalFishCaught().containsKey(FishType.LEGENDARY);
+            }));
 
         isInitialized = true;
-        System.out.println("LOG: RecipeDatabase initialized. Number of successfully created recipes: " + recipes.size());
+        System.out.println("LOG: RecipeDatabase initialized with " + recipes.size() + " recipes.");
     }
 
     public static Recipe getRecipeById(String recipeId) {
@@ -184,18 +164,27 @@ public class RecipeDatabase {
         return recipes.get(recipeId);
     }
 
-    // ... (getRecipeByName, getAllRecipes tetap sama) ...
+    public static Recipe getRecipeByName(String displayName) {
+        if (!isInitialized) initialize();
+        for (Recipe recipe : recipes.values()) {
+            if (recipe.getDisplayName().equalsIgnoreCase(displayName)) {
+                return recipe;
+            }
+        }
+        System.err.println("Recipe not found by name: " + displayName);
+        return null;
+    }
+
+    public static List<Recipe> getAllRecipes() {
+        if (!isInitialized) initialize();
+        return new ArrayList<>(recipes.values());
+    }
 
     public static List<Recipe> getCookableRecipes(Inventory playerInventory, PlayerStats playerStats) {
-        if (!isInitialized) initialize(); // Pastikan sudah diinisialisasi
-        if (playerInventory == null || playerStats == null) {
-            System.err.println("RecipeDatabase.getCookableRecipes: Inventory or PlayerStats is null.");
-            return new ArrayList<>(); // Kembalikan list kosong jika input penting null
-        }
+        if (!isInitialized) initialize();
         List<Recipe> cookable = new ArrayList<>();
         for (Recipe recipe : recipes.values()) {
-            if (recipe != null && recipe.getIngredients() != null && 
-                recipe.isUnlocked(playerStats) && canPlayerCookRecipe(playerInventory, recipe)) {
+            if (recipe.isUnlocked(playerStats) && canPlayerCookRecipe(playerInventory, recipe)) {
                 cookable.add(recipe);
             }
         }
@@ -208,29 +197,23 @@ public class RecipeDatabase {
         }
 
         for (Map.Entry<Items, Integer> entry : recipe.getIngredients().entrySet()) {
-            Items requiredItem = entry.getKey(); // Ini adalah OBJEK Items dari definisi resep
+            Items requiredItem = entry.getKey();
             int requiredQuantity = entry.getValue();
 
-            if (requiredItem == null) { // Ini seharusnya tidak terjadi jika inisialisasi resep sudah benar
-                System.err.println("RecipeDatabase.canPlayerCookRecipe CRITICAL ERROR: Found a null ingredient key in recipe: '" + 
-                                   (recipe.getDisplayName() != null ? recipe.getDisplayName() : "UNKNOWN RECIPE") + 
-                                   "'. This recipe definition is invalid.");
+            if (requiredItem == null) {
+                System.err.println("Warning: Unhandled null ingredient in recipe: " + recipe.getDisplayName());
                 return false;
             }
 
-            // Bandingkan berdasarkan OBJEK Items jika memungkinkan, atau NAMA jika itu placeholder
-            if (ANY_FISH_INGREDIENT_NAME.equals(requiredItem.getName())) { // Perbandingan nama untuk placeholder
+            if (ANY_FISH_INGREDIENT_NAME.equals(requiredItem.getName())) {
                 int fishCount = 0;
                 for (Map.Entry<Items, Integer> invEntry : playerInventory.getInventory().entrySet()) {
-                    if (invEntry.getKey() != null && invEntry.getKey() instanceof Fish) {
+                    if (invEntry.getKey() instanceof Fish) {
                         fishCount += invEntry.getValue();
                     }
                 }
                 if (fishCount < requiredQuantity) return false;
-            }
-            // Tambahkan else if untuk placeholder lain jika ada
-            else { // Bahan spesifik (bukan placeholder)
-                // Gunakan objek Items langsung untuk hasItem
+            } else {
                 if (!playerInventory.hasItem(requiredItem, requiredQuantity)) {
                     return false;
                 }
@@ -238,25 +221,41 @@ public class RecipeDatabase {
         }
         return true;
     }
-    
-    public static List<Recipe> getAvailableRecipes(Player player) { // Tetap menggunakan Player
-        if (!isInitialized) initialize();
-        List<Recipe> available = new ArrayList<>();
-        if (player == null || player.getPlayerStats() == null) {
-            System.err.println("RecipeDatabase.getAvailableRecipes: Player or PlayerStats is null.");
-            return available;
-        }
-        PlayerStats stats = (PlayerStats) player.getPlayerStats();
-        for (Recipe recipe : recipes.values()) {
-            if (recipe != null && recipe.isUnlocked(stats)) {
-                available.add(recipe);
+
+    public static List<Items> getFishIngredientsFromInventory(Inventory playerInventory, int quantity) {
+        List<Items> fishToConsume = new ArrayList<>();
+        Map<Items, Integer> currentInventory = new HashMap<>(playerInventory.getInventory());
+
+        List<Map.Entry<Items, Integer>> allFishInInventory = currentInventory.entrySet().stream()
+                .filter(entry -> entry.getKey() instanceof Fish)
+                .collect(Collectors.toList());
+
+        allFishInInventory.sort((e1, e2) -> {
+            Fish f1 = (Fish) e1.getKey();
+            Fish f2 = (Fish) e2.getKey();
+            return f1.getFishType().iterator().next().compareTo(f2.getFishType().iterator().next());
+        });
+
+        for (Map.Entry<Items, Integer> fishEntry : allFishInInventory) {
+            if (fishToConsume.size() >= quantity) break;
+
+            Items fishItem = fishEntry.getKey();
+            int availableQuantity = fishEntry.getValue();
+            int needed = quantity - fishToConsume.size();
+            int take = Math.min(needed, availableQuantity);
+
+            for (int i = 0; i < take; i++) {
+                fishToConsume.add(fishItem);
             }
         }
-        return available;
-    }
-    
-    public static boolean isInitialized() { return isInitialized; }
-    // getFishIngredientsFromInventory tidak perlu diubah jika sudah berfungsi
-    public static List<Items> getFishIngredientsFromInventory(Inventory playerInventory, int quantityBerapaBanyak) { /* ... */ return new ArrayList<>();}
 
+        if (fishToConsume.size() < quantity) {
+            return new ArrayList<>();
+        }
+        return fishToConsume;
+    }
+
+    public static boolean isInitialized() {
+        return isInitialized;
+    }
 }

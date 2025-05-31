@@ -2,19 +2,17 @@ package org.example.model;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set; 
 
-import org.example.model.NPC.NPC; // Pastikan import ini ada
-import org.example.model.Items.Items; // Import Items
-import org.example.model.enums.FishType;
+import org.example.model.Items.Items;
+import org.example.model.enums.FishType; 
 
 public class PlayerStats {
     private int totalIncome;
     private int totalGoldSpent;
     private int totalCropsHarvested;
-    private Map<FishType, Integer> totalFishCaught; // Konsistenkan ke lowercase: totalFishCaught
+    private Map<FishType, Integer> totalFishCaught;
     private int totalDaysPlayed;
 
     // NPC Interaction Tracking
@@ -25,7 +23,7 @@ public class PlayerStats {
     private Map<String, Integer> npcFriendshipPoints;
 
     private Set<String> unlockedRecipeIds;
-    private Set<String> obtainedItemsLog; // Untuk melacak item yang pernah diperoleh
+    private Set<String> obtainedItemsLog; 
     private int totalMinutesPlayed = 0;
 
     private boolean hasShownEndGameStats = false;
@@ -34,9 +32,9 @@ public class PlayerStats {
         this.totalIncome = 0;
         this.totalGoldSpent = 0;
         this.totalCropsHarvested = 0;
-        this.totalFishCaught = new HashMap<>(); // Nama variabel dikoreksi
+        this.totalFishCaught = new HashMap<>(); 
         for (FishType type : FishType.values()) {
-            this.totalFishCaught.put(type, 0); // Nama variabel dikoreksi
+            this.totalFishCaught.put(type, 0); 
         }
         this.totalDaysPlayed = 0;
 
@@ -48,17 +46,14 @@ public class PlayerStats {
         this.unlockedRecipeIds = new HashSet<>();
         this.obtainedItemsLog = new HashSet<>(); 
         
-        // Unlock resep default saat PlayerStats dibuat
         unlockDefaultRecipes();
     }
 
     private void unlockDefaultRecipes() {
-        // ID Resep diambil dari spesifikasi atau RecipeDatabase.java
-        // Pastikan ID ini sama dengan yang digunakan saat mendefinisikan resep di RecipeDatabase
-        unlockRecipe("recipe_2"); // Baguette ("Default/Bawaan")
-        unlockRecipe("recipe_5"); // Wine ("Default/Bawaan")
-        unlockRecipe("recipe_6"); // Pumpkin Pie ("Default/Bawaan")
-        unlockRecipe("recipe_9"); // Spakbor Salad ("Default/Bawaan")
+        unlockRecipe("recipe_2"); 
+        unlockRecipe("recipe_5"); 
+        unlockRecipe("recipe_6"); 
+        unlockRecipe("recipe_9"); 
     }
 
     public void unlockRecipe(String recipeId) {
@@ -84,7 +79,6 @@ public class PlayerStats {
         if (item != null && item.getName() != null && !item.getName().isEmpty()) {
             if (this.obtainedItemsLog.add(item.getName())) {
                 System.out.println("PlayerStats LOG: Item '" + item.getName() + "' recorded as obtained.");
-                // Setelah item penting diperoleh, cek apakah ada resep yang terbuka karenanya
                 checkAndUnlockRecipesOnItemObtained(item.getName());
             }
         }
@@ -110,16 +104,13 @@ public class PlayerStats {
         return new HashSet<>(this.obtainedItemsLog);
     }
 
-    // Metode untuk memeriksa dan unlock resep setelah item diperoleh atau statistik berubah
     public void checkAndUnlockRecipesOnItemObtained(String itemName) {
         if ("Pufferfish".equals(itemName)) unlockRecipe("recipe_4"); // Fugu
         if ("Hot Pepper".equals(itemName)) unlockRecipe("recipe_8"); // Fish Stew
         if ("Legend".equals(itemName)) unlockRecipe("recipe_11"); // The Legends of Spakbor
-        // Tambahkan pengecekan untuk item lain yang membuka resep
     }
 
     public void checkAndUnlockRecipesOnStatChange() {
-        // Untuk resep Sashimi (10 ikan)
         Map<FishType, Integer> fishMap = getTotalFishCaught();
         if (fishMap != null) {
             int totalFish = 0;
@@ -130,11 +121,9 @@ public class PlayerStats {
                 unlockRecipe("recipe_3"); // Sashimi
             }
         }
-        // Untuk resep Veggie Soup (panen pertama)
         if (getTotalCropsHarvested() > 0) {
             unlockRecipe("recipe_7"); // Veggie Soup
         }
-        // Tambahkan pengecekan untuk statistik lain yang membuka resep
     }
 
     // Getters & Setters untuk Statistik (sudah ada, pastikan konsisten)
@@ -155,14 +144,14 @@ public class PlayerStats {
     public void recordCropsHarvested(int count) {
         if (count > 0) {
             this.totalCropsHarvested += count;
-            checkAndUnlockRecipesOnStatChange(); // Cek resep setelah panen
+            checkAndUnlockRecipesOnStatChange(); 
         }
     }
-    public void recordFishCaught(FishType type, String fishName) { // Modifikasi untuk menerima nama ikan
+    public void recordFishCaught(FishType type, String fishName) { 
         if (type != null && fishName != null) {
             totalFishCaught.put(type, totalFishCaught.getOrDefault(type, 0) + 1);
-            recordObtainedItemByName(fishName); // Catat ikan spesifik yang ditangkap
-            checkAndUnlockRecipesOnStatChange(); // Cek resep setelah menangkap ikan
+            recordObtainedItemByName(fishName); 
+            checkAndUnlockRecipesOnStatChange(); 
         }
     }
     public void incrementDaysPlayed() {
