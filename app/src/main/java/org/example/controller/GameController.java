@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -45,6 +46,7 @@ import org.example.view.InteractableObject.OceanObject;
 import org.example.view.InteractableObject.PondObject;
 import org.example.view.InteractableObject.RiverObject;
 import org.example.view.MenuPanel;
+import org.example.view.ViewPlayerInfoPanel;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
 
@@ -1251,6 +1253,17 @@ public class GameController implements Runnable {
     //         System.out.println("CHEAT FAILED: GameClock not available for cycling season.");
     //     }
     // }
+
+    public void showPlayerInfo() {
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
+        JDialog dialog = new JDialog(frame, "Player Info", true);
+        dialog.setUndecorated(true);
+        dialog.setContentPane(new ViewPlayerInfoPanel(frame, getFarmModel().getPlayerModel()));
+        dialog.pack();
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+    }
+
   
 public void handleEatAction() {
         Player player = farm.getPlayerModel();

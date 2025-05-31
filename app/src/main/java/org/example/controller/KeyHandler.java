@@ -77,6 +77,7 @@ public class KeyHandler implements KeyListener {
                     case KeyEvent.VK_F: gameController.handleInteraction(); break;
                     case KeyEvent.VK_ESCAPE: gameController.togglePause(); break;
                     case KeyEvent.VK_I: gameController.toggleInventory(); break;
+                    case KeyEvent.VK_G: gameController.showPlayerInfo(); break;
                  }
             }
         } else if (currentGameState.getGameState() == currentGameState.pause) {
