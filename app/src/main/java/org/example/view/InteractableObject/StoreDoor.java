@@ -27,6 +27,6 @@ public class StoreDoor extends InteractableObject {
     public void interact(GameController controller) {
         int tileSize = controller.getTileSize();
         int currentMap = controller.getFarmModel().getCurrentMap();
-        controller.teleportPlayer(3, 23 * tileSize, 8 * tileSize);
+        controller.visitingAction(3, 23 * tileSize, 8 * tileSize);
     }
 }
