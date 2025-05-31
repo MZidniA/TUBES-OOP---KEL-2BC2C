@@ -31,6 +31,194 @@ Di Spakbor Hill, Anda akan memulai petualangan sebagai petani baru yang mewarisi
 * **Ekonomi**: Jual hasil panen, ikan, atau masakan melalui *Shipping Bin* untuk mendapatkan emas.
 * **Tujuan Akhir Game**: Capai salah satu kondisi akhir game, seperti menikah atau mencapai target emas tertentu.
 
+## Struktur Kode
+```Text
+.
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── org
+│   │   │       └── example
+│   │   │           ├── Main.java
+│   │   │           ├── controller
+│   │   │           │   ├── AssetSetter.java
+│   │   │           │   ├── CheatManager.java
+│   │   │           │   ├── CollisionChecker.java
+│   │   │           │   ├── GameController.java
+│   │   │           │   ├── GameState.java
+│   │   │           │   ├── KeyHandler.java
+│   │   │           │   ├── PlayerController.java
+│   │   │           │   ├── StoreController.java
+│   │   │           │   ├── TimeManager.java
+│   │   │           │   ├── UtilityTool.java
+│   │   │           │   └── action
+│   │   │           │       ├── Action.java
+│   │   │           │       ├── ChattingAction.java
+│   │   │           │       ├── CookingAction.java
+│   │   │           │       ├── EatingAction.java
+│   │   │           │       ├── FishingAction.java
+│   │   │           │       ├── GiftingAction.java
+│   │   │           │       ├── HarvestingAction.java
+│   │   │           │       ├── MarryingAction.java
+│   │   │           │       ├── MovingAction.java
+│   │   │           │       ├── PlantingAction.java
+│   │   │           │       ├── ProposingAction.java
+│   │   │           │       ├── RecoverLandAction.java
+│   │   │           │       ├── SleepingAction.java
+│   │   │           │       ├── TillingAction.java
+│   │   │           │       ├── UpdateAndShowLocationAction.java
+│   │   │           │       ├── WatchingAction.java
+│   │   │           │       └── WateringAction.java
+│   │   │           ├── model
+│   │   │           │   ├── CookingInProgress.java
+│   │   │           │   ├── Farm.java
+│   │   │           │   ├── GameClock.java
+│   │   │           │   ├── GameTime.java
+│   │   │           │   ├── Inventory.java
+│   │   │           │   ├── Player.java
+│   │   │           │   ├── PlayerStats.java
+│   │   │           │   ├── Recipe.java
+│   │   │           │   ├── RecipeDatabase.java
+│   │   │           │   ├── Sound.java
+│   │   │           │   ├── Items
+│   │   │           │   │   ├── Crops.java
+│   │   │           │   │   ├── CropsFactory.java
+│   │   │           │   │   ├── EdibleItem.java
+│   │   │           │   │   ├── Equipment.java
+│   │   │           │   │   ├── EquipmentFactory.java
+│   │   │           │   │   ├── Fish.java
+│   │   │           │   │   ├── FishFactory.java
+│   │   │           │   │   ├── Food.java
+│   │   │           │   │   ├── FoodFactory.java
+│   │   │           │   │   ├── Furniture.java
+│   │   │           │   │   ├── FurnitureFactory.java
+│   │   │           │   │   ├── ItemDatabase.java
+│   │   │           │   │   ├── Items.java
+│   │   │           │   │   ├── Misc.java
+│   │   │           │   │   ├── MiscFactory.java
+│   │   │           │   │   ├── SeedFactory.java
+│   │   │           │   │   └── Seeds.java
+│   │   │           │   ├── Map
+│   │   │           │   │   ├── FarmMap.java
+│   │   │           │   │   ├── House.java
+│   │   │           │   │   ├── Location.java
+│   │   │           │   │   ├── Plantedland.java
+│   │   │           │   │   ├── Pond.java
+│   │   │           │   │   ├── ShippingBin.java
+│   │   │           │   │   ├── Store.java
+│   │   │           │   │   ├── Tile.java
+│   │   │           │   │   ├── Tillableland.java
+│   │   │           │   │   └── Tilledland.java
+│   │   │           │   ├── NPC
+│   │   │           │   │   ├── AbigailNPC.java
+│   │   │           │   │   ├── CarolineNPC.java
+│   │   │           │   │   ├── DascoNPC.java
+│   │   │           │   │   ├── EmilyNPC.java
+│   │   │           │   │   ├── MayorTadiNPC.java
+│   │   │           │   │   ├── NPC.java
+│   │   │           │   │   ├── NPCFactory.java
+│   │   │           │   │   └── PerryNPC.java
+│   │   │           │   └── enums
+│   │   │           │       ├── FishType.java
+│   │   │           │       ├── LocationType.java
+│   │   │           │       ├── RelationshipStats.java
+│   │   │           │       ├── Season.java
+│   │   │           │       ├── SleepReason.java
+│   │   │           │       ├── TileType.java
+│   │   │           │       └── Weather.java
+│   │   │           └── view
+│   │   │               ├── ChattingDialogPanel.java
+│   │   │               ├── ClassicMessageDialog.java
+│   │   │               ├── EnergyWarningDialog.java
+│   │   │               ├── FishingPanel.java
+│   │   │               ├── FontMetrics.java
+│   │   │               ├── GamePanel.java
+│   │   │               ├── GameStateUI.java
+│   │   │               ├── GiftingDialogPanel.java
+│   │   │               ├── MenuPanel.java
+│   │   │               ├── NPCInteractionPanel.java
+│   │   │               ├── StorePanel.java
+│   │   │               ├── TimeObserver.java
+│   │   │               ├── TransitionPanel.java
+│   │   │               ├── ViewPlayerInfoPanel.java
+│   │   │               ├── InteractableObject
+│   │   │               │   ├── AbigailHouse.java
+│   │   │               │   ├── BedObject.java
+│   │   │               │   ├── CarolineHouse.java
+│   │   │               │   ├── DascoHouse.java
+│   │   │               │   ├── DoorObject.java
+│   │   │               │   ├── Emily.java
+│   │   │               │   ├── EmilyStore.java
+│   │   │               │   ├── InteractableObject.java
+│   │   │               │   ├── MayorHouse.java
+│   │   │               │   ├── MountainLakeObject.java
+│   │   │               │   ├── OceanObject.java
+│   │   │               │   ├── PerryHouse.java
+│   │   │               │   ├── PlantedTileObject.java
+│   │   │               │   ├── PondObject.java
+│   │   │               │   ├── RiverObject.java
+│   │   │               │   ├── ShippingBinObject.java
+│   │   │               │   ├── StoreDoor.java
+│   │   │               │   ├── StoveObject.java
+│   │   │               │   ├── TVObject.java
+│   │   │               │   └── UnplantedTileObject.java
+│   │   │               ├── entitas
+│   │   │               │   ├── Entity.java
+│   │   │               │   └── PlayerView.java
+│   │   │               └── tile
+│   │   │                   ├── Tile.java
+│   │   │                   └── TileManager.java
+│   │   └── resources
+│   │       ├── maps
+│   │       │   ├── beachmap.txt
+│   │       │   ├── housemap.txt
+│   │       │   ├── map.txt
+│   │       │   ├── rivermap.txt
+│   │       │   ├── store.txt
+│   │       │   └── townmap.txt
+│   │       ├── font
+│   │       │   ├── PressStart2P.ttf
+│   │       │   └── slkscr.ttf
+│   │       ├── menu
+│   │       │   ├── menu.png
+│   │       │   ├── FishingBG.png
+│   │       │   ├── StoreBG.png
+│   │       │   └── transition_background.png
+│   │       ├── button
+│   │       │   ├── button.png
+│   │       │   └── message.png
+│   │       ├── box
+│   │       │   ├── box.png
+│   │       │   └── (npc_name).png
+│   │       ├── tiles
+│   │       │   └── (nama_tile).png
+│   │       ├── player
+│   │       │   └── boy_(direction)_(frame).png
+│   │       ├── crops
+│   │       │   └── (nama_crop).png
+│   │       ├── seeds
+│   │       │   └── (nama_seed).png
+│   │       ├── fish
+│   │       │   └── (nama_ikan).png
+│   │       ├── equipment
+│   │       │   └── (nama_alat).png
+│   │       ├── misc
+│   │       │   └── (nama_misc).png
+│   │       ├── food
+│   │       │   └── (nama_makanan).png
+│   │       ├── InteractableObject
+│   │       │   └── (nama_objek).png
+│   │       └── sound
+│   │           └── SpringSDW.wav
+│   └── test
+│       └── java
+│           └── org
+│               └── example
+│                   └── Test.java
+├── .gitignore
+├── pom.xml
+└── README.md
+```
 ## Memulai
 
 ### Prasyarat
