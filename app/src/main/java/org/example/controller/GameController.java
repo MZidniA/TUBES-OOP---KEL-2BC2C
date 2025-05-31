@@ -13,6 +13,8 @@ import org.example.controller.action.MarryingAction;
 import org.example.controller.action.PlantingAction;
 import org.example.controller.action.RecoverLandAction;
 import org.example.controller.action.TillingAction;
+import org.example.controller.CheatManager;
+import org.example.controller.KeyHandler;
 import org.example.model.Farm;
 import org.example.model.GameClock;
 import org.example.model.Inventory;
@@ -58,7 +60,7 @@ public class GameController implements Runnable {
     private final TileManager tileManager; 
     private final GameStateUI gameStateUI; 
     private final JFrame mainFrame; 
-
+    private final CheatManager cheatManager;   
     private final KeyHandler keyHandler;
     private final CollisionChecker cChecker;
     private final AssetSetter aSetter;
@@ -89,9 +91,11 @@ public class GameController implements Runnable {
         this.playerViewInstance = new PlayerView(farm.getPlayerModel(), gamePanel);
         this.cChecker = new CollisionChecker(this);
         this.aSetter = new AssetSetter(this);
-        this.keyHandler = new KeyHandler(this);
+        
         this.music = new Sound();
         this.music.setFile();
+        
+
         
         if (farm.getGameClock() != null && this.gameStateUI != null) {
             this.timeManager = new TimeManager(farm, farm.getGameClock());
@@ -99,6 +103,8 @@ public class GameController implements Runnable {
         } else {
             this.timeManager = null; 
         }
+        this.cheatManager = new CheatManager(this);
+        this.keyHandler = new KeyHandler(this);
 
         if (this.gamePanel != null) {
             this.gamePanel.addKeyListener(this.keyHandler);
@@ -129,6 +135,13 @@ public class GameController implements Runnable {
     public TimeManager getTimeManager() { 
         return this.timeManager; 
     }
+    public CheatManager getCheatManager() {
+        return this.cheatManager;
+    }
+    public KeyHandler getKeyHandler() { 
+        return this.keyHandler; 
+    }
+
     
 
 
@@ -295,24 +308,13 @@ public class GameController implements Runnable {
             if (playerViewInstance.solidArea == null) return;
             int playerCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width / 2) / tileSize;
             int playerRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y + playerViewInstance.solidArea.height / 2) / tileSize;
-
-            if (currentMap == 0 && playerCol == 31 && playerRow == 15) {
-                teleportPlayer(1, 1 * tileSize, 1 * tileSize);
-            } else if (currentMap == 1 && playerCol == 1 && playerRow == 1) {
-                teleportPlayer(0, 31 * tileSize, 15 * tileSize);
-            } else if (currentMap == 1 && playerCol == 30 && playerRow == 1) {
-                teleportPlayer(2, 29 * tileSize, 0 * tileSize);
-            } else if (currentMap == 2 && playerCol == 29 && playerRow == 0) {
-                teleportPlayer(1, 30 * tileSize, 1 * tileSize);
-            } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) {
-                teleportPlayer(3, 15 * tileSize, 31 * tileSize);
-            } else if (currentMap == 3 && playerCol == 15 && playerRow == 31) {
-                teleportPlayer(2, 0 * tileSize, 31 * tileSize);
-            } else if (currentMap == 4 && playerCol == 3 && playerRow == 11) {
-                teleportPlayer(0, 4 * tileSize, 9 * tileSize);
-            } else if (currentMap == 5 && playerCol == 5 && playerRow == 9) {
-                teleportPlayer(3, 29 * tileSize, 5 * tileSize);
-            }
+            if (currentMap == 0 && playerCol == 31 && playerRow == 15) { visitingAction(1, 1 * tileSize, 1 * tileSize); } 
+            else if (currentMap == 1 && playerCol == 1 && playerRow == 1) { visitingAction(0, 31 * tileSize, 15 * tileSize); } 
+            else if (currentMap == 1 && playerCol == 30 && playerRow == 1) { visitingAction(2, 29 * tileSize, 0 * tileSize); } 
+            else if (currentMap == 2 && playerCol == 29 && playerRow == 0) { visitingAction(1, 30 * tileSize, 1 * tileSize); } 
+            else if (currentMap == 2 && playerCol == 0 && playerRow == 31) { visitingAction(3, 15 * tileSize, 31* tileSize); } 
+            else if (currentMap == 3 && playerCol == 15 && playerRow == 31) { visitingAction(2, 0 * tileSize, 31 * tileSize); } 
+            else if (currentMap == 4 && playerCol == 3 && playerRow == 11) { visitingAction(0, 4 * tileSize, 9 * tileSize); }
         }
     }
 
@@ -344,47 +346,34 @@ public class GameController implements Runnable {
         if (gameState.getGameState() == gameState.pause && gameStateUI != null) {
             if (gameStateUI.commandNum == 0) { // "Continue"
                 gameState.setGameState(gameState.play);
-                System.out.println("GameController: Resuming game. Game state set to PLAY.");
-                // if (music != null && !music.isPlaying()) playMusic(); // Putar musik lagi jika dihentikan saat pause
+
             } else if (gameStateUI.commandNum == 1) { // "Exit Game"
-                System.out.println("GameController: Exit Game selected from pause menu.");
                 exitToMainMenu();
             }
         } else {
-            System.err.println("GameController: confirmPauseUISelection called in invalid state or gameStateUI is null.");
+            return;
         }
     }
 
     private void cleanUpForExit() {
-        System.out.println("GameController: Cleaning up current game session...");
         if (timeManager != null) {
             timeManager.stopTimeSystem();
-            System.out.println("GameController: Time system stopped.");
         }
-        stopMusic(); // Hentikan musik game
+        stopMusic(); 
 
         if (gameThread != null) {
             Thread threadToStop = gameThread;
             gameThread = null; 
             try {
                 if (threadToStop.isAlive()) {
-                    System.out.println("GameController: Waiting for game thread to stop...");
-                    // threadToStop.interrupt(); // Gunakan jika loop run menangani InterruptedException
                     threadToStop.join(100); 
-                    if (threadToStop.isAlive()) {
-                        System.err.println("GameController: Game thread did not stop in time.");
-                    } else {
-                        System.out.println("GameController: Game thread stopped successfully.");
-                    }
                 }
             } catch (InterruptedException e) {
-                System.err.println("GameController: Interrupted while waiting for game thread to stop: " + e.getMessage());
                 Thread.currentThread().interrupt();
             }
         } else {
-            System.out.println("GameController: Game thread was already null during cleanup.");
+            return;
         }
-        // Hapus KeyListener dari GamePanel lama agar tidak ada konflik jika GamePanel dibuat ulang
         if (gamePanel != null && keyHandler != null) {
             gamePanel.removeKeyListener(keyHandler);
         }
@@ -455,11 +444,8 @@ public class GameController implements Runnable {
         movementState.put("up", false); movementState.put("down", false);
         movementState.put("left", false); movementState.put("right", false);
     }
-    public void teleportPlayer(int mapIndex, int worldX, int worldY) {
+    public void visitingAction(int mapIndex, int worldX, int worldY) {
         int musicIdx = 0; 
-        teleportPlayer(mapIndex, worldX, worldY, musicIdx);
-    }
-    public void teleportPlayer(int mapIndex, int worldX, int worldY, int musicIndex) {
         if (farm != null && playerViewInstance != null && gamePanel != null && tileManager != null && aSetter != null) {
             stopMusic();
             farm.setCurrentMap(mapIndex);
@@ -491,27 +477,23 @@ public class GameController implements Runnable {
         if (timeManager != null) {
             timeManager.stopTimeSystem();
         }
-
         gameState.setGameState(gameState.day_report);
     
         Player playerModel = farm.getPlayerModel();
         String reasonMessage;
     
         if (playerModel.isForceSleepByTime()) { 
-            playerModel.setSleepReason(SleepReason.PASSED_OUT_TIME);
-            reasonMessage = "Kamu Begadang dan KO";
             playerModel.setEnergy(playerModel.getMaxEnergy() / 2);
+            reasonMessage = "Kamu Tidur Paksa Karena Waktu Sudah Larut.";
         } else if (playerModel.isPassedOut()) { 
             playerModel.setSleepReason(SleepReason.PASSED_OUT_ENERGY);
-            reasonMessage = "Kamu Pingsan di Jalan\nTuhan mengnatarkanmu ke rumah";
-            playerModel.setEnergy(playerModel.getMaxEnergy() / 2);
+            reasonMessage = "Kamu Pingsan Karena Energi Terlalu Rendah.";
+            playerModel.setEnergy(10);
         } else {
-            playerModel.setSleepReason(SleepReason.NORMAL); 
-            reasonMessage = "The day has ended.";
-            playerModel.setEnergy(playerModel.getMaxEnergy()); 
-  
+            playerModel.setSleepReason(SleepReason.NORMAL);
+            reasonMessage = "Kamu Tertidur Dengan Nyenyak.";
         }
-    
+
         processEndOfDayEvents();
         if (getGameStateUI() != null) {
             getGameStateUI().setEndOfDayInfo(reasonMessage, farm.getGoldFromLastShipment());
@@ -754,7 +736,7 @@ public class GameController implements Runnable {
         }
 
         if (farm.getCurrentMap() != 4) {
-             teleportPlayer(4, 6 * tileSize, 10 * tileSize); 
+             visitingAction(4, 6 * tileSize, 10 * tileSize); 
         } else {
             if (playerView != null) {
                 playerView.worldX = 6 * tileSize;

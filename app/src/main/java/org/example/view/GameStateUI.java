@@ -569,9 +569,9 @@ public class GameStateUI implements TimeObserver {
 
                 if (item.getImage() != null) {
                     g2.drawImage(item.getImage(), currentSlotX + 4, currentSlotY + 4, slotSize - 8, slotSize - 8, null);
-                } else { // Fallback jika tidak ada gambar, tampilkan nama (shortened)
+                } else { 
                     g2.setFont(itemPlaceholderFont);
-                    g2.setColor(lightYellow); // Set color for placeholder text
+                    g2.setColor(lightYellow); 
                     String itemName = item.getName();
                     int maxNameLengthInSlot = 7;
                     if (itemName.length() > maxNameLengthInSlot) {

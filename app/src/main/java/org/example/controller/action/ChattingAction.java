@@ -47,7 +47,6 @@ public class ChattingAction implements Action {
 
         if (!canExecute(farm)) return;
 
-        // Cari NPC asli dari farm (bukan instance baru)
         NPC npc = farm.getNPCByName(targetNpc.getName());
 
         if (npc == null) {

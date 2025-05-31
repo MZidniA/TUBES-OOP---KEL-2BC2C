@@ -42,11 +42,10 @@ public class SleepingAction implements Action {
         int energyForNextDay;
         String endOfDayMessage = "Kamu Tertidur Dengan Nyenyak.";
 
-        if (currentTime.isAfter(LocalTime.MIDNIGHT) && currentTime.isBefore(LocalTime.of(2,0))) {
-            energyForNextDay = (int)(maxEnergy * 0.75);
-            endOfDayMessage = "Kamu Kelelahan Karena Telat Tidur.";
-        } else if (currentTime.isBefore(LocalTime.MIDNIGHT) && currentTime.getHour() >= 22) { 
-             energyForNextDay = maxEnergy; 
+        if (player.getEnergy() < 10 && player.getEnergy() > 0) { // Jika energi kurang dari 20
+            energyForNextDay = (int)(maxEnergy * 0.5);
+        } else if (player.getEnergy() <= 0) { 
+             energyForNextDay = 10; 
         }
         else { 
             energyForNextDay = maxEnergy; 

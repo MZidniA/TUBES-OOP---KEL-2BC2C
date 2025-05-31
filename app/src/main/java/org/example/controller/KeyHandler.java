@@ -2,12 +2,17 @@ package org.example.controller;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.time.LocalTime;
+
+
 
 public class KeyHandler implements KeyListener {
     private final GameController gameController;
+    private  CheatManager cheatManager;
 
     public KeyHandler(GameController gameController) {
         this.gameController = gameController;
+        this.cheatManager = this.gameController.getCheatManager();
     }
 
     @Override
@@ -19,16 +24,62 @@ public class KeyHandler implements KeyListener {
         if (gameController == null || gameController.getGameState() == null) return;
         GameState currentGameState = gameController.getGameState();
 
-        if (currentGameState.getGameState() == currentGameState.play) {
-            switch (code) {
-                case KeyEvent.VK_W: case KeyEvent.VK_UP: gameController.handlePlayerMove("up", true); break;
-                case KeyEvent.VK_S: case KeyEvent.VK_DOWN: gameController.handlePlayerMove("down", true); break;
-                case KeyEvent.VK_A: case KeyEvent.VK_LEFT: gameController.handlePlayerMove("left", true); break;
-                case KeyEvent.VK_D: case KeyEvent.VK_RIGHT: gameController.handlePlayerMove("right", true); break;
-                case KeyEvent.VK_F: gameController.handleInteraction(); break;
-                case KeyEvent.VK_ESCAPE: gameController.togglePause(); break;
-                case KeyEvent.VK_I: gameController.toggleInventory(); break;
-                case KeyEvent.VK_CONTROL: gameController.activateSetTimeTo2AMCheat();; break;
+
+
+
+        if (currentGameState.getGameState() == currentGameState.play) { //
+            if (cheatManager != null && e.isControlDown()) {
+                boolean cheatActivated = false;
+                switch (code) {
+                    case KeyEvent.VK_1: 
+                        cheatManager.cheat_setGoldToWinningAmount();
+                        cheatActivated = true;
+                        break;
+                    case KeyEvent.VK_2:
+                        cheatManager.cheat_addGold5K();
+                        cheatActivated = true;
+                        break;
+                    case KeyEvent.VK_3:
+                        cheatManager.cheat_marryNpc("Abigail"); 
+                        cheatActivated = true;
+                        break;
+                    case KeyEvent.VK_4: 
+                        cheatManager.cheat_cycleWeather();
+                        cheatActivated = true;
+                        break;
+                    case KeyEvent.VK_5:
+                        cheatManager.cheat_setNextSeason();
+                        cheatActivated = true;
+                        break;
+                    case KeyEvent.VK_6:
+                        cheatManager.cheat_setTime(LocalTime.NOON); 
+                        cheatActivated = true;
+                        break;
+                    case KeyEvent.VK_7:
+                        cheatManager.activateSetTimeTo2AMCheat();
+                        cheatActivated = true;
+                        break; 
+                    case KeyEvent.VK_8:
+                        cheatManager.cheat_addRecipeBundleStarterPack(); 
+                        cheatActivated = true;
+                        break;               
+                }
+
+                if (cheatActivated) {
+                    e.consume(); 
+                    return;     
+                }
+            }
+            if (!e.isConsumed()) {
+                 switch (code) {
+                    case KeyEvent.VK_W: case KeyEvent.VK_UP: gameController.handlePlayerMove("up", true); break;
+                    case KeyEvent.VK_S: case KeyEvent.VK_DOWN: gameController.handlePlayerMove("down", true); break;
+                    case KeyEvent.VK_A: case KeyEvent.VK_LEFT: gameController.handlePlayerMove("left", true); break;
+                    case KeyEvent.VK_D: case KeyEvent.VK_RIGHT: gameController.handlePlayerMove("right", true); break;
+                    case KeyEvent.VK_F: gameController.handleInteraction(); break;
+                    case KeyEvent.VK_ESCAPE: gameController.togglePause(); break;
+                    case KeyEvent.VK_I: gameController.toggleInventory(); break;
+                 }
             }
         } else if (currentGameState.getGameState() == currentGameState.pause) {
             if (code == KeyEvent.VK_ESCAPE) gameController.togglePause();
