@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.example.controller.GameController;
 import org.example.controller.action.ChattingAction;
@@ -102,6 +103,7 @@ public class NPCInteractionPanel extends JPanel {
             JButton storeButton = createPixelButton("Store");
             storeButton.setBounds(80, startY + buttonIndex * (buttonHeight + gap), buttonWidth, buttonHeight);
             storeButton.addActionListener(e -> {
+                SwingUtilities.getWindowAncestor(this).dispose();
                 Store store = new Store(farm.getCurrentSeason());
                 StorePanel storePanel = new StorePanel(parentFrame, store, farm.getPlayerModel(), controller, farm, npcName);
                 parentFrame.setContentPane(storePanel);
@@ -122,9 +124,11 @@ public class NPCInteractionPanel extends JPanel {
         int backY = startY + buttonIndex * (buttonHeight + gap) + 10;
         backButton.setBounds(90, backY, buttonWidth - 20, buttonHeight - 10);
         backButton.addActionListener(e -> {
-            parentFrame.setContentPane(controller.getGamePanel());
-            parentFrame.revalidate();
-            parentFrame.repaint();
+            controller.getMainFrame().setContentPane(controller.getGamePanel());
+            controller.getMainFrame().revalidate();
+            controller.getMainFrame().repaint();
+            controller.getGamePanel().requestFocusInWindow();
+            controller.getGameState().setGameState(controller.getGameState().play);
         });
         add(backButton);
 
