@@ -9,6 +9,7 @@ import org.example.model.Recipe;
 import org.example.model.RecipeDatabase;
 import org.example.model.Items.Fish;
 import org.example.model.Items.Food;
+import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
 import org.example.model.NPC.NPC;
 import org.example.model.enums.FishType;
@@ -53,6 +54,8 @@ public class GameStateUI implements TimeObserver {
     public int cookingMenuCommandNum = 0; // 0: Cook, 1: Cancel
     public List<Recipe> availableRecipesForUI;
     public List<Items> availableFuelsForUI;
+    private boolean selectingFuel = false; // Flag baru untuk menandakan mode pemilihan fuel
+    public int fuelSelectionCommandNum = 0;
 
     // UI Message State
     private String uiMessage = null;
@@ -175,15 +178,13 @@ public class GameStateUI implements TimeObserver {
     }
 
     private void drawCookingMenuScreen(Farm farm, Player player, Inventory playerInventory) {
-        if (g2 == null || gp == null) { // Pastikan g2 dan gp tidak null
-            return;
-        }
-        if (farm == null || player == null || playerInventory == null) {
-            drawTextWithShadow("Error: Cooking data unavailable.", gp.tileSize, gp.screenHeight / 2, stardewFont_30, Color.RED, darkTextShadow);
+        if (g2 == null || gp == null || farm == null || player == null || playerInventory == null) {
+            System.err.println("GameStateUI ERROR: Critical component null in drawCookingMenuScreen.");
+            // Tampilkan pesan error dasar jika bisa
+            if (g2 != null && gp != null) drawTextWithShadow("Error: Cooking data unavailable.", gp.tileSize, gp.screenHeight / 2, stardewFont_30, Color.RED, darkTextShadow);
             return;
         }
 
-    
         g2.setColor(new Color(0, 0, 0, 220));
         g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
@@ -221,121 +222,151 @@ public class GameStateUI implements TimeObserver {
         int commandAreaHeight = gp.tileSize * 2; 
         int bottomAreaY = frameY + frameHeight - commandAreaHeight - (gp.tileSize / 2);
 
-
-
-        if (availableRecipesForUI == null) { 
-            availableRecipesForUI = RecipeDatabase.getCookableRecipes(playerInventory, farm.getPlayerStats());
-            if (availableRecipesForUI == null) availableRecipesForUI = new ArrayList<>();
-        }
-
-        if (availableRecipesForUI.isEmpty()) {
-            String noRecipeText = "No recipes available or unlocked.";
-            java.awt.FontMetrics fmNoRecipe = g2.getFontMetrics(listFont);
-            int textWidthNoRecipe = fmNoRecipe.stringWidth(noRecipeText);
-
-            int noRecipeTextX = frameX + (frameWidth - textWidthNoRecipe) / 2;
-
-            int noRecipeTextY = listAreaY + ( (bottomAreaY - listAreaY) / 2); 
-            drawTextWithShadow(noRecipeText, noRecipeTextX, noRecipeTextY, listFont);
-        } else {
-            int listMaxHeight = bottomAreaY - listAreaY - (gp.tileSize / 2); 
-            int maxRecipesDisplay = listMaxHeight / listLineHeight;
-            maxRecipesDisplay = Math.max(1, maxRecipesDisplay);
-
-            int displayStartIndex = 0;
-            if (selectedRecipeIndex >= (maxRecipesDisplay - 1) / 2) {
-                displayStartIndex = selectedRecipeIndex - (maxRecipesDisplay - 1) / 2;
-            }
-            displayStartIndex = Math.max(0, displayStartIndex);
-            if (displayStartIndex + maxRecipesDisplay > availableRecipesForUI.size()) {
-                displayStartIndex = Math.max(0, availableRecipesForUI.size() - maxRecipesDisplay);
+        // --- BAGIAN MEMILIH RESEP (KIRI) ---
+        if (!selectingFuel) {
+            if (availableRecipesForUI == null) {
+                availableRecipesForUI = RecipeDatabase.getCookableRecipes(playerInventory, farm.getPlayerStats());
+                if (availableRecipesForUI == null) availableRecipesForUI = new ArrayList<>();
             }
 
-            for (int i = 0; i < maxRecipesDisplay; i++) {
-                int actualIdx = displayStartIndex + i;
-                if (actualIdx >= availableRecipesForUI.size()) break;
+            if (availableRecipesForUI.isEmpty()) {
+                String noRecipeText = "No recipes available or unlocked.";
+                java.awt.FontMetrics fmNoRecipe = g2.getFontMetrics(listFont);
+                int textWidthNoRecipe = fmNoRecipe.stringWidth(noRecipeText);
 
-                Recipe recipe = availableRecipesForUI.get(actualIdx);
-                if (recipe == null) continue;
+                int noRecipeTextX = frameX + (frameWidth - textWidthNoRecipe) / 2;
 
-                boolean canCraft = RecipeDatabase.canPlayerCookRecipe(playerInventory, recipe);
+                int noRecipeTextY = listAreaY + ( (bottomAreaY - listAreaY) / 2); 
+                drawTextWithShadow(noRecipeText, noRecipeTextX, noRecipeTextY, listFont);
+            } else {
+                int listMaxHeight = bottomAreaY - listAreaY - (gp.tileSize / 2); 
+                int maxRecipesDisplay = listMaxHeight / listLineHeight;
+                maxRecipesDisplay = Math.max(1, maxRecipesDisplay);
 
-                String prefix = (actualIdx == selectedRecipeIndex) ? "> " : "  ";
-                Color textColor = (actualIdx == selectedRecipeIndex) ? Color.YELLOW : (canCraft ? canCraftColor : cannotCraftColor);
-                drawTextWithShadow(prefix + recipe.getDisplayName(), listAreaX, listAreaY + (i * listLineHeight), listFont, textColor, darkTextShadow);
-            }
-        }
-
- 
-        if (availableRecipesForUI != null && !availableRecipesForUI.isEmpty() && selectedRecipeIndex >= 0 && selectedRecipeIndex < availableRecipesForUI.size()) {
-            Recipe currentRecipe = availableRecipesForUI.get(selectedRecipeIndex);
-            if (currentRecipe == null) return;
-
-            Food resultingDish = currentRecipe.getResultingDish();
-            int currentDetailInternalY = detailAreaY; 
-            int detailMaxY = bottomAreaY - (gp.tileSize / 2);
-
-
-            if (resultingDish != null) {
-                if (resultingDish.getImage() != null && (currentDetailInternalY + gp.tileSize * 2 + 10) < detailMaxY) {
-                    int dishImageX = detailAreaX + (detailAreaContentWidth - gp.tileSize * 2) / 2;
-                    g2.drawImage(resultingDish.getImage(), dishImageX, currentDetailInternalY, gp.tileSize * 2, gp.tileSize * 2, null);
-                    currentDetailInternalY += gp.tileSize * 2 + 10;
+                int displayStartIndex = 0;
+                if (selectedRecipeIndex >= (maxRecipesDisplay - 1) / 2) {
+                    displayStartIndex = selectedRecipeIndex - (maxRecipesDisplay - 1) / 2;
                 }
+                displayStartIndex = Math.max(0, displayStartIndex);
+                if (displayStartIndex + maxRecipesDisplay > availableRecipesForUI.size()) {
+                    displayStartIndex = Math.max(0, availableRecipesForUI.size() - maxRecipesDisplay);
+                }
+
+                for (int i = 0; i < maxRecipesDisplay; i++) {
+                    int actualIdx = displayStartIndex + i;
+                    if (actualIdx >= availableRecipesForUI.size()) break;
+
+                    Recipe recipe = availableRecipesForUI.get(actualIdx);
+                    if (recipe == null) continue;
+
+                    boolean canCraft = RecipeDatabase.canPlayerCookRecipe(playerInventory, recipe);
+
+                    String prefix = (actualIdx == selectedRecipeIndex) ? "> " : "  ";
+                    Color textColor = (actualIdx == selectedRecipeIndex) ? Color.YELLOW : (canCraft ? canCraftColor : cannotCraftColor);
+                    drawTextWithShadow(prefix + recipe.getDisplayName(), listAreaX, listAreaY + (i * listLineHeight), listFont, textColor, darkTextShadow);
+                }
+            }
+        }
+
+        // --- BAGIAN DETAIL RESEP / MEMILIH FUEL (KANAN) ---
+        if (!selectingFuel) { // Tampilkan detail resep jika tidak sedang memilih fuel
+            if (availableRecipesForUI != null && !availableRecipesForUI.isEmpty() && selectedRecipeIndex >= 0 && selectedRecipeIndex < availableRecipesForUI.size()) {
+                Recipe currentRecipe = availableRecipesForUI.get(selectedRecipeIndex);
+                if (currentRecipe == null) return;
+
+                Food resultingDish = currentRecipe.getResultingDish();
+                int currentDetailInternalY = detailAreaY; 
+                int detailMaxY = bottomAreaY - (gp.tileSize / 2);
+
+
+                if (resultingDish != null) {
+                    if (resultingDish.getImage() != null && (currentDetailInternalY + gp.tileSize * 2 + 10) < detailMaxY) {
+                        int dishImageX = detailAreaX + (detailAreaContentWidth - gp.tileSize * 2) / 2;
+                        g2.drawImage(resultingDish.getImage(), dishImageX, currentDetailInternalY, gp.tileSize * 2, gp.tileSize * 2, null);
+                        currentDetailInternalY += gp.tileSize * 2 + 10;
+                    }
+                    if ((currentDetailInternalY + listLineHeight) < detailMaxY) {
+                        String producesText = "Produces: " + resultingDish.getName();
+                        int producesTextX = getXforCenteredTextInWindow(producesText, detailAreaX, detailAreaContentWidth, detailHeaderFont);
+                        drawTextWithShadow(producesText, producesTextX, currentDetailInternalY, detailHeaderFont);
+                        currentDetailInternalY += listLineHeight;
+                    }
+                }
+
                 if ((currentDetailInternalY + listLineHeight) < detailMaxY) {
-                    String producesText = "Produces: " + resultingDish.getName();
-                    int producesTextX = getXforCenteredTextInWindow(producesText, detailAreaX, detailAreaContentWidth, detailHeaderFont);
-                    drawTextWithShadow(producesText, producesTextX, currentDetailInternalY, detailHeaderFont);
+                    String ingredientsTitle = "Ingredients:";
+                    int ingredientsTitleX = getXforCenteredTextInWindow(ingredientsTitle, detailAreaX, detailAreaContentWidth, detailHeaderFont);
+                    drawTextWithShadow(ingredientsTitle, ingredientsTitleX, currentDetailInternalY, detailHeaderFont);
                     currentDetailInternalY += listLineHeight;
                 }
+
+                Map<Items, Integer> ingredientsMap = currentRecipe.getIngredients();
+                if (ingredientsMap != null) {
+                    for (Map.Entry<Items, Integer> entry : ingredientsMap.entrySet()) {
+                        if ((currentDetailInternalY + listLineHeight - 8) >= detailMaxY) break; // Hentikan jika melebihi batas
+
+                        Items requiredItem = entry.getKey();
+                        if (requiredItem == null) continue;
+
+                        int requiredQuantity = entry.getValue();
+                        int ownedQuantity;
+
+                        if (RecipeDatabase.ANY_FISH_INGREDIENT_NAME.equals(requiredItem.getName())) {
+                            ownedQuantity = (int) playerInventory.getInventory().entrySet().stream()
+                                            .filter(invE -> invE.getKey() instanceof Fish)
+                                            .mapToLong(Map.Entry::getValue).sum();
+                        } else {
+                            ownedQuantity = playerInventory.getItemQuantity(requiredItem.getName());
+                        }
+                        boolean hasEnough = ownedQuantity >= requiredQuantity;
+
+                        int ingredientRowX = detailAreaX + gp.tileSize / 4;
+                        int textXOffset = 0;
+                        if (requiredItem.getImage() != null) {
+                            g2.drawImage(requiredItem.getImage(), ingredientRowX, currentDetailInternalY - (int) (gp.tileSize * 0.6), (int) (gp.tileSize * 0.7), (int) (gp.tileSize * 0.7), null);
+                            textXOffset = (int) (gp.tileSize * 0.8);
+                        }
+                        String ingredientText = requiredItem.getName() + ": " + ownedQuantity + "/" + requiredQuantity;
+                        drawTextWithShadow(ingredientText, ingredientRowX + textXOffset, currentDetailInternalY, detailFont,
+                                        (hasEnough ? canCraftColor : missingIngredientColor), darkTextShadow);
+                        currentDetailInternalY += listLineHeight - 8;
+                    }
+                }
+            } else if (availableRecipesForUI != null && !availableRecipesForUI.isEmpty()) {
+                String selectRecipeText = "Select a recipe to see details.";
+                int selectX = getXforCenteredTextInWindow(selectRecipeText, detailAreaX, detailAreaContentWidth, listFont);
+                drawTextWithShadow(selectRecipeText, selectX, detailAreaY + gp.tileSize * 2, listFont);
+            } 
+        } else { // Sedang memilih fuel (selectingFuel == true)
+            // Tampilkan daftar bahan bakar yang tersedia
+            if (availableFuelsForUI == null) {
+                availableFuelsForUI = new ArrayList<>();
+                Items coal = ItemDatabase.getItem("Coal");
+                Items firewood = ItemDatabase.getItem("Firewood"); // Pastikan "Firewood" ada di ItemDatabase
+                if (coal != null && playerInventory.hasItem(coal, 1)) availableFuelsForUI.add(coal);
+                if (firewood != null && playerInventory.hasItem(firewood, 1)) availableFuelsForUI.add(firewood);
             }
 
-            if ((currentDetailInternalY + listLineHeight) < detailMaxY) {
-                String ingredientsTitle = "Ingredients:";
-                int ingredientsTitleX = getXforCenteredTextInWindow(ingredientsTitle, detailAreaX, detailAreaContentWidth, detailHeaderFont);
-                drawTextWithShadow(ingredientsTitle, ingredientsTitleX, currentDetailInternalY, detailHeaderFont);
-                currentDetailInternalY += listLineHeight;
-            }
+            int fuelListX = detailAreaX; // Gunakan area detail untuk daftar fuel
+            int fuelListY = detailAreaY;
 
-            Map<Items, Integer> ingredientsMap = currentRecipe.getIngredients();
-            if (ingredientsMap != null) {
-                for (Map.Entry<Items, Integer> entry : ingredientsMap.entrySet()) {
-                    if ((currentDetailInternalY + listLineHeight - 8) >= detailMaxY) break; // Hentikan jika melebihi batas
-
-                    Items requiredItem = entry.getKey();
-                    if (requiredItem == null) continue;
-
-                    int requiredQuantity = entry.getValue();
-                    int ownedQuantity;
-
-                    if (RecipeDatabase.ANY_FISH_INGREDIENT_NAME.equals(requiredItem.getName())) {
-                        ownedQuantity = (int) playerInventory.getInventory().entrySet().stream()
-                                        .filter(invE -> invE.getKey() instanceof Fish)
-                                        .mapToLong(Map.Entry::getValue).sum();
+            if (availableFuelsForUI.isEmpty()) {
+                drawTextWithShadow("No fuel available!", fuelListX, fuelListY, listFont, cannotCraftColor, darkTextShadow);
+            } else {
+                for (int i = 0; i < availableFuelsForUI.size(); i++) {
+                    Items fuel = availableFuelsForUI.get(i);
+                    String prefix = (i == selectedFuelIndex) ? "> " : "  ";
+                    String fuelText = fuel.getName();
+                    if (fuel.getName().equalsIgnoreCase("Coal")) {
+                        fuelText += " (Cooks x2)";
                     } else {
-                        ownedQuantity = playerInventory.getItemQuantity(requiredItem.getName());
+                        fuelText += " (Cooks x1)";
                     }
-                    boolean hasEnough = ownedQuantity >= requiredQuantity;
-
-                    int ingredientRowX = detailAreaX + gp.tileSize / 4;
-                    int textXOffset = 0;
-                    if (requiredItem.getImage() != null) {
-                        g2.drawImage(requiredItem.getImage(), ingredientRowX, currentDetailInternalY - (int) (gp.tileSize * 0.6), (int) (gp.tileSize * 0.7), (int) (gp.tileSize * 0.7), null);
-                        textXOffset = (int) (gp.tileSize * 0.8);
-                    }
-                    String ingredientText = requiredItem.getName() + ": " + ownedQuantity + "/" + requiredQuantity;
-                    drawTextWithShadow(ingredientText, ingredientRowX + textXOffset, currentDetailInternalY, detailFont,
-                                    (hasEnough ? canCraftColor : missingIngredientColor), darkTextShadow);
-                    currentDetailInternalY += listLineHeight - 8;
+                    drawTextWithShadow(prefix + fuelText, fuelListX, fuelListY + (i * listLineHeight), listFont,
+                                    (i == selectedFuelIndex ? Color.YELLOW : lightYellow), darkTextShadow);
                 }
             }
-        } else if (availableRecipesForUI != null && !availableRecipesForUI.isEmpty()) {
-            String selectRecipeText = "Select a recipe to see details.";
-            int selectX = getXforCenteredTextInWindow(selectRecipeText, detailAreaX, detailAreaContentWidth, listFont);
-            drawTextWithShadow(selectRecipeText, selectX, detailAreaY + gp.tileSize * 2, listFont);
         }
-
-
 
         int commandSectionY = bottomAreaY + (gp.tileSize /2) ; 
 
@@ -963,13 +994,31 @@ public class GameStateUI implements TimeObserver {
     public void resetCookingMenuState() {
         this.selectedRecipeIndex = 0;
         this.selectedFuelIndex = 0;
-        this.cookingMenuCommandNum = 0;
-        this.availableRecipesForUI = null;
+        this.cookingMenuCommandNum = 0; // Untuk navigasi Cook/Cancel resep
+        this.fuelSelectionCommandNum = 0; // Untuk navigasi Pilih Fuel/Kembali
+        this.availableRecipesForUI = null; // Akan di-populate ulang saat dibuka
+        this.availableFuelsForUI = null;   // Akan di-populate ulang saat memilih fuel
+        this.selectingFuel = false;        // Reset mode pemilihan fuel
         System.out.println("GameStateUI: Cooking menu state has been reset.");
     }
 
     public void clearDialogue() {
         this.uiMessage = null;
+    }
+
+    public void setSelectingFuelMode(boolean selecting) {
+        this.selectingFuel = selecting;
+        if (selecting) { // Saat masuk mode pilih fuel
+            this.availableFuelsForUI = null; // Force refresh daftar fuel
+            this.selectedFuelIndex = 0;
+            this.fuelSelectionCommandNum = 0; // Default ke tombol "Cook with this"
+        } else { // Saat kembali ke pilih resep
+            this.cookingMenuCommandNum = 0; // Default ke tombol "Select Fuel" atau "Cook"
+        }
+    }
+
+    public boolean isSelectingFuel() {
+        return this.selectingFuel;
     }
 
     private void drawEndGameStatisticsScreen(PlayerStats stats, Farm farm) {

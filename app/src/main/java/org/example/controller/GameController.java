@@ -756,55 +756,85 @@ public class GameController implements Runnable {
         }
         
     }
+
     public void confirmCookingMenuSelection() {
         if (gameState.getGameState() != gameState.cooking_menu || gameStateUI == null || farm == null) {
+            System.err.println("GameController: confirmCookingMenuSelection() - Invalid state or null components.");
             return;
         }
 
-        if (gameStateUI.cookingMenuCommandNum == 1) {
-            exitCookingMenu();
-            return;
-        }
+        if (gameStateUI.isSelectingFuel()) { // Jika sedang dalam mode memilih fuel
+            if (gameStateUI.fuelSelectionCommandNum == 1) { // Tombol "Back to Recipes"
+                gameStateUI.setSelectingFuelMode(false);
+                // Tidak keluar menu, hanya kembali ke tampilan pemilihan resep
+                if(gamePanel != null) gamePanel.repaint();
+                return;
+            }
+            // Jika fuelSelectionCommandNum == 0 (Pilih fuel ini)
+            if (gameStateUI.availableFuelsForUI == null || gameStateUI.availableFuelsForUI.isEmpty()) {
+                gameStateUI.showTemporaryMessage("No fuel available to select!");
+                return;
+            }
+            if (gameStateUI.selectedFuelIndex < 0 || gameStateUI.selectedFuelIndex >= gameStateUI.availableFuelsForUI.size()) {
+                gameStateUI.showTemporaryMessage("Invalid fuel selection!");
+                return;
+            }
+            Items actualSelectedFuel = gameStateUI.availableFuelsForUI.get(gameStateUI.selectedFuelIndex);
+            
+            // Dapatkan resep yang sudah dipilih sebelumnya
+            Recipe previouslySelectedRecipe = null;
+            if (gameStateUI.availableRecipesForUI != null && 
+                gameStateUI.selectedRecipeIndex >= 0 && 
+                gameStateUI.selectedRecipeIndex < gameStateUI.availableRecipesForUI.size()) {
+                previouslySelectedRecipe = gameStateUI.availableRecipesForUI.get(gameStateUI.selectedRecipeIndex);
+            }
 
-        if (gameStateUI.availableRecipesForUI == null || gameStateUI.availableRecipesForUI.isEmpty()) {
-            System.out.println("GameController: Attempted to cook with no available recipes.");
-            if (gameStateUI != null) gameStateUI.showTemporaryMessage("No recipes available to cook!");  return;
-        }
+            if (previouslySelectedRecipe == null) {
+                gameStateUI.showTemporaryMessage("Error: Recipe not found after fuel selection.");
+                gameStateUI.setSelectingFuelMode(false); // Kembali ke pemilihan resep
+                return;
+            }
 
-        Recipe selectedRecipe = null;
-        if (gameStateUI.selectedRecipeIndex >= 0 &&
-            gameStateUI.selectedRecipeIndex < gameStateUI.availableRecipesForUI.size()) {
-            selectedRecipe = gameStateUI.availableRecipesForUI.get(gameStateUI.selectedRecipeIndex);
-        }
+            // Buat CookingAction dengan resep dan fuel yang sudah dipilih
+            CookingAction cookingAction = new CookingAction(previouslySelectedRecipe, actualSelectedFuel);
+            if (cookingAction.canExecute(farm)) {
+                cookingAction.execute(farm);
+                gameStateUI.showTemporaryMessage("Memasak " + previouslySelectedRecipe.getDisplayName() + " dimulai!");
+                System.out.println("GameController: Cooking " + previouslySelectedRecipe.getDisplayName() + " with " + actualSelectedFuel.getName());
+            } else {
+                gameStateUI.showTemporaryMessage("Tidak bisa memasak " + previouslySelectedRecipe.getDisplayName() + ".");
+                System.out.println("GameController: Cannot cook " + previouslySelectedRecipe.getDisplayName() + " with " + actualSelectedFuel.getName());
+            }
+            exitCookingMenu(); // Keluar menu setelah mencoba memasak
 
-        if (selectedRecipe == null) {
-            if (gameStateUI != null) gameStateUI.showTemporaryMessage("Please select a recipe first!");
-            return;
+        } else { // Jika sedang dalam mode memilih resep
+            if (gameStateUI.cookingMenuCommandNum == 1) { // Tombol "Cancel" resep
+                exitCookingMenu();
+                return;
+            }
+            // Jika cookingMenuCommandNum == 0 (Tombol "Select Fuel" atau "Cook" jika resep tidak butuh fuel spesifik)
+            if (gameStateUI.availableRecipesForUI == null || gameStateUI.availableRecipesForUI.isEmpty()) {
+                gameStateUI.showTemporaryMessage("No recipes available!");
+                return;
+            }
+            if (gameStateUI.selectedRecipeIndex < 0 || gameStateUI.selectedRecipeIndex >= gameStateUI.availableRecipesForUI.size()) {
+                gameStateUI.showTemporaryMessage("Please select a recipe!");
+                return;
+            }
+            
+            // Transisi ke mode pemilihan fuel
+            gameStateUI.setSelectingFuelMode(true);
+            System.out.println("GameController: Switched to fuel selection mode.");
+            if(gamePanel != null) gamePanel.repaint();
+            // Tidak keluar menu, UI akan di-update untuk menampilkan pilihan fuel
         }
-
-        Items selectedFuel = null; 
-        CookingAction cookingAction = new CookingAction(selectedRecipe, selectedFuel); // Sesuaikan konstruktor
-
-        if (cookingAction.canExecute(farm)) {
-            cookingAction.execute(farm);
-            if (gameStateUI != null) gameStateUI.showTemporaryMessage("Memasak " + selectedRecipe.getDisplayName() + " dimulai!");
-            System.out.println("GameController: Cooking " + selectedRecipe.getDisplayName());
-        } else {
-            if (gameStateUI != null) gameStateUI.showTemporaryMessage("Tidak bisa memasak " + selectedRecipe.getDisplayName() + "."); // Pesan lebih spesifik
-            System.out.println("GameController: Cannot cook " + selectedRecipe.getDisplayName() + ". Ingredients/Fuel might be missing or energy too low.");
-        }
-        exitCookingMenu();
     }
-
     public void exitCookingMenu() {
         if (gameState != null) {
             gameState.setGameState(gameState.play);
         }
-
         if (gameStateUI != null) {
-            gameStateUI.cookingMenuCommandNum = 0;
-            gameStateUI.selectedRecipeIndex = 0;
-
+            gameStateUI.resetCookingMenuState(); // Panggil reset state UI
         }
         resetMovementState();
         if (gamePanel != null) {
@@ -813,35 +843,56 @@ public class GameController implements Runnable {
     }
 
     public void navigateCookingMenu(String direction) {
-        if (gameState.getGameState() != gameState.cooking_menu || gameStateUI == null) { // Gunakan gameState.cooking_menu
+        if (gameState.getGameState() != gameState.cooking_menu || gameStateUI == null) {
             return;
         }
 
-        if ("up_recipe".equalsIgnoreCase(direction)) {
-            if (gameStateUI.availableRecipesForUI != null && !gameStateUI.availableRecipesForUI.isEmpty()) {
-                gameStateUI.selectedRecipeIndex--;
-                if (gameStateUI.selectedRecipeIndex < 0) {
-                    gameStateUI.selectedRecipeIndex = gameStateUI.availableRecipesForUI.size() - 1;
+        if (gameStateUI.isSelectingFuel()) { // Navigasi saat memilih fuel
+            if ("up_fuel".equalsIgnoreCase(direction) || "up_recipe".equalsIgnoreCase(direction)) { // "up_recipe" untuk kompatibilitas jika hanya ada fuel
+                if (gameStateUI.availableFuelsForUI != null && !gameStateUI.availableFuelsForUI.isEmpty()) {
+                    gameStateUI.selectedFuelIndex--;
+                    if (gameStateUI.selectedFuelIndex < 0) {
+                        gameStateUI.selectedFuelIndex = gameStateUI.availableFuelsForUI.size() - 1;
+                    }
                 }
-            }
-        } else if ("down_recipe".equalsIgnoreCase(direction)) {
-            if (gameStateUI.availableRecipesForUI != null && !gameStateUI.availableRecipesForUI.isEmpty()) {
-                gameStateUI.selectedRecipeIndex++;
-                if (gameStateUI.selectedRecipeIndex >= gameStateUI.availableRecipesForUI.size()) {
-                    gameStateUI.selectedRecipeIndex = 0;
+            } else if ("down_fuel".equalsIgnoreCase(direction) || "down_recipe".equalsIgnoreCase(direction)) {
+                if (gameStateUI.availableFuelsForUI != null && !gameStateUI.availableFuelsForUI.isEmpty()) {
+                    gameStateUI.selectedFuelIndex++;
+                    if (gameStateUI.selectedFuelIndex >= gameStateUI.availableFuelsForUI.size()) {
+                        gameStateUI.selectedFuelIndex = 0;
+                    }
                 }
+            } else if ("left_command".equalsIgnoreCase(direction)) {
+                if (gameStateUI.fuelSelectionCommandNum == 1) gameStateUI.fuelSelectionCommandNum = 0; // Dari Back ke Cook with this
+            } else if ("right_command".equalsIgnoreCase(direction)) {
+                if (gameStateUI.fuelSelectionCommandNum == 0) gameStateUI.fuelSelectionCommandNum = 1; // Dari Cook with this ke Back
             }
-        } else if ("left_command".equalsIgnoreCase(direction)) {
-            if (gameStateUI.cookingMenuCommandNum == 1) {
-                gameStateUI.cookingMenuCommandNum = 0;
+            System.out.println("  -> FuelIndex: " + gameStateUI.selectedFuelIndex + ", FuelCommand: " + gameStateUI.fuelSelectionCommandNum);
+
+        } else { // Navigasi saat memilih resep (logika Anda sebelumnya)
+            if ("up_recipe".equalsIgnoreCase(direction)) {
+                if (gameStateUI.availableRecipesForUI != null && !gameStateUI.availableRecipesForUI.isEmpty()) {
+                    gameStateUI.selectedRecipeIndex--;
+                    if (gameStateUI.selectedRecipeIndex < 0) {
+                        gameStateUI.selectedRecipeIndex = gameStateUI.availableRecipesForUI.size() - 1;
+                    }
+                }
+            } else if ("down_recipe".equalsIgnoreCase(direction)) {
+                if (gameStateUI.availableRecipesForUI != null && !gameStateUI.availableRecipesForUI.isEmpty()) {
+                    gameStateUI.selectedRecipeIndex++;
+                    if (gameStateUI.selectedRecipeIndex >= gameStateUI.availableRecipesForUI.size()) {
+                        gameStateUI.selectedRecipeIndex = 0;
+                    }
+                }
+            } else if ("left_command".equalsIgnoreCase(direction)) {
+                if (gameStateUI.cookingMenuCommandNum == 1) gameStateUI.cookingMenuCommandNum = 0;
+            } else if ("right_command".equalsIgnoreCase(direction)) {
+                if (gameStateUI.cookingMenuCommandNum == 0) gameStateUI.cookingMenuCommandNum = 1;
             }
-        } else if ("right_command".equalsIgnoreCase(direction)) {
-            if (gameStateUI.cookingMenuCommandNum == 0) {
-                gameStateUI.cookingMenuCommandNum = 1;
-            }
+            System.out.println("  -> RecipeIndex: " + gameStateUI.selectedRecipeIndex + ", RecipeCommand: " + gameStateUI.cookingMenuCommandNum);
         }
-        System.out.println("  -> RecipeIndex: " + gameStateUI.selectedRecipeIndex + ", CommandNum: " + gameStateUI.cookingMenuCommandNum);
-    }    
+        if (gamePanel != null) gamePanel.repaint(); // Selalu repaint setelah navigasi
+    }
 
     public void checkForEndGameStatsTrigger() {
         if (playerModel == null || playerModel.getPlayerStats() == null || gameState == null) {
@@ -1057,6 +1108,44 @@ public class GameController implements Runnable {
     public void playSE(int i) { // Sound Effect
         // music.setFile(i); // Anda perlu path atau index yang benar
         // music.play();
+    }
+
+    /**
+     * Teleport player to a specific map and tile position.
+     * @param mapIndex Target map index.
+     * @param tileX Target tile X (column).
+     * @param tileY Target tile Y (row).
+     */
+    public void teleportPlayer(int mapIndex, int tileX, int tileY) {
+        if (farm == null || playerViewInstance == null || tileManager == null || aSetter == null) {
+            System.out.println("Teleport failed: missing required components.");
+            return;
+        }
+        int tileSize = getTileSize();
+        stopMusic();
+        farm.setCurrentMap(mapIndex);
+        Player player = farm.getPlayerModel();
+        playerViewInstance.worldX = tileX * tileSize;
+        playerViewInstance.worldY = tileY * tileSize;
+        playerViewInstance.direction = "down";
+        if (player != null) {
+            switch (mapIndex) {
+                case 0: player.setCurrentLocationType(LocationType.FARM); break;
+                case 1: player.setCurrentLocationType(LocationType.OCEAN); break;
+                case 2: player.setCurrentLocationType(LocationType.FOREST_RIVER); break;
+                case 3: player.setCurrentLocationType(LocationType.TOWN); break;
+                case 4: player.setCurrentLocationType(LocationType.HOUSE); break;
+                case 5: player.setCurrentLocationType(LocationType.STORE); break;
+                case 6: player.setCurrentLocationType(LocationType.POND); break;
+                default: player.setCurrentLocationType(LocationType.FARM); break;
+            }
+        }
+        tileManager.loadMap(farm.getMapPathFor(mapIndex), mapIndex);
+        aSetter.setInteractableObject();
+        playMusic();
+        if (gamePanel != null) {
+            gamePanel.repaint();
+        }
     }
 
 

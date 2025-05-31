@@ -160,20 +160,28 @@ public class CookingAction implements Action {
             return;
         }
 
-        int dishesProduced = 1;
-        if (fuelToUse != null && COAL_ITEM_NAME.equalsIgnoreCase(fuelToUse.getName())) {
-            dishesProduced = 2;
+        // --- PENYESUAIAN JUMLAH PRODUKSI BERDASARKAN BAHAN BAKAR ---
+        int dishesProduced = 1; // Default untuk Firewood
+        if (COAL_ITEM_NAME.equalsIgnoreCase(fuelToUse.getName())) {
+            dishesProduced = 2; // Coal menghasilkan 2 porsi
+            System.out.println("LOG: Used Coal, producing " + dishesProduced + " dishes.");
+        } else {
+            System.out.println("LOG: Used Firewood/Other, producing " + dishesProduced + " dish.");
         }
+        // --- AKHIR PENYESUAIAN ---
 
         Food resultingDish = recipeToCook.getResultingDish();
         if (resultingDish != null) {
             CookingInProgress cookingTask = new CookingInProgress(resultingDish, dishesProduced, gameClock.getCurrentTime(), COOKING_DURATION_HOURS);
             farm.addActiveCooking(cookingTask);
+            System.out.println("LOG: Cooking task added for " + resultingDish.getName() + " x" + dishesProduced);
         } else {
-            inventory.addInventory(fuelToUse, 1); // Rollback fuel
+            System.err.println("ERROR (CookingAction.execute): Resulting dish for recipe " + recipeToCook.getDisplayName() + " is null. Rolling back everything.");
+            // Rollback fuel dan bahan baku
+            inventory.addInventory(fuelToUse, 1);
             player.increaseEnergy(ENERGY_COST_PER_COOKING_ATTEMPT);
             recipeToCook.getIngredients().forEach((itemKey, qty) -> {
-                 if (!RecipeDatabase.ANY_FISH_INGREDIENT_NAME.equals(itemKey.getName())) {
+                if (!RecipeDatabase.ANY_FISH_INGREDIENT_NAME.equals(itemKey.getName())) {
                     inventory.addInventory(itemKey, qty);
                 }
             });
