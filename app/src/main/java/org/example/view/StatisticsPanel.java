@@ -147,12 +147,12 @@ public class StatisticsPanel extends JPanel implements ActionListener {
     }
 
     private JButton createPixelButton(String text) {
-        JButton button = new JButton(text); // Icon akan di-set nanti jika ada
+        JButton button = new JButton(text); 
         if (buttonIcon != null && buttonIcon.getImage() != null) {
             button.setIcon(buttonIcon);
         }
-        button.setFont(customFont); // Gunakan customFont untuk tombol (sudah dikecilkan)
-        button.setForeground(Color.BLACK); // Warna teks pada tombol
+        button.setFont(customFont); 
+        button.setForeground(Color.BLACK); 
         button.setHorizontalTextPosition(JButton.CENTER);
         button.setVerticalTextPosition(JButton.CENTER);
         button.setContentAreaFilled(false);
