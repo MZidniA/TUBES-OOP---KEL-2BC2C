@@ -42,6 +42,22 @@ public class KeyHandler implements KeyListener {
             else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) gameController.navigateInventoryUI("left");
             else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) gameController.navigateInventoryUI("right");
             else if (code == KeyEvent.VK_ENTER) gameController.confirmInventoryUISelection();
+        } else if (currentGameState.getGameState() == currentGameState.shipping_bin) { // << TAMBAHKAN BLOK INI
+            if (code == KeyEvent.VK_ESCAPE) {
+                gameController.closeShippingBinMenu();
+            } else if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
+                gameController.navigateShippingBinUI("up");
+            } else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
+                gameController.navigateShippingBinUI("down");
+            } else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
+                gameController.navigateShippingBinUI("left");
+            } else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
+                gameController.navigateShippingBinUI("right");
+            } else if (code == KeyEvent.VK_ENTER) {
+                gameController.confirmShipItem();
+            }
+        } else if (currentGameState.getGameState() == currentGameState.day_report) {
+                gameController.proceedToNextDayFromReport();
         } else if (currentGameState.getGameState() == currentGameState.cooking_menu) { 
             switch (code) {
                 case KeyEvent.VK_W: case KeyEvent.VK_UP:
@@ -65,24 +81,26 @@ public class KeyHandler implements KeyListener {
                     gameController.exitCookingMenu();
                     break;
             }
-        } else if (currentGameState.getGameState() == currentGameState.map_selection) { // <-- BLOK BARU
-            switch (code) {
-                case KeyEvent.VK_W: case KeyEvent.VK_UP:
-                    gameController.navigateMapSelectionMenu("up");
-                    break;
-                case KeyEvent.VK_S: case KeyEvent.VK_DOWN:
-                    gameController.navigateMapSelectionMenu("down");
-                    break;
-                case KeyEvent.VK_ENTER:
-                    System.out.println("KeyHandler: ENTER pressed in MAP_SELECTION_MENU state."); // DEBUG
-                    gameController.confirmMapSelection();
-                    break;
-                case KeyEvent.VK_ESCAPE:
-                    System.out.println("KeyHandler: ESCAPE pressed in MAP_SELECTION_MENU state."); // DEBUG
-                    gameController.exitMapSelectionMenu(); // Kembali ke play state tanpa teleport
-                    break;
-            }
-        } else if (currentGameState.getGameState() == currentGameState.end_game_stats) { // Gunakan konstanta yang benar
+        } 
+        // else if (currentGameState.getGameState() == currentGameState.map_selection) { // <-- BLOK BARU
+        //     switch (code) {
+        //         case KeyEvent.VK_W: case KeyEvent.VK_UP:
+        //             gameController.navigateMapSelectionMenu("up");
+        //             break;
+        //         case KeyEvent.VK_S: case KeyEvent.VK_DOWN:
+        //             gameController.navigateMapSelectionMenu("down");
+        //             break;
+        //         case KeyEvent.VK_ENTER:
+        //             System.out.println("KeyHandler: ENTER pressed in MAP_SELECTION_MENU state."); // DEBUG
+        //             gameController.confirmMapSelection();
+        //             break;
+        //         case KeyEvent.VK_ESCAPE:
+        //             System.out.println("KeyHandler: ESCAPE pressed in MAP_SELECTION_MENU state."); // DEBUG
+        //             gameController.exitMapSelectionMenu(); // Kembali ke play state tanpa teleport
+        //             break;
+        //     }
+        // } 
+        else if (currentGameState.getGameState() == currentGameState.end_game_stats) { // Gunakan konstanta yang benar
             if (code == KeyEvent.VK_ENTER) {
                 gameController.dismissEndGameStatisticsScreen();
             }

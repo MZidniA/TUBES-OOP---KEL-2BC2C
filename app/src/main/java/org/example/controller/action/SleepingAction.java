@@ -5,8 +5,10 @@ import java.time.LocalTime;
 
 import org.example.controller.GameController;
 import org.example.model.Farm;
+import org.example.model.GameClock;
 import org.example.model.Player;
-import org.example.view.entitas.PlayerView;
+import org.example.model.enums.SleepReason;
+
 
 public class SleepingAction implements Action {
     private final GameController controller;
@@ -14,24 +16,10 @@ public class SleepingAction implements Action {
         this.controller = controller;
     }
 
-    private void skipToMorning(Farm farm) {
-        LocalTime now = farm.getGameClock().getCurrentTime();
-        int nowMinutes = now.getHour() * 60 + now.getMinute();
-        int morningMinutes = 6 * 60;
-
-        int minutesToSkip;
-        if (nowMinutes >= morningMinutes) {
-            minutesToSkip = (24 * 60 - nowMinutes) + morningMinutes;
-        } else {
-            minutesToSkip = morningMinutes - nowMinutes;
-        }
-
-        farm.getGameClock().advanceTimeMinutes(minutesToSkip);
-    }
     
     @Override
     public String getActionName() {
-        return "Tidur (Sleep)";
+        return "Tidur";
     }
 
     @Override
@@ -39,45 +27,37 @@ public class SleepingAction implements Action {
         return true;
     }
 
-    @Override
+     @Override
     public void execute(Farm farm) {
-        Player player = farm.getPlayerModel();
-        PlayerView playerView = controller.getPlayerViewInstance();
-        int tileSize = controller.getTileSize();
-
         if (!canExecute(farm)) return;
 
-        int maxEnergy = player.getMaxEnergy();
-        int currentEnergy = player.getEnergy();
-        
 
-        
+        Player player = farm.getPlayerModel();
+        player.setSleepReason(SleepReason.NORMAL); // Tandai tidur normal
 
+    
+        GameClock gameClock = farm.getGameClock(); //
+        LocalTime currentTime = gameClock.getCurrentTime(); //
+        int maxEnergy = player.getMaxEnergy(); //
+        int energyForNextDay;
+        String endOfDayMessage = "Kamu Tertidur Dengan Nyenyak.";
 
-        if (currentEnergy == 0) {
-            player.setEnergy(10);
-            System.out.println("Energi habis total. Tidur hanya memulihkan 10 poin.");
-        } else if (currentEnergy < (0.1 * maxEnergy)) {
-            player.setEnergy(maxEnergy / 2);
-            System.out.println("Energi terlalu rendah. Hanya terisi setengah.");
-        }  else {
-            player.setEnergy(maxEnergy);
-            System.out.println("Tidur nyenyak. Energi pulih sepenuhnya.");
+        if (currentTime.isAfter(LocalTime.MIDNIGHT) && currentTime.isBefore(LocalTime.of(2,0))) {
+            energyForNextDay = (int)(maxEnergy * 0.75);
+            endOfDayMessage = "Kamu Kelelahan Karena Telat Tidur.";
+        } else if (currentTime.isBefore(LocalTime.MIDNIGHT) && currentTime.getHour() >= 22) { 
+             energyForNextDay = maxEnergy; 
         }
-
-        
-        skipToMorning(farm);
+        else { 
+            energyForNextDay = maxEnergy; 
+        }
+        player.setEnergy(energyForNextDay); 
         controller.processEndOfDayEvents();
-        int spawnX = 6 * tileSize;
-        int spawnY = 10 * tileSize;
-        playerView.worldX = spawnX;
-        playerView.worldY = spawnY;
-        playerView.direction = "down";
-        player.setCurrentHeldItem(null);
 
-
-
-        farm.getGameClock().nextDay(null);
-        System.out.println("Selamat pagi! Hari ke-" + farm.getGameClock().getDay() + ", pukul " + farm.getGameClock().getCurrentTime());
+        if (controller.getGameStateUI() != null) {
+            controller.getGameStateUI().setEndOfDayInfo(endOfDayMessage, controller.getFarmModel().getGoldFromLastShipment());
+        }
+        controller.getGameState().setGameState(controller.getGameState().day_report);
+        if (controller.getTimeManager() != null) controller.getTimeManager().stopTimeSystem();
     }
 }

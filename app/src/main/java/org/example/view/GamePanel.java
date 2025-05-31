@@ -17,6 +17,7 @@ import org.example.controller.GameState;
 import org.example.controller.action.UpdateAndShowLocationAction;
 import org.example.model.Farm;
 import org.example.model.Inventory;
+import org.example.model.Player;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.entitas.PlayerView;
 import org.example.view.tile.TileManager;
@@ -134,22 +135,32 @@ public class GamePanel extends JPanel {
         }
 
         Graphics2D g2 = (Graphics2D) g;
-        GamePanel gp = this;
-
         Farm farmModel = gameController.getFarmModel();
-        PlayerView playerView = gameController.getPlayerViewInstance();
-        GameState currentGameState = gameController.getGameState();
-        Inventory playerInventory = farmModel.getPlayerModel().getInventory();
+        PlayerView playerView = gameController.getPlayerViewInstance(); 
+        GameState currentGameState = gameController.getGameState();    
+
+        Player playerModel = null;
+        Inventory playerInventory = null;
+
+        if (farmModel != null) {
+            playerModel = farmModel.getPlayerModel();
+            if (playerModel != null) {
+                playerInventory = playerModel.getInventory();
+            }
+        }
 
         if (farmModel != null && playerView != null) {
             tileM.draw(g2, playerView, farmModel.getCurrentMap());
 
             InteractableObject[] objectsOnCurrentMap = farmModel.getObjectsForCurrentMap();
-            for (InteractableObject obj : objectsOnCurrentMap) {
-                if (obj != null) {
-                    obj.draw(g2, this, playerView);
+            if (objectsOnCurrentMap != null) { 
+                for (InteractableObject obj : objectsOnCurrentMap) {
+                    if (obj != null) {
+                        obj.draw(g2, this, playerView); 
+                    }
                 }
             }
+
 
             int playerScreenX = screenWidth / 2 - (tileSize / 2);
             int playerScreenY = screenHeight / 2 - (tileSize / 2);
@@ -168,9 +179,8 @@ public class GamePanel extends JPanel {
                 playerScreenY = playerView.worldY - (worldHeight - screenHeight);
             }
 
-            playerView.draw(g2, gp, playerScreenX, playerScreenY);
-
-            if (currentGameState.getGameState() == currentGameState.play) {
+            playerView.draw(g2, this, playerScreenX, playerScreenY); 
+            if (currentGameState != null && currentGameState.getGameState() == currentGameState.play) { 
                 CollisionChecker cChecker = gameController.getCollisionChecker();
                 if (cChecker != null) {
                     int objIndex = cChecker.checkObject(playerView);
@@ -186,9 +196,9 @@ public class GamePanel extends JPanel {
                         String text = "[F] Interact with " + objectsOnCurrentMap[objIndex].name;
                         int textWidth = g2.getFontMetrics().stringWidth(text);
                         int x = (screenWidth - textWidth) / 2;
-                        int y = screenHeight - 40;
+                        int y = screenHeight - 40; // Posisi prompt interaksi
 
-                        g2.setColor(new Color(0, 0, 0, 150));
+                        g2.setColor(new Color(0, 0, 0, 150)); // Latar belakang semi-transparan
                         g2.fillRect(x - 10, y - g2.getFontMetrics().getAscent() - 2, textWidth + 20, g2.getFontMetrics().getHeight() + 4);
 
                         g2.setColor(Color.WHITE);
@@ -198,11 +208,34 @@ public class GamePanel extends JPanel {
             }
         } else {
             g2.setColor(Color.RED);
-            g2.drawString("Data game (Farm/PlayerView) belum siap.", 20, 40);
+            String errorMessage = "Data game (";
+            if (farmModel == null) errorMessage += "FarmModel N/A";
+            if (playerView == null) {
+                if (farmModel == null) errorMessage += ", ";
+                errorMessage += "PlayerView N/A";
+            }
+            errorMessage += ") belum siap.";
+            g2.drawString(errorMessage, 20, 40);
         }
 
         if (currentGameState != null && gameStateUI != null) {
-            gameStateUI.draw(g2, currentGameState, playerInventory);
+            if (farmModel != null && playerModel != null && playerInventory != null) {
+                gameStateUI.draw(g2, currentGameState, playerInventory);
+            } else {
+                if (currentGameState.getGameState() == currentGameState.cooking_menu) {
+                    System.err.println("GamePanel.paintComponent: Data (Farm/Player/Inventory) tidak lengkap untuk UI cooking_menu.");
+                    g2.setColor(Color.RED);
+                    g2.setFont(new Font("Arial", Font.BOLD, 14));
+                    String cookingErrorMsg = "Error: Tidak bisa menampilkan menu memasak (data tidak lengkap).";
+                    int errorMsgWidth = g2.getFontMetrics().stringWidth(cookingErrorMsg);
+                    g2.drawString(cookingErrorMsg, (screenWidth - errorMsgWidth) / 2, screenHeight / 2);
+                } else {
+                    System.err.println("GamePanel.paintComponent: Data (Farm/Player/Inventory) tidak lengkap untuk UI draw state: " + currentGameState.getGameState());
+                }
+            }
+        } else {
+            if (currentGameState == null) return;
+            if (gameStateUI == null) return;
         }
 
         g2.dispose();

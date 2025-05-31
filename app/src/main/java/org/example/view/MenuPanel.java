@@ -58,13 +58,11 @@ public class MenuPanel extends JPanel implements ActionListener {
         try {
             InputStream is = getClass().getResourceAsStream("/font/PressStart2P.ttf");
             if (is == null) {
-                System.out.println("Font kustom TIDAK ditemukan!");
+                return;
             }
             customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 14f);
             GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(customFont);
-            System.out.println("Font kustom berhasil dimuat di MenuPanel.");
         } catch (Exception e) {
-            System.out.println("Font kustom tidak ditemukan, menggunakan Arial.");
             customFont = new Font("Arial", Font.PLAIN, 14);
         }
     }
@@ -73,7 +71,6 @@ public class MenuPanel extends JPanel implements ActionListener {
         try {
             buttonIcon = new ImageIcon(getClass().getResource("/button/button.png"));
         } catch (Exception e) {
-            System.out.println("Gagal memuat gambar tombol /button/button.png");
             buttonIcon = null;
         }
     }

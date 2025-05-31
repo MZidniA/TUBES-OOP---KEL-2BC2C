@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 import org.example.controller.GameController;
+import org.example.controller.action.GiftingAction;
 import org.example.model.Farm;
 import org.example.model.Items.Items;
 import org.example.model.NPC.NPC;
@@ -45,11 +46,17 @@ public class GiftingDialogPanel extends JPanel {
             btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
             btn.addActionListener(e -> {
-                // Proses gifting
-                npc.receiveGift(item);
-                farm.getPlayerModel().getInventory().removeInventory(item, 1);
+                GiftingAction action = new GiftingAction(npc, item);
+                if (action.canExecute(farm)) {
+                    action.execute(farm);
+                } else {
+                    JOptionPane.showMessageDialog(frame,
+                        "Tidak bisa memberikan hadiah.\nPastikan kamu punya energi dan item yang cukup.",
+                        "Gagal", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
 
-                // Tampilkan pesan cantik 2 baris
+                // Tampilkan pesan sukses
                 UIManager.put("OptionPane.background", new Color(255, 228, 196));
                 UIManager.put("Panel.background", new Color(255, 228, 196));
                 UIManager.put("OptionPane.messageFont", pixelFont.deriveFont(12f));
@@ -61,7 +68,7 @@ public class GiftingDialogPanel extends JPanel {
                     "Kamu memberikan\n" + item.getName() + " kepada " + npc.getName(),
                     "Gift Result", JOptionPane.INFORMATION_MESSAGE);
 
-                SwingUtilities.getWindowAncestor(this).dispose(); // Tutup panel setelah gifting
+                SwingUtilities.getWindowAncestor(this).dispose(); // Tutup panel
             });
 
             gridPanel.add(btn);

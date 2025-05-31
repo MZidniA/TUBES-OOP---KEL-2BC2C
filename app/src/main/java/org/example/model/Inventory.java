@@ -19,7 +19,11 @@ public class Inventory {
         inventory.put(ItemDatabase.getItem("Hoe"), 1);            
         inventory.put(ItemDatabase.getItem("Watering Can"), 1);   
         inventory.put(ItemDatabase.getItem("Pickaxe"), 1);        
-        inventory.put(ItemDatabase.getItem("Fishing Rod"), 1);   
+        inventory.put(ItemDatabase.getItem("Fishing Rod"), 1);  
+        inventory.put(ItemDatabase.getItem("Proposal Ring"), 1);
+        inventory.put(ItemDatabase.getItem("Fish Sandwich"), 10);
+        inventory.put(ItemDatabase.getItem("Wine"), 10);
+        inventory.put(ItemDatabase.getItem("Salmon"), 10);
     }
 
     public Map<Items, Integer> getInventory() {

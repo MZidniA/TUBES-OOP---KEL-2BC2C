@@ -21,6 +21,7 @@ public class PlayerStats {
     private Map<String, Integer> npcTotalChat;
     private Map<String, Integer> npcTotalGift;
     private Map<String, Integer> npcTotalVisit; // BARU: Untuk Visiting Frequency
+    private Map<String, Integer> npcFriendshipPoints; // Added for friendship points
 
     // Lainnya (sudah ada dari file Anda)
     private Set<String> unlockedRecipeIds;
@@ -40,11 +41,12 @@ public class PlayerStats {
         }
         this.totalDaysPlayed = 0; // Dimulai dari 0, akan diincrement oleh GameClock
 
-        this.npcTotalChat = new HashMap<>();
         this.npcTotalGift = new HashMap<>();
         this.npcTotalVisit = new HashMap<>(); // Inisialisasi map baru
+        this.npcFriendshipPoints = new HashMap<>(); // Initialize friendship points map
 
         this.unlockedRecipeIds = new HashSet<>();
+        this.obtainedItemsLog = new HashSet<>();
         this.obtainedItemsLog = new HashSet<>();
         
         unlockDefaultRecipes(); // Sudah ada
@@ -61,6 +63,8 @@ public class PlayerStats {
         if (recipeId != null && !recipeId.isEmpty()) {
             if (this.unlockedRecipeIds.add(recipeId)) { 
                 System.out.println("PlayerStats LOG: Recipe '" + recipeId + "' unlocked!");
+            } else {
+                return;
             }
         }
     }
@@ -196,12 +200,19 @@ public class PlayerStats {
 
     public boolean hasShownEndGameStats() { return hasShownEndGameStats; }
     public void setHasShownEndGameStats(boolean status) { this.hasShownEndGameStats = status; }
-
-    public void addMinutes(int minutes) { // Sudah ada
+    public int getTotalMinutesPlayed(){ return totalMinutesPlayed;} // Getter jika dibutuhkan
+    
+    public void addMinutes(int minutes) {
         if (minutes > 0) {
             this.totalMinutesPlayed += minutes;
-            // System.out.println("PlayerStats LOG: Waktu bertambah " + minutes + " menit (Total: " + totalMinutesPlayed + ")");
+            System.out.println("PlayerStats LOG: Waktu bertambah " + minutes + " menit (Total: " + totalMinutesPlayed + ")");
         }
     }
-    public int getTotalMinutesPlayed(){ return totalMinutesPlayed;} // Getter jika dibutuhkan
+
+    public void setnpcfriendshipPoints(String npcName, int points) {
+        if (npcName != null && !npcName.isEmpty()) {
+            this.npcFriendshipPoints.put(npcName, points);
+        }
+    }
+
 }

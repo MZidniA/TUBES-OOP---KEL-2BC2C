@@ -1,6 +1,5 @@
 package org.example.model.NPC;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +16,6 @@ public abstract class NPC {
     private List<Items> hatedItems;
     private int heartPoints;
     private RelationshipStats relationshipsStatus;
-    private LocalDate lastGiftDate;
     private int fianceSinceDay = -1; // default value, set appropriately elsewhere
 
     public NPC(String name, LocationType locationtype, List<Items> lovedItems, List<Items> likedItems, List<Items> hatedItems, int heartPoints, RelationshipStats relationshipsStatus) {
@@ -58,10 +56,6 @@ public abstract class NPC {
         return relationshipsStatus;
     }
 
-    public int getFianceSinceDay() {
-        return fianceSinceDay;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -90,31 +84,21 @@ public abstract class NPC {
         this.relationshipsStatus = relationshipsStatus;
     }
 
-    public void setFianceSinceDay(int day) {
-        this.fianceSinceDay = day;
-    }
 
-    public boolean hasGiftedToday() {
-        return LocalDate.now().equals(lastGiftDate);
-    }
+    // public boolean hasGiftedToday() {
+    //     return LocalDate.now().equals(lastGiftDate);
+    // }
 
     public void receiveGift(Items item) {
-        if (hasGiftedToday()) return;
-
         if (lovedItems.contains(item)) {
             heartPoints += 25;
         } else if (likedItems.contains(item)) {
             heartPoints += 20;
         } else if (hatedItems.contains(item)) {
             heartPoints -= 25;
-        } else {
-            // Neutral item: tidak ada perubahan
         }
-
         if (heartPoints > 150) heartPoints = 150;
         if (heartPoints < 0) heartPoints = 0;
-
-        lastGiftDate = LocalDate.now();
     }
 
     public boolean isItemLiked(Items item) {
@@ -149,8 +133,11 @@ public abstract class NPC {
         }
     }
 
-    public void setLastGiftDateToday() {
-        this.lastGiftDate = java.time.LocalDate.now();
+    public void setFianceSinceDay(int day) {
+        this.fianceSinceDay = day;
     }
 
+    public int getFianceSinceDay() {
+        return this.fianceSinceDay;
+    }
 }

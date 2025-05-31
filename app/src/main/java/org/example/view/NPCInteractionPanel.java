@@ -9,9 +9,13 @@ import javax.swing.*;
 
 import org.example.controller.GameController;
 import org.example.controller.action.ChattingAction;
+import org.example.controller.action.MarryingAction;
+import org.example.controller.action.ProposingAction;
 import org.example.model.Farm;
+import org.example.model.Items.ItemDatabase;
 import org.example.model.Items.Items;
 import org.example.model.NPC.NPC;
+import org.example.model.enums.RelationshipStats;
 
 public class NPCInteractionPanel extends JPanel {
     private Image backgroundImage;
@@ -81,10 +85,6 @@ public class NPCInteractionPanel extends JPanel {
 
                 case "Gifting":
                     btn.addActionListener(e -> {
-                        if (npc.hasGiftedToday()) {
-                            showStyledMessage("Sudah Dikasih", "Kamu sudah memberikan\nhadiah hari ini!");
-                            return;
-                        }
 
                         GiftingDialogPanel giftPanel = new GiftingDialogPanel(parentFrame, controller, npc, farm);
 
@@ -94,15 +94,50 @@ public class NPCInteractionPanel extends JPanel {
                         giftDialog.pack();
                         giftDialog.setLocationRelativeTo(parentFrame);
                         giftDialog.setVisible(true);
+                        updateNPCInfo(npc);
                     });
                     break;
 
                 case "Proposing":
-                    btn.addActionListener(e -> showStyledMessage("Proposing", "Kamu mencoba\nmelamar " + npc.getName() + "."));
+                    btn.addActionListener(e -> {
+                        ProposingAction action = new ProposingAction(npc, farm);
+
+                        action.execute(farm); // ← SELALU DIPANGGIL
+
+                        if (npc.getRelationshipsStatus() == RelationshipStats.FIANCE) {
+                            showStyledMessage("Lamaran Berhasil 💍", npc.getName() + " menerima lamaranmu!");
+                        } else if (npc.getRelationshipsStatus() == RelationshipStats.SPOUSE) {
+                            showStyledMessage("Gagal Melamar", npc.getName() + " sudah menjadi pasangan hidupmu.");
+                        } else {
+                            showStyledMessage("Lamaran Gagal", "Lamaranmu ditolak :(");
+                        }
+
+                        updateNPCInfo(npc);
+                    });
                     break;
 
                 case "Marrying":
-                    btn.addActionListener(e -> showStyledMessage("Marrying", "Kamu mencoba\nmenikah dengan " + npc.getName() + "."));
+                    btn.addActionListener(e -> {
+                        MarryingAction action = new MarryingAction(npc);
+
+                        if (action.canExecute(farm)) {
+                            action.execute(farm);
+                            showStyledMessage("Pernikahan Berhasil ", npc.getName() + " kini menjadi pasangan hidupmu!");
+                        } else {
+                            if (npc.getRelationshipsStatus() == RelationshipStats.SPOUSE) {
+                                showStyledMessage("Gagal Menikah", npc.getName() + " sudah menjadi pasangan hidupmu.");
+                            } else if (npc.getRelationshipsStatus() != RelationshipStats.FIANCE) {
+                                showStyledMessage("Gagal Menikah", "Kamu belum bisa menikah.");
+                            } else if (farm.getGameClock().getDay() == npc.getFianceSinceDay()) {
+                                showStyledMessage("Belum Waktunya", "Kamu baru bertunangan hari ini.\nPernikahan bisa dilakukan mulai besok.");
+                            } else {
+                                showStyledMessage("Gagal Menikah", "Syarat pernikahan belum terpenuhi.");
+                            }
+                        }
+
+
+                        updateNPCInfo(npc);
+                    });
                     break;
             }
         }
@@ -161,6 +196,7 @@ public class NPCInteractionPanel extends JPanel {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    
     }
 
     private JButton createPixelButton(String text) {
