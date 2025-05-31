@@ -31,14 +31,14 @@ public class AssetSetter {
     public void setInteractableObject() {
         Farm farmModel = controller.getFarmModel();
         if (farmModel == null) {
-            System.err.println("AssetSetter Error: farmModel is null!");
+            //System.err.println("AssetSetter Error: farmModel is null!");
             return;
         }
 
         InteractableObject[][] allObjects = farmModel.getAllObjects();
         int tileSize = controller.getTileSize();
         if (tileSize <= 0) {
-            System.err.println("AssetSetter Error: tileSize is invalid (" + tileSize + ")!");
+            //System.err.println("AssetSetter Error: tileSize is invalid (" + tileSize + ")!");
             return;
         }
 
@@ -63,15 +63,15 @@ public class AssetSetter {
                 assignObject(farmObjects[i], farmPositions[i], allObjects[currentMapIndex], i, tileSize);
             }
 
-        } else if (currentMapIndex == 1) { // OCEAN
+        } else if (currentMapIndex == 1) { 
             OceanObject ocean = new OceanObject();
             assignObject(ocean, new int[] {10, 21}, allObjects[currentMapIndex], 0, tileSize);
 
-        } else if (currentMapIndex == 2) { // FOREST RIVER
+        } else if (currentMapIndex == 2) { 
             RiverObject river = new RiverObject();
             assignObject(river, new int[] {22, 7}, allObjects[currentMapIndex], 0, tileSize);
 
-        } else if (currentMapIndex == 3) { // TOWN
+        } else if (currentMapIndex == 3) { 
             InteractableObject[] townObjects = {
                 new CarolineHouse(), new PerryHouse(), new MayorHouse(),
                 new EmilyStore(), new DascoHouse(), new AbigailHouse()
@@ -85,7 +85,7 @@ public class AssetSetter {
                 assignObject(townObjects[i], townPositions[i], allObjects[currentMapIndex], i, tileSize);
             }
 
-        } else if (currentMapIndex == 4) { // HOUSE
+        } else if (currentMapIndex == 4) { 
             InteractableObject[] houseObjects = {
                 new StoveObject(),
                 new BedObject(),
@@ -101,7 +101,7 @@ public class AssetSetter {
                 assignObject(houseObjects[i], housePositions[i], allObjects[currentMapIndex], i, tileSize);
             }
 
-        } else if (currentMapIndex == 5) { // STORE 
+        } else if (currentMapIndex == 5) { 
             InteractableObject[] storeObjects = {
                 new StoreDoor(),
                 new Emily()

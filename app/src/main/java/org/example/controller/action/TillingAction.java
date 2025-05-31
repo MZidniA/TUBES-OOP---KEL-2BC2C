@@ -82,7 +82,7 @@ public class TillingAction implements Action {
                 if (objCheck != null &&
                     (objCheck.worldX / controller.getTileSize() == targetCol) && 
                     (objCheck.worldY / controller.getTileSize() == targetRow)) {
-                    // System.out.println("TillingAction: Sudah ada objek (" + objCheck.name + ") di tile target.");
+                    
                     return false;
                 }
             }
@@ -133,14 +133,13 @@ public class TillingAction implements Action {
             tilled.worldY = targetRow * tileSize;
             
             allObjects[currentMap][emptySlotIndex] = tilled;
-            System.out.println(player.getName() + " mencangkul tanah di (" + targetCol + ", " + targetRow + ").");
         } else {
             player.increaseEnergy(ENERGY_COST); 
             farmMap.setTile(targetCol, targetRow, new Tillableland(targetCol, targetRow)); 
             return;
         }
 
-        // 4. Majukan waktu
+
         if (gameClock != null) {
             gameClock.advanceTimeMinutes(TIME_COST_MINUTES);
         }

@@ -108,38 +108,37 @@ public class KeyHandler implements KeyListener {
             }
         } else if (currentGameState.getGameState() == currentGameState.day_report) {
             if (code == KeyEvent.VK_ENTER) {
-                System.out.println("KeyHandler: ENTER pressed in DAY_REPORT state."); // DEBUG
+                System.out.println("KeyHandler: ENTER pressed in DAY_REPORT state."); 
                 gameController.handleEndOfDayReportDismissal();
             }
         } else if (currentGameState.getGameState() == currentGameState.cooking_menu) { 
             switch (code) {
                 case KeyEvent.VK_W: case KeyEvent.VK_UP:
-                    gameController.navigateCookingMenu("up_recipe"); // Lebih spesifik untuk navigasi resep
+                    gameController.navigateCookingMenu("up_recipe"); 
                     break;
                 case KeyEvent.VK_S: case KeyEvent.VK_DOWN:
-                    gameController.navigateCookingMenu("down_recipe"); // Lebih spesifik untuk navigasi resep
+                    gameController.navigateCookingMenu("down_recipe"); 
                     break;
                 case KeyEvent.VK_A: case KeyEvent.VK_LEFT:
-                    gameController.navigateCookingMenu("left_command"); // Untuk pindah ke tombol kiri (misal, Cook dari Cancel)
+                    gameController.navigateCookingMenu("left_command"); 
                     break;
                 case KeyEvent.VK_D: case KeyEvent.VK_RIGHT:
-                    gameController.navigateCookingMenu("right_command"); // Untuk pindah ke tombol kanan (misal, Cancel dari Cook)
+                    gameController.navigateCookingMenu("right_command"); 
                     break;
                 case KeyEvent.VK_ENTER:
-                    System.out.println("KeyHandler: ENTER pressed in COOKING_MENU state."); // DEBUG
+                    System.out.println("KeyHandler: ENTER pressed in COOKING_MENU state."); 
                     gameController.confirmCookingMenuSelection();
                     break;
                 case KeyEvent.VK_ESCAPE:
-                    System.out.println("KeyHandler: ESCAPE pressed in COOKING_MENU state."); // DEBUG
+                    System.out.println("KeyHandler: ESCAPE pressed in COOKING_MENU state."); 
                     gameController.exitCookingMenu();
                     break;
             }
-        } else if (currentGameState.getGameState() == currentGameState.end_game_stats) { // Menggunakan konstanta dari instance
+        } else if (currentGameState.getGameState() == currentGameState.end_game_stats) { 
             if (code == KeyEvent.VK_ENTER) {
-                System.out.println("KeyHandler: ENTER pressed in END_GAME_STATS state."); // DEBUG
+                System.out.println("KeyHandler: ENTER pressed in END_GAME_STATS state."); 
                 gameController.dismissEndGameStatisticsScreen();
             }
-      // Tidak ada input lain yang dihandle di state ini selain Enter untuk melanjutkan
         }
     }
 

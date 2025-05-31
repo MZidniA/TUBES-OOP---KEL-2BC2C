@@ -51,7 +51,6 @@ public class ChattingDialogPanel extends JPanel {
             customFont = new Font("Arial", Font.PLAIN, 12);
         }
 
-        // ⬇️ Ganti jadi JTextPane
         dialogPane = new JTextPane();
         dialogPane.setEditable(false);
         dialogPane.setOpaque(false);
@@ -59,10 +58,10 @@ public class ChattingDialogPanel extends JPanel {
         dialogPane.setFont(customFont.deriveFont(10f));
         dialogPane.setFocusable(false);
         dialogPane.setHighlighter(null);
-        dialogPane.setBounds(30, 70, 240, 100); // default NPC area
+        dialogPane.setBounds(30, 70, 240, 100); 
         add(dialogPane);
 
-        // Tombol Next
+
         nextButton = new JButton("Next");
         nextButton.setBounds(160, 180, 100, 30);
         nextButton.setFont(customFont.deriveFont(10f));

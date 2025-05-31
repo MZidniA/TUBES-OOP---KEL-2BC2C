@@ -115,7 +115,7 @@ public class MenuPanel extends JPanel implements ActionListener {
         if (src == startBtn) {
             frame.setContentPane(new TransitionPanel(frame));
         } else if (src == statsBtn) {
-            frame.setContentPane(new StatisticsPanel(frame));
+            frame.setContentPane(new StatisticsPanel(frame, null)); 
         } else if (src == actionsBtn) {
             frame.setContentPane(new ActionPanel(frame));
         } else if (src == creditsBtn) {

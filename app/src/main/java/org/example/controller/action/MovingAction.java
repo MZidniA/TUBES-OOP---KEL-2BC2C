@@ -22,9 +22,9 @@ public class MovingAction implements Action{
     public boolean canExecute(Farm farm) {
         Player player = farm.getPlayerModel();
 
-        // Boleh berpindah jika belum berada di lokasi tujuan
+
         if (player.getTileX() == newX && player.getTileY() == newY) {
-            System.out.println("Kamu sudah berada di lokasi tersebut.");
+            //System.out.println("Kamu sudah berada di lokasi tersebut.");
             return false;
         }
 
@@ -40,7 +40,5 @@ public class MovingAction implements Action{
 
         player.setTileX(newX);
         player.setTileY(newY);
-
-        System.out.println("Kamu bergerak ke posisi (" + newX + ", " + newY + ") di Farm Map.");
     }
 }

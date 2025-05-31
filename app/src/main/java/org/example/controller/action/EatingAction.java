@@ -51,7 +51,7 @@ public class EatingAction implements Action {
     @Override
     public void execute(Farm farm) {
         if (itemToEat == null) {
-            System.out.println("LOG: Gagal makan, item tidak ditentukan.");
+            //System.out.println("LOG: Gagal makan, item tidak ditentukan.");
             return;
         }
         Player player = farm.getPlayerModel();
@@ -60,9 +60,9 @@ public class EatingAction implements Action {
             player.setEnergy(player.getEnergy() + restored);
             player.getInventory().removeInventory(itemToEat, 1);
             farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
-            System.out.println("LOG: " + player.getName() + " memakan " + itemToEat.getName() + ". Energi pulih " + restored + ".");
+            //System.out.println("LOG: " + player.getName() + " memakan " + itemToEat.getName() + ". Energi pulih " + restored + ".");
         } else {
-            System.out.println("LOG: Item tidak bisa dimakan.");
+            //System.out.println("LOG: Item tidak bisa dimakan.");
         }
     }
 }

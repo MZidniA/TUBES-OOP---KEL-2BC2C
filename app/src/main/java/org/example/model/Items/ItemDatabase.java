@@ -37,7 +37,6 @@ public class ItemDatabase {
         items.putAll(FurnitureFactory.createFurniture());
 
         isInitialized = true;
-        System.out.println("LOG: ItemDatabase initialized with " + items.size() + " items.");
 
 
         String anyFishName = RecipeDatabase.ANY_FISH_INGREDIENT_NAME;

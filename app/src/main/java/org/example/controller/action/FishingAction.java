@@ -93,19 +93,15 @@ public class FishingAction implements Action {
             .collect(Collectors.toList());
         
         if (validFish.isEmpty()) {
-            System.out.println("Tdak ada ikan yang tersedia saat ini.");
             return;
         }
 
-        // Random 1 ikan dari validFish
         Fish selectedFish = validFish.get(new Random().nextInt(validFish.size()));
-        FishType type = selectedFish.getFishType().iterator().next(); // Ambil salah satu tipe aja
-
+        FishType type = selectedFish.getFishType().iterator().next();
         int targetNumber = generateTargetNumber(type);
         int maxAttempts = getMaxAttempts(type);
 
-        System.out.println("Jenis ikan: " + selectedFish.getName() + " (" + type + ")");
-        System.out.println("Tebak angka antara " + getRangeText(type) + ". Kamu punya " + maxAttempts + " percobaan.");
+
 
         Scanner scanner = new Scanner(System.in);
         boolean success = false;

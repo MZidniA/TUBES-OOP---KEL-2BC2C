@@ -89,7 +89,6 @@ public class WateringAction implements Action {
         Plantedland targetPlant = getTargetPlantedLand(farm); 
 
         if (targetPlant == null) {
-             System.err.println("WateringAction.execute: Critical - targetPlant null padahal canExecute true.");
             return;
         }
 

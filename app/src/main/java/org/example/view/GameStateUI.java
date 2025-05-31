@@ -994,12 +994,11 @@ public class GameStateUI implements TimeObserver {
     public void resetCookingMenuState() {
         this.selectedRecipeIndex = 0;
         this.selectedFuelIndex = 0;
-        this.cookingMenuCommandNum = 0; // Untuk navigasi Cook/Cancel resep
-        this.fuelSelectionCommandNum = 0; // Untuk navigasi Pilih Fuel/Kembali
-        this.availableRecipesForUI = null; // Akan di-populate ulang saat dibuka
-        this.availableFuelsForUI = null;   // Akan di-populate ulang saat memilih fuel
-        this.selectingFuel = false;        // Reset mode pemilihan fuel
-        System.out.println("GameStateUI: Cooking menu state has been reset.");
+        this.cookingMenuCommandNum = 0; 
+        this.fuelSelectionCommandNum = 0; 
+        this.availableRecipesForUI = null; 
+        this.availableFuelsForUI = null;   
+        this.selectingFuel = false;        
     }
 
     public void clearDialogue() {
@@ -1008,7 +1007,7 @@ public class GameStateUI implements TimeObserver {
 
     public void setSelectingFuelMode(boolean selecting) {
         this.selectingFuel = selecting;
-        if (selecting) { // Saat masuk mode pilih fuel
+        if (selecting) { 
             this.availableFuelsForUI = null; // Force refresh daftar fuel
             this.selectedFuelIndex = 0;
             this.fuelSelectionCommandNum = 0; // Default ke tombol "Cook with this"
@@ -1024,7 +1023,6 @@ public class GameStateUI implements TimeObserver {
     private void drawEndGameStatisticsScreen(PlayerStats stats, Farm farm) {
         if (g2 == null || gp == null || stats == null || farm == null) {
             System.err.println("GameStateUI ERROR: Cannot draw end game stats. Critical component is null.");
-            // Anda bisa menggambar pesan error sederhana di layar jika g2 dan gp tidak null
             if (g2 != null && gp != null) {
                 g2.setColor(Color.RED);
                 g2.setFont(stardewFont_30); // Asumsi font ini ada
@@ -1033,27 +1031,24 @@ public class GameStateUI implements TimeObserver {
             return;
         }
 
-        // 1. Latar Belakang Gelap (Menutupi seluruh layar)
+
         g2.setColor(new Color(0, 0, 0, 230)); // Hitam semi-transparan
         g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
-        // 2. Frame Utama untuk Statistik
         int frameX = gp.tileSize;
         int frameY = gp.tileSize;
         int frameWidth = gp.screenWidth - (gp.tileSize * 2);
         int frameHeight = gp.screenHeight - (gp.tileSize * 2);
-        // Gunakan metode drawSubWindow Anda jika ada, atau gambar manual
-        // Asumsikan Anda memiliki drawSubWindow(int x, int y, int width, int height, Color backgroundColor)
-        drawSubWindow(frameX, frameY, frameWidth, frameHeight, woodBrown); // 'woodBrown' dari field Anda
+        drawSubWindow(frameX, frameY, frameWidth, frameHeight, woodBrown); 
 
-        // 3. Font yang Akan Digunakan
-        Font titleFont = stardewFont_40.deriveFont(20f); // Sesuaikan ukuran
+
+        Font titleFont = stardewFont_40.deriveFont(20f); 
         Font headerFont = stardewFont_30.deriveFont(Font.BOLD, 14f);
         Font statFont = stardewFont_30.deriveFont(12f);
-        Font npcStatFont = stardewFont_20.deriveFont(11f); // Lebih kecil untuk detail NPC
+        Font npcStatFont = stardewFont_20.deriveFont(11f); 
         Font continueFont = stardewFont_30.deriveFont(Font.ITALIC, 13f);
 
-        // 4. Posisi Awal Teks
+    
         int currentX = frameX + gp.tileSize / 2;
         int currentY = frameY + gp.tileSize;
         int lineHeightLarge = (int)(gp.tileSize * 0.9);
@@ -1069,10 +1064,8 @@ public class GameStateUI implements TimeObserver {
         drawTextWithShadow(title, getXforCenteredTextInWindow(title, frameX, frameWidth, titleFont), currentY, titleFont, Color.YELLOW, darkTextShadow);
         currentY += lineHeightLarge * 1.5; // Spasi setelah judul
 
-        // --- Kolom Kiri ---
         int leftColumnY = currentY;
 
-        // Data Statistik Utama
         drawTextWithShadow("Total Income: " + stats.getTotalIncome() + "g", currentX, leftColumnY, statFont);
         leftColumnY += lineHeightMedium;
         drawTextWithShadow("Total Expenditure: " + stats.getTotalGoldSpent() + "g", currentX, leftColumnY, statFont);

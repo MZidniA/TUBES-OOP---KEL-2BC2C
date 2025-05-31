@@ -68,13 +68,13 @@ public class GiftingDialogPanel extends JPanel {
                     "Kamu memberikan\n" + item.getName() + " kepada " + npc.getName(),
                     "Gift Result", JOptionPane.INFORMATION_MESSAGE);
 
-                SwingUtilities.getWindowAncestor(this).dispose(); // Tutup panel
+                SwingUtilities.getWindowAncestor(this).dispose(); 
             });
 
             gridPanel.add(btn);
         }
 
-        // BACK button
+
         JButton backButton = new JButton("BACK");
         backButton.setFont(pixelFont.deriveFont(10f));
         backButton.setForeground(Color.WHITE);

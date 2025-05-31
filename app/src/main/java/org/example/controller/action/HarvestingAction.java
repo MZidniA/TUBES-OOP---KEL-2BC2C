@@ -78,7 +78,7 @@ public class HarvestingAction implements Action {
 
         Seeds harvestedSeedType = targetPlantModel.getPlantedSeed();
         Crops yield = null;
-        int quantityYielded = 1; 
+        int quantity = 1; 
 
 
         String seedName = harvestedSeedType.getName();
@@ -110,12 +110,11 @@ public class HarvestingAction implements Action {
         }
 
         if (yield != null) {
-            quantityYielded = yield.getJumlahcropperpanen();
-            player.getInventory().addInventory(yield, quantityYielded);
-            player.getPlayerStats().recordCropsHarvested(quantityYielded); // << TAMBAHKAN INI
-            System.out.println("Berhasil memanen " + quantityYielded + " " + yield.getName());
+            quantity = yield.getJumlahcropperpanen();
+            player.getInventory().addInventory(yield, quantity);
+            player.getPlayerStats().recordCropsHarvested(quantity);
         } else {
-            System.err.println("Gagal mendapatkan hasil panen untuk " + seedName);
+            //System.err.println("Gagal mendapatkan hasil panen untuk " + seedName);
         }
 
         farm.removeObjectAtTile(farm.getCurrentMap(), targetCol, targetRow, controller.getTileSize());
@@ -128,8 +127,7 @@ public class HarvestingAction implements Action {
         for (int i = 0; i < allObjects[farm.getCurrentMap()].length; i++) {
             if (allObjects[farm.getCurrentMap()][i] == null) {
                 
-                UnplantedTileObject unplantedTile = new UnplantedTileObject(); // Panggil konstruktor kosong
-
+                UnplantedTileObject unplantedTile = new UnplantedTileObject();
 
                 unplantedTile.worldX = targetCol * controller.getTileSize();
                 unplantedTile.worldY = targetRow * controller.getTileSize(); 
@@ -137,10 +135,10 @@ public class HarvestingAction implements Action {
                     UtilityTool uTool = new UtilityTool(); 
                     unplantedTile.image = uTool.scaleImage(unplantedTile.image, controller.getTileSize(), controller.getTileSize());
                     if (unplantedTile.image == null) {
-                        System.err.println("HarvestingAction: Gambar UnplantedTileObject menjadi NULL setelah scaling.");
+                        //System.err.println("HarvestingAction: Gambar UnplantedTileObject menjadi NULL setelah scaling.");
                     }
                 } else {
-                    System.err.println("HarvestingAction: Gambar UnplantedTileObject adalah NULL sebelum scaling (gagal load di UnplantedTileObject.loadImage()).");
+                    //System.err.println("HarvestingAction: Gambar UnplantedTileObject adalah NULL sebelum scaling (gagal load di UnplantedTileObject.loadImage()).");
                 }
                 
                 allObjects[farm.getCurrentMap()][i] = unplantedTile;
@@ -149,7 +147,7 @@ public class HarvestingAction implements Action {
             }
         }
         if (!unplanted) {
-            System.err.println("HarvestingAction WARNING: Tidak ada slot kosong untuk UnplantedTileObject baru setelah panen.");
+            //System.err.println("HarvestingAction WARNING: Tidak ada slot kosong untuk UnplantedTileObject baru setelah panen.");
         }
 
         if (gameClock != null) {

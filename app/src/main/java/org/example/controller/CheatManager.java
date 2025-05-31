@@ -40,7 +40,7 @@ public class CheatManager {
 
     public void cheat_setGoldToWinningAmount() {
         if (farm != null && farm.getPlayerModel() != null) {
-            farm.getPlayerModel().setGold(17209); //
+            farm.getPlayerModel().setGold(17209); 
         } else {
             return;
         }
@@ -48,9 +48,9 @@ public class CheatManager {
 
     public void cheat_addGold5K() {
         if (farm != null && farm.getPlayerModel() != null) {
-            Player playerModel = farm.getPlayerModel(); //
-            playerModel.setGold(playerModel.getGold() + 5000); //
-            if (gameStateUI != null) gameStateUI.showTemporaryMessage("CHEAT: Added 5000g to gold!"); //
+            Player playerModel = farm.getPlayerModel(); 
+            playerModel.setGold(playerModel.getGold() + 5000); 
+            if (gameStateUI != null) gameStateUI.showTemporaryMessage("CHEAT: Added 5000g to gold!"); 
             if (gamePanel != null) gamePanel.repaint();
         } else {
             System.out.println("CHEAT FAILED: Player model not available for cheat_addGold5K.");
@@ -59,20 +59,20 @@ public class CheatManager {
 
     public void cheat_marryNpc(String npcName) {
         if (farm != null && farm.getPlayerModel() != null) {
-            Player playerModel = farm.getPlayerModel(); //
-            NPC targetNpc = farm.getNPCByName(npcName); //
+            Player playerModel = farm.getPlayerModel(); 
+            NPC targetNpc = farm.getNPCByName(npcName); 
 
             if (targetNpc != null) {
-                playerModel.setPartner(targetNpc); //
-                targetNpc.setRelationshipsStatus(RelationshipStats.SPOUSE); //
+                playerModel.setPartner(targetNpc); 
+                targetNpc.setRelationshipsStatus(RelationshipStats.SPOUSE); 
 
-                if (playerModel.getPlayerStats() != null) { //
-                    playerModel.getPlayerStats().setnpcfriendshipPoints(targetNpc.getName(), 150); //
+                if (playerModel.getPlayerStats() != null) { 
+                    playerModel.getPlayerStats().setnpcfriendshipPoints(targetNpc.getName(), 150); 
                 }
                 if (gamePanel != null) gamePanel.repaint();
             } else {
-                System.out.println("CHEAT FAILED: NPC '" + npcName + "' not found.");
-                if (gameStateUI != null) gameStateUI.showTemporaryMessage("CHEAT: NPC " + npcName + " not found!"); //
+
+                if (gameStateUI != null) gameStateUI.showTemporaryMessage("CHEAT: NPC " + npcName + " not found!"); 
             }
         } else {
             return;
@@ -81,21 +81,21 @@ public class CheatManager {
 
     public void cheat_setWeather(Weather weather) {
         if (farm != null && farm.getGameClock() != null && timeManager != null) {
-            farm.getGameClock().setTodayWeather(weather); //
-            timeManager.notifyObservers(); //
+            farm.getGameClock().setTodayWeather(weather); 
+            timeManager.notifyObservers(); 
         } else {
             System.out.println("CHEAT FAILED: GameClock or TimeManager not available for setting weather.");
         }
     }
 
     public void cheat_setWeatherToRainy() {
-        cheat_setWeather(Weather.RAINY); //
+        cheat_setWeather(Weather.RAINY); 
     }
 
     public void cheat_cycleWeather() {
         if (farm != null && farm.getGameClock() != null) {
-            Weather currentWeather = farm.getGameClock().getTodayWeather(); //
-            Weather nextWeather = (currentWeather == Weather.SUNNY) ? Weather.RAINY : Weather.SUNNY; //
+            Weather currentWeather = farm.getGameClock().getTodayWeather(); 
+            Weather nextWeather = (currentWeather == Weather.SUNNY) ? Weather.RAINY : Weather.SUNNY; 
             cheat_setWeather(nextWeather);
         } else {
             System.out.println("CHEAT FAILED: GameClock not available for cycling weather.");
@@ -104,8 +104,8 @@ public class CheatManager {
 
     public void cheat_setSeason(Season season) {
         if (farm != null && farm.getGameClock() != null && timeManager != null) {
-            farm.getGameClock().setCurrentSeason(season); //
-            timeManager.notifyObservers(); //
+            farm.getGameClock().setCurrentSeason(season); 
+            timeManager.notifyObservers(); 
         } else {
             System.out.println("CHEAT FAILED: GameClock or TimeManager not available for setting season.");
         }
@@ -113,9 +113,9 @@ public class CheatManager {
 
     public void cheat_setNextSeason() {
         if (farm != null && farm.getGameClock() != null) {
-            Season currentSeason = farm.getGameClock().getCurrentSeason(); //
-            Season nextSeason; //
-            switch (currentSeason) { //
+            Season currentSeason = farm.getGameClock().getCurrentSeason(); 
+            Season nextSeason; 
+            switch (currentSeason) { 
                 case SPRING: nextSeason = Season.SUMMER; break;
                 case SUMMER: nextSeason = Season.FALL; break;
                 case FALL:   nextSeason = Season.WINTER; break;
@@ -130,8 +130,8 @@ public class CheatManager {
 
     public void cheat_setTime(LocalTime time) {
         if (farm != null && farm.getGameClock() != null && timeManager != null) {
-            farm.getGameClock().setCurrentTime(time); //
-            timeManager.notifyObservers(); //
+            farm.getGameClock().setCurrentTime(time); 
+            timeManager.notifyObservers(); 
         } else {
             System.out.println("CHEAT FAILED: GameClock or TimeManager not available for setting time.");
         }
@@ -150,21 +150,19 @@ public class CheatManager {
 
     private void addIngredientsToInventory(String recipeId, boolean addFullAmount) {
         if (farm == null || farm.getPlayerModel() == null || farm.getPlayerModel().getInventory() == null) {
-
-
             return;
         }
     
-        Recipe recipe = RecipeDatabase.getRecipeById(recipeId); //
+        Recipe recipe = RecipeDatabase.getRecipeById(recipeId); 
         if (recipe == null) {
             return;
         }
     
-        Inventory playerInventory = farm.getPlayerModel().getInventory(); //
+        Inventory playerInventory = farm.getPlayerModel().getInventory(); 
         String type = addFullAmount ? "Full" : "Partial";
 
     
-        for (Map.Entry<Items, Integer> entry : recipe.getIngredients().entrySet()) { //
+        for (Map.Entry<Items, Integer> entry : recipe.getIngredients().entrySet()) { 
             Items requiredItem = entry.getKey();
             int requiredQuantity = entry.getValue();
             int quantityToAdd = 0;
@@ -180,20 +178,18 @@ public class CheatManager {
             }
             if (quantityToAdd > 0) {
                 Items itemToAdd = requiredItem; 
-                if (requiredItem.getName().equals(RecipeDatabase.ANY_FISH_INGREDIENT_NAME)) { //
-                    itemToAdd = ItemDatabase.getItem("Carp"); //
+                if (requiredItem.getName().equals(RecipeDatabase.ANY_FISH_INGREDIENT_NAME)) { 
+                    itemToAdd = ItemDatabase.getItem("Carp"); 
                     if (itemToAdd == null) { 
-                        List<Items> allFish = ItemDatabase.getItemsByCategory("Fish"); //
+                        List<Items> allFish = ItemDatabase.getItemsByCategory("Fish"); 
                         if (!allFish.isEmpty()) {
                             itemToAdd = allFish.get(0);
                         } else {
-                            System.out.println("No fish available in database to use as AnyFish. Cannot add to inventory.");
                             continue; 
                         }
                     }
-                    System.out.println("  -> Adding " + quantityToAdd + "x " + itemToAdd.getName() + " (as AnyFish) to inventory."); //
                 } else {
-                    System.out.println("  -> Adding " + quantityToAdd + "x " + itemToAdd.getName() + " to inventory."); //
+                    return;
                 }
                 playerInventory.addInventory(itemToAdd, quantityToAdd); 
             } else {
@@ -202,11 +198,7 @@ public class CheatManager {
                     return;
                 }
             }
-            System.out.println("    [LOOP END] Finished processing ingredient: " + requiredItem.getName() + " from recipe " + recipe.getDisplayName()); //
-
-        }
-        System.out.println("  [addIngredientsToInventory] Finished all ingredients for recipe: " + recipe.getDisplayName()); // DEBUG BARU //
-    
+        }    
         if (gamePanel != null) gamePanel.repaint();
     }
 
@@ -224,8 +216,6 @@ public class CheatManager {
         if (gamePanel != null) {
             gamePanel.repaint();
         }
-        
-         System.out.println("CHEAT: Starter Recipe Pack ingredients processing complete.");
     }
 
 }

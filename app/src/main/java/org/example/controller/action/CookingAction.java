@@ -56,25 +56,22 @@ public class CookingAction implements Action {
         Inventory inventory = player.getInventory();
         PlayerStats playerStats = farm.getPlayerStats();
 
-        // Pemeriksaan Kompor Sibuk
         if (farm.getActiveCookings() != null &&
             farm.getActiveCookings().stream().anyMatch(task -> task != null && !task.isClaimed())) {
             return false;
         }
 
-        // Cek Energi Player
-        if (player.getEnergy() < ENERGY_COST_PER_COOKING_ATTEMPT) {
+
+        if (player.getEnergy() <= player.getMinEnergyOperational()) {
             return false;
         }
 
-        // Cek Resep Sudah Unlocked
+
         if (playerStats != null && !recipeToCook.isUnlocked(playerStats)) {
             return false;
         } else if (playerStats == null) {
            return false;
         }
-
-        // Cek Bahan Baku
         for (Map.Entry<Items, Integer> entry : recipeToCook.getIngredients().entrySet()) {
             Items requiredItem = entry.getKey();
             int requiredQuantity = entry.getValue();
@@ -97,7 +94,6 @@ public class CookingAction implements Action {
             }
         }
 
-        // Cek Bahan Bakar
         if (!inventory.hasItem(fuelToUse, 1)) {
             return false;
         }
@@ -123,7 +119,7 @@ public class CookingAction implements Action {
 
         player.decreaseEnergy(ENERGY_COST_PER_COOKING_ATTEMPT);
 
-        // Kurangi Bahan Baku
+
         for (Map.Entry<Items, Integer> entry : recipeToCook.getIngredients().entrySet()) {
             Items requiredItemObject = entry.getKey(); // Ini adalah objek item dari definisi resep
             int requiredQuantity = entry.getValue();
@@ -143,13 +139,12 @@ public class CookingAction implements Action {
             }
 
             if (!consumedSuccessfully) {
-                System.err.println("ERROR (execute): Failed to consume ingredient " + requiredItemObject.getName() + ". Rolling back energy.");
                 player.increaseEnergy(ENERGY_COST_PER_COOKING_ATTEMPT);
                 return;
             }
         }
 
-        // Kurangi Bahan Bakar
+
         if (!inventory.isRemoveInventory(fuelToUse, 1)) {
             player.increaseEnergy(ENERGY_COST_PER_COOKING_ATTEMPT);
             recipeToCook.getIngredients().forEach((itemKey, qty) -> {
@@ -160,25 +155,21 @@ public class CookingAction implements Action {
             return;
         }
 
-        // --- PENYESUAIAN JUMLAH PRODUKSI BERDASARKAN BAHAN BAKAR ---
-        int dishesProduced = 1; // Default untuk Firewood
+
+        int dishesProduced = 1; 
         if (COAL_ITEM_NAME.equalsIgnoreCase(fuelToUse.getName())) {
-            dishesProduced = 2; // Coal menghasilkan 2 porsi
-            System.out.println("LOG: Used Coal, producing " + dishesProduced + " dishes.");
+            dishesProduced = 2; 
         } else {
-            System.out.println("LOG: Used Firewood/Other, producing " + dishesProduced + " dish.");
+            //System.out.println("LOG: Used Firewood/Other, producing " + dishesProduced + " dish.");
         }
-        // --- AKHIR PENYESUAIAN ---
+
 
         Food resultingDish = recipeToCook.getResultingDish();
         if (resultingDish != null) {
             CookingInProgress cookingTask = new CookingInProgress(resultingDish, dishesProduced, gameClock.getCurrentTime(), COOKING_DURATION_HOURS);
             farm.addActiveCooking(cookingTask);
-            System.out.println("LOG: Cooking task added for " + resultingDish.getName() + " x" + dishesProduced);
+            //System.out.println("LOG: Cooking task added for " + resultingDish.getName() + " x" + dishesProduced);
         } else {
-            System.err.println("ERROR (CookingAction.execute): Resulting dish for recipe " + recipeToCook.getDisplayName() + " is null. Rolling back everything.");
-            // Rollback fuel dan bahan baku
-            inventory.addInventory(fuelToUse, 1);
             player.increaseEnergy(ENERGY_COST_PER_COOKING_ATTEMPT);
             recipeToCook.getIngredients().forEach((itemKey, qty) -> {
                 if (!RecipeDatabase.ANY_FISH_INGREDIENT_NAME.equals(itemKey.getName())) {

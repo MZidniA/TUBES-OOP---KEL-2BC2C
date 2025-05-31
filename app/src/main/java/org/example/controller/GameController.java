@@ -195,53 +195,46 @@ public class GameController implements Runnable {
     }
 
     private void update() {
-        // Pengecekan null untuk komponen krusial di awal (sudah ada di kode Anda)
         if (playerViewInstance == null || cChecker == null || gameState == null || farm == null) {
             return;
         }
         
-        // Player playerModel = farm.getPlayerModel(); // playerModel sudah menjadi field kelas, tidak perlu dideklarasi ulang
+
         if (this.playerModel == null) { 
             return;
         }
 
-        // --- Kontrol TimeManager berdasarkan GameState ---
-        // Ini adalah penambahan/penyesuaian yang penting
         if (this.gameState.getGameState() == this.gameState.play) {
-            if (this.timeManager != null && !this.timeManager.isRunning()) { // Anda perlu method isRunning() di TimeManager
+            if (this.timeManager != null && !this.timeManager.isRunning()) { 
                 this.timeManager.startTimeSystem();
             }
         } else {
-            // Jika bukan state play (misal: pause, inventory, menu, stats, day_report), pastikan waktu berhenti
             if (this.timeManager != null && this.timeManager.isRunning()) {
                 this.timeManager.stopTimeSystem();
             }
         }
 
-        // --- Update Progres Memasak --- (sudah ada di kode Anda)
+
         farm.updateCookingProgress(); 
 
-        // --- Cek kondisi pingsan atau tidur paksa karena waktu ---
-        // Hanya jika game dalam state 'play' dan belum dalam proses tidur/laporan
-        if (gameState.getGameState() == gameState.play) { // Pengecekan state play ditambahkan di sini
-            if (playerModel.isPassedOut()) { // Flag ini di-set oleh Player.java
-                System.out.println("GameController (update): Player passed out due to energy."); // DEBUG
-                playerModel.setSleepReason(SleepReason.PASSED_OUT_ENERGY); // Gunakan enum SleepReason
-                initiateSleepSequence(); // Memulai urutan tidur/laporan hari
+        if (gameState.getGameState() == gameState.play) { 
+            if (playerModel.isPassedOut()) {
+                //System.out.println("GameController (update): Player passed out due to energy."); 
+                playerModel.setSleepReason(SleepReason.PASSED_OUT_ENERGY); 
+                initiateSleepSequence(); 
             } 
-            else if (playerModel.isForceSleepByTime()) { // Flag ini di-set oleh TimeManager
-                System.out.println("GameController (update): Player forced to sleep due to time."); // DEBUG
-                playerModel.setSleepReason(SleepReason.PASSED_OUT_TIME); // Gunakan enum SleepReason
-                initiateSleepSequence(); // Memulai urutan tidur/laporan hari
+            else if (playerModel.isForceSleepByTime()) { 
+                //System.out.println("GameController (update): Player forced to sleep due to time."); 
+                playerModel.setSleepReason(SleepReason.PASSED_OUT_TIME); 
+                initiateSleepSequence(); 
             }
         }
 
-        // Logika update spesifik untuk state PLAY (pergerakan pemain, dll.) (sudah ada di kode Anda)
+ 
         if (gameState.getGameState() == gameState.play) {
             playerViewInstance.update(movementState, cChecker);
             playerModel.setTilePosition(playerViewInstance.worldX / getTileSize(), playerViewInstance.worldY / getTileSize());
         }
-        // Anda bisa menambahkan logika update untuk state lain jika diperlukan
     }
 
     public void handlePlayerMove(String direction, boolean isMoving) {
@@ -349,10 +342,10 @@ public class GameController implements Runnable {
 
     public void confirmPauseUISelection() {
         if (gameState.getGameState() == gameState.pause && gameStateUI != null) {
-            if (gameStateUI.commandNum == 0) { // "Continue"
+            if (gameStateUI.commandNum == 0) { 
                 gameState.setGameState(gameState.play);
 
-            } else if (gameStateUI.commandNum == 1) { // "Exit Game"
+            } else if (gameStateUI.commandNum == 1) { 
                 exitToMainMenu();
             }
         } else {
@@ -388,18 +381,15 @@ public class GameController implements Runnable {
         cleanUpForExit(); 
 
         if (mainFrame != null) {
-            System.out.println("GameController: Returning to MenuPanel.");
-            MenuPanel menuPanel = new MenuPanel(mainFrame); // Buat instance MenuPanel baru
+            //System.out.println("GameController: Returning to MenuPanel.");
+            MenuPanel menuPanel = new MenuPanel(mainFrame);
             mainFrame.setContentPane(menuPanel);
             mainFrame.revalidate();
             mainFrame.repaint();
-            // Penting untuk memastikan panel baru mendapatkan fokus untuk input
             SwingUtilities.invokeLater(menuPanel::requestFocusInWindow);
         } else {
-            System.err.println("GameController: mainFrame is null, cannot switch to MenuPanel.");
-            // Sebagai fallback jika tidak ada frame, atau jika ini bukan cara yang diinginkan,
-            // mungkin keluar dari aplikasi adalah pilihan terakhir.
-            // System.exit(0);
+            //System.err.println("GameController: mainFrame is null, cannot switch to MenuPanel.");
+
         }
     }
 
@@ -766,14 +756,13 @@ public class GameController implements Runnable {
             return;
         }
 
-        if (gameStateUI.isSelectingFuel()) { // Jika sedang dalam mode memilih fuel
-            if (gameStateUI.fuelSelectionCommandNum == 1) { // Tombol "Back to Recipes"
+        if (gameStateUI.isSelectingFuel()) { 
+            if (gameStateUI.fuelSelectionCommandNum == 1) { 
                 gameStateUI.setSelectingFuelMode(false);
-                // Tidak keluar menu, hanya kembali ke tampilan pemilihan resep
                 if(gamePanel != null) gamePanel.repaint();
                 return;
             }
-            // Jika fuelSelectionCommandNum == 0 (Pilih fuel ini)
+
             if (gameStateUI.availableFuelsForUI == null || gameStateUI.availableFuelsForUI.isEmpty()) {
                 gameStateUI.showTemporaryMessage("No fuel available to select!");
                 return;
@@ -784,7 +773,7 @@ public class GameController implements Runnable {
             }
             Items actualSelectedFuel = gameStateUI.availableFuelsForUI.get(gameStateUI.selectedFuelIndex);
             
-            // Dapatkan resep yang sudah dipilih sebelumnya
+
             Recipe previouslySelectedRecipe = null;
             if (gameStateUI.availableRecipesForUI != null && 
                 gameStateUI.selectedRecipeIndex >= 0 && 
@@ -794,28 +783,25 @@ public class GameController implements Runnable {
 
             if (previouslySelectedRecipe == null) {
                 gameStateUI.showTemporaryMessage("Error: Recipe not found after fuel selection.");
-                gameStateUI.setSelectingFuelMode(false); // Kembali ke pemilihan resep
+                gameStateUI.setSelectingFuelMode(false);
                 return;
             }
 
-            // Buat CookingAction dengan resep dan fuel yang sudah dipilih
+ 
             CookingAction cookingAction = new CookingAction(previouslySelectedRecipe, actualSelectedFuel);
             if (cookingAction.canExecute(farm)) {
                 cookingAction.execute(farm);
                 gameStateUI.showTemporaryMessage("Memasak " + previouslySelectedRecipe.getDisplayName() + " dimulai!");
-                System.out.println("GameController: Cooking " + previouslySelectedRecipe.getDisplayName() + " with " + actualSelectedFuel.getName());
             } else {
                 gameStateUI.showTemporaryMessage("Tidak bisa memasak " + previouslySelectedRecipe.getDisplayName() + ".");
-                System.out.println("GameController: Cannot cook " + previouslySelectedRecipe.getDisplayName() + " with " + actualSelectedFuel.getName());
             }
-            exitCookingMenu(); // Keluar menu setelah mencoba memasak
+            exitCookingMenu();
 
-        } else { // Jika sedang dalam mode memilih resep
-            if (gameStateUI.cookingMenuCommandNum == 1) { // Tombol "Cancel" resep
+        } else { 
+            if (gameStateUI.cookingMenuCommandNum == 1) { 
                 exitCookingMenu();
                 return;
             }
-            // Jika cookingMenuCommandNum == 0 (Tombol "Select Fuel" atau "Cook" jika resep tidak butuh fuel spesifik)
             if (gameStateUI.availableRecipesForUI == null || gameStateUI.availableRecipesForUI.isEmpty()) {
                 gameStateUI.showTemporaryMessage("No recipes available!");
                 return;
@@ -825,11 +811,9 @@ public class GameController implements Runnable {
                 return;
             }
             
-            // Transisi ke mode pemilihan fuel
+
             gameStateUI.setSelectingFuelMode(true);
-            System.out.println("GameController: Switched to fuel selection mode.");
             if(gamePanel != null) gamePanel.repaint();
-            // Tidak keluar menu, UI akan di-update untuk menampilkan pilihan fuel
         }
     }
     public void exitCookingMenu() {
@@ -837,7 +821,7 @@ public class GameController implements Runnable {
             gameState.setGameState(gameState.play);
         }
         if (gameStateUI != null) {
-            gameStateUI.resetCookingMenuState(); // Panggil reset state UI
+            gameStateUI.resetCookingMenuState(); 
         }
         resetMovementState();
         if (gamePanel != null) {
@@ -850,8 +834,8 @@ public class GameController implements Runnable {
             return;
         }
 
-        if (gameStateUI.isSelectingFuel()) { // Navigasi saat memilih fuel
-            if ("up_fuel".equalsIgnoreCase(direction) || "up_recipe".equalsIgnoreCase(direction)) { // "up_recipe" untuk kompatibilitas jika hanya ada fuel
+        if (gameStateUI.isSelectingFuel()) { 
+            if ("up_fuel".equalsIgnoreCase(direction) || "up_recipe".equalsIgnoreCase(direction)) { 
                 if (gameStateUI.availableFuelsForUI != null && !gameStateUI.availableFuelsForUI.isEmpty()) {
                     gameStateUI.selectedFuelIndex--;
                     if (gameStateUI.selectedFuelIndex < 0) {
@@ -866,9 +850,9 @@ public class GameController implements Runnable {
                     }
                 }
             } else if ("left_command".equalsIgnoreCase(direction)) {
-                if (gameStateUI.fuelSelectionCommandNum == 1) gameStateUI.fuelSelectionCommandNum = 0; // Dari Back ke Cook with this
+                if (gameStateUI.fuelSelectionCommandNum == 1) gameStateUI.fuelSelectionCommandNum = 0; 
             } else if ("right_command".equalsIgnoreCase(direction)) {
-                if (gameStateUI.fuelSelectionCommandNum == 0) gameStateUI.fuelSelectionCommandNum = 1; // Dari Cook with this ke Back
+                if (gameStateUI.fuelSelectionCommandNum == 0) gameStateUI.fuelSelectionCommandNum = 1; 
             }
             System.out.println("  -> FuelIndex: " + gameStateUI.selectedFuelIndex + ", FuelCommand: " + gameStateUI.fuelSelectionCommandNum);
 
@@ -892,14 +876,12 @@ public class GameController implements Runnable {
             } else if ("right_command".equalsIgnoreCase(direction)) {
                 if (gameStateUI.cookingMenuCommandNum == 0) gameStateUI.cookingMenuCommandNum = 1;
             }
-            System.out.println("  -> RecipeIndex: " + gameStateUI.selectedRecipeIndex + ", RecipeCommand: " + gameStateUI.cookingMenuCommandNum);
         }
-        if (gamePanel != null) gamePanel.repaint(); // Selalu repaint setelah navigasi
+        if (gamePanel != null) gamePanel.repaint(); 
     }
 
     public void checkForEndGameStatsTrigger() {
         if (playerModel == null || playerModel.getPlayerStats() == null || gameState == null) {
-            System.err.println("GameController ERROR: Cannot check stats trigger. playerModel, PlayerStats, or GameState is null.");
             return;
         }
 
@@ -909,23 +891,21 @@ public class GameController implements Runnable {
             return;
         }
 
-        boolean playerIsMarried = playerModel.getPartner() != null &&
-                                 playerModel.getPartner().getRelationshipsStatus() == RelationshipStats.SPOUSE;
+        boolean playerIsMarried = playerModel.getPartner() != null && playerModel.getPartner().getRelationshipsStatus() == RelationshipStats.SPOUSE;
         boolean goldMilestoneReached = playerModel.getGold() >= END_GAME_GOLD_MILESTONE;
 
         if (playerIsMarried || goldMilestoneReached) {
             String triggerReason = playerIsMarried ? "player is married" : ("gold milestone (" + playerModel.getGold() + "g) reached");
-            System.out.println("GameController LOG: End game milestone triggered because " + triggerReason);
+
             
             stats.setHasShownEndGameStats(true);
 
             if (this.timeManager != null) {
                 this.timeManager.stopTimeSystem();
             } else {
-                System.out.println("GameController WARNING: TimeManager is null, cannot stop time system for stats.");
+                return;
             }
             this.gameState.setGameState(this.gameState.end_game_stats);
-            System.out.println("GameController LOG: GameState changed to END_GAME_STATS. Time system (if available) stopped.");
             
             if (this.gamePanel != null) {
                 this.gamePanel.repaint(); 
@@ -933,18 +913,15 @@ public class GameController implements Runnable {
         }
     }
 
-    /**
-     * Dipanggil ketika pemain menutup layar statistik (misalnya, oleh KeyHandler setelah Enter ditekan).
-     */
+  
     public void dismissEndGameStatisticsScreen() {
         if (this.gameState != null && this.gameState.getGameState() == this.gameState.end_game_stats) {
             this.gameState.setGameState(this.gameState.play); // Kembali ke state bermain normal
             if (this.timeManager != null) {
                 this.timeManager.startTimeSystem();
             } else {
-                System.out.println("GameController WARNING: TimeManager is null, cannot resume time system.");
+                return;
             }
-            System.out.println("GameController LOG: End game statistics dismissed. GameState changed to PLAY. Time system (if available) resumed.");
             
             if (this.gamePanel != null) {
                 this.gamePanel.repaint();
@@ -952,27 +929,16 @@ public class GameController implements Runnable {
         }
     }
 
-    /**
-     * Memproses logika akhir hari, termasuk pendapatan dan pengecekan statistik.
-     * Dipanggil setelah laporan harian ditutup.
-     */
     public void processEndOfDayAndCheckStats() {
-        System.out.println("GameController LOG: Processing end of day procedures and checking stats...");
-
-        // 1. Proses pendapatan dari shipping bin
         int goldFromShipment = this.farm.getAndClearGoldFromLastShipment();
         if (goldFromShipment > 0) {
             this.playerModel.addGold(goldFromShipment);
             if (this.playerModel.getPlayerStats() != null) {
                 this.playerModel.getPlayerStats().recordIncome(goldFromShipment);
             }
-            System.out.println("GameController LOG: Player received " + goldFromShipment + "g from shipment.");
-        }
-        // Info untuk UI sudah di-set sebelumnya saat transisi ke DAY_REPORT
 
-        // 2. Cek pemicu statistik End Game
+        }
         checkForEndGameStatsTrigger();
-        System.out.println("GameController LOG: End of day and stats check procedures complete.");
     }
 
    
@@ -1091,75 +1057,53 @@ public class GameController implements Runnable {
 
     }
 
-    /**
-     * Dipanggil oleh MarryingAction setelah pernikahan berhasil.
-     */
     public void handleSuccessfulMarriage(Player player, NPC spouse) {
-        // Status pemain dan NPC diasumsikan sudah diupdate oleh MarryingAction
-        System.out.println("GameController LOG: Handling successful marriage for " + player.getName() + " and " + spouse.getName());
         checkForEndGameStatsTrigger();
         if (this.gamePanel != null) this.gamePanel.repaint();
     }
 
-    /**
-     * Metode untuk menjalankan aksi pemain.
-     * Kelas Aksi akan memanggil metode di PlayerStats secara langsung melalui objek Farm.
-     */
+    
     public void executePlayerAction(Action action) {
         if (action == null) {
-            System.err.println("GameController ERROR: Attempted to execute a null action.");
+            //System.err.println("GameController ERROR: Attempted to execute a null action.");
             return;
         }
 
         if (action.canExecute(this.farm)) {
-            action.execute(this.farm); // Metode execute di Action akan memanggil PlayerStats jika perlu
-
-            // Penanganan khusus setelah aksi tertentu
+            action.execute(this.farm); 
             if (action instanceof MarryingAction) {
                 if (playerModel.getPartner() != null && 
                     playerModel.getPartner().getRelationshipsStatus() == RelationshipStats.SPOUSE) {
                     handleSuccessfulMarriage(playerModel, playerModel.getPartner());
                 }
             }
-            // Untuk aksi lain, checkForEndGameStatsTrigger() umumnya dipanggil di akhir hari.
         } else {
-            String cantExecuteMsg = "Cannot do: " + action.getActionName();
-            System.out.println("GameController: " + cantExecuteMsg);
             if (this.gameStateUI != null) {
-                this.gameStateUI.showTemporaryMessage(cantExecuteMsg);
+                return;
             }
         }
-        if (this.gamePanel != null) this.gamePanel.repaint(); // Update UI setelah setiap aksi
+        if (this.gamePanel != null) this.gamePanel.repaint(); 
     }
 
-    /**
-     * Metode update utama game, dipanggil dari game loop di GamePanel.
-     */
-    
+ 
     public Player getPlayerModel() { return this.playerModel; }
-    public AssetSetter getAssetSetter() { return this.aSetter; } // Getter untuk AssetSetter
+    public AssetSetter getAssetSetter() { return this.aSetter; } 
 
-    // Metode untuk musik jika ada
     public void playMusic(int i) {
-        // music.setFile(i); // Anda perlu path atau index yang benar
+        // music.setFile(i); 
         // music.play();
         // music.loop();
     }
 
     public void playSE(int i) { // Sound Effect
-        // music.setFile(i); // Anda perlu path atau index yang benar
+        // music.setFile(i); 
         // music.play();
     }
 
-    /**
-     * Teleport player to a specific map and tile position.
-     * @param mapIndex Target map index.
-     * @param tileX Target tile X (column).
-     * @param tileY Target tile Y (row).
-     */
+ 
     public void teleportPlayer(int mapIndex, int tileX, int tileY) {
         if (farm == null || playerViewInstance == null || tileManager == null || aSetter == null) {
-            System.out.println("Teleport failed: missing required components.");
+            //System.out.println("Teleport failed: missing required components.");
             return;
         }
         int tileSize = getTileSize();
@@ -1189,113 +1133,6 @@ public class GameController implements Runnable {
         }
     }
 
-
-    // public void cheat_setGoldToWinningAmount() {
-    //     if (farm != null && farm.getPlayerModel() != null) {
-    //         farm.getPlayerModel().setGold(17209); // Anda perlu metode setGold di Player.java
-    //         System.out.println("CHEAT ACTIVATED: Player gold set to 17209g.");
-    //         if (gameStateUI != null) gameStateUI.showTemporaryMessage("CHEAT: Gold set to 17209g!");
-    //         if (gamePanel != null) gamePanel.repaint(); // Update UI jika menampilkan gold
-    //     } else {
-    //         System.out.println("CHEAT FAILED: Player model not available.");
-    //     }
-    // }
-
-    // /**
-    //  * CHEAT: Menikahkan pemain dengan NPC tertentu.
-    //  * @param npcName Nama NPC yang akan dinikahi.
-    //  */
-    // public void cheat_marryNpc(String npcName) {
-    //     if (farm != null && farm.getPlayerModel() != null) {
-    //         Player playerModel = farm.getPlayerModel();
-    //         NPC targetNpc = farm.getNPCByName(npcName); 
-
-    //         if (targetNpc != null) {
-    //             playerModel.setPartner(targetNpc, RelationshipStatus.SPOUSE); 
-    //             targetNpc.setRelationshipStatus(RelationshipStatus.SPOUSE); 
-                
-    //             if (playerModel.getPlayerStats() != null) {
-    //                 playerModel.getPlayerStats().setNpcFriendship(targetNpc.getName(), 150);
-    //             }
-
-    //             System.out.println("CHEAT ACTIVATED: Player is now married to " + targetNpc.getName() + ".");
-    //             if (gameStateUI != null) gameStateUI.showTemporaryMessage("CHEAT: Married to " + targetNpc.getName() + "!");
-    //             if (gamePanel != null) gamePanel.repaint();
-    //         } else {
-    //             System.out.println("CHEAT FAILED: NPC '" + npcName + "' not found.");
-    //             if (gameStateUI != null) gameStateUI.showTemporaryMessage("CHEAT: NPC " + npcName + " not found!");
-    //         }
-    //     } else {
-    //         System.out.println("CHEAT FAILED: Player model not available.");
-    //     }
-    // }
-
-    // /**
-    //  * CHEAT: Mengatur cuaca ke nilai tertentu.
-    //  * @param weather Cuaca yang diinginkan (Weather.SUNNY atau Weather.RAINY).
-    //  */
-    // public void cheat_setWeather(Weather weather) {
-    //     if (farm != null && farm.getGameClock() != null && timeManager != null) {
-    //         farm.getGameClock().setTodayWeather(weather); 
-    //         timeManager.notifyObservers(); 
-    //         System.out.println("CHEAT ACTIVATED: Weather set to " + weather + ".");
-    //         if (gameStateUI != null) gameStateUI.showTemporaryMessage("CHEAT: Weather set to " + weather + "!");
-    //     } else {
-    //         System.out.println("CHEAT FAILED: GameClock or TimeManager not available for setting weather.");
-    //     }
-    // }
-
-    // public void cheat_setWeatherToRainy() {
-    //     cheat_setWeather(Weather.RAINY);
-    // }
-
-    // public void cheat_cycleWeather() {
-    //     if (farm != null && farm.getGameClock() != null) {
-    //         Weather currentWeather = farm.getGameClock().getTodayWeather();
-    //         Weather nextWeather = (currentWeather == Weather.SUNNY) ? Weather.RAINY : Weather.SUNNY;
-    //         cheat_setWeather(nextWeather);
-    //     } else {
-    //         System.out.println("CHEAT FAILED: GameClock not available for cycling weather.");
-    //     }
-    // }
-
-    // /**
-    //  * CHEAT: Mengatur musim ke nilai tertentu.
-    //  * @param season Musim yang diinginkan.
-    //  */
-    // public void cheat_setSeason(Season season) {
-    //     if (farm != null && farm.getGameClock() != null && timeManager != null) {
-    //         farm.getGameClock().setCurrentSeason(season); // Anda perlu metode setCurrentSeason di GameClock.java
-    //         // Mengganti musim mungkin juga perlu mereset hari ke 1, atau Anda biarkan hari tetap?
-    //         // farm.getGameClock().setDay(1); // Opsional: reset hari ke 1 saat ganti musim via cheat
-    //         timeManager.notifyObservers(); // Update UI dan komponen lain
-    //         System.out.println("CHEAT ACTIVATED: Season set to " + season + ".");
-    //         if (gameStateUI != null) gameStateUI.showTemporaryMessage("CHEAT: Season set to " + season + "!");
-    //     } else {
-    //         System.out.println("CHEAT FAILED: GameClock or TimeManager not available for setting season.");
-    //     }
-    // }
-
-    // /**
-    //  * CHEAT: Mengganti ke musim berikutnya dalam siklus.
-    //  */
-    // public void cheat_setNextSeason() {
-    //     if (farm != null && farm.getGameClock() != null) {
-    //         Season currentSeason = farm.getGameClock().getCurrentSeason();
-    //         Season nextSeason;
-    //         switch (currentSeason) {
-    //             case SPRING: nextSeason = Season.SUMMER; break;
-    //             case SUMMER: nextSeason = Season.FALL; break;
-    //             case FALL:   nextSeason = Season.WINTER; break;
-    //             case WINTER: nextSeason = Season.SPRING; break;
-    //             default:     nextSeason = Season.SPRING; // Fallback
-    //         }
-    //         cheat_setSeason(nextSeason);
-    //     } else {
-    //         System.out.println("CHEAT FAILED: GameClock not available for cycling season.");
-    //     }
-    // }
-
     public void showPlayerInfo() {
         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
         JDialog dialog = new JDialog(frame, "Player Info", true);
@@ -1313,7 +1150,7 @@ public void handleEatAction() {
 
         Items itemToEat = player.getCurrentHeldItem();
         if (itemToEat == null) {
-            System.out.println("No item selected to eat.");
+            //System.out.println("No item selected to eat.");
             return;
         }
 
@@ -1331,7 +1168,7 @@ public void handleEatAction() {
                 ui.showTemporaryMessage("You ate " + itemToEat.getName() + " and restored energy!");
             }
         } else {
-            System.out.println("Cannot eat " + itemToEat.getName());
+            //System.out.println("Cannot eat " + itemToEat.getName());
         }
     }
 }
