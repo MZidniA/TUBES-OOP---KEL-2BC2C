@@ -878,74 +878,74 @@ public class GameController implements Runnable {
         System.out.println("  -> RecipeIndex: " + gameStateUI.selectedRecipeIndex + ", CommandNum: " + gameStateUI.cookingMenuCommandNum);
     }    
 
-    public void navigateMapSelectionMenu(String direction) {
-        if (gameState.getGameState() != gameState.map_selection || gameStateUI == null || gameStateUI.mapOptions == null) {
-            return;
-        }
-        System.out.println("GameController: Navigating Map Selection Menu - " + direction); // DEBUG
+    // public void navigateMapSelectionMenu(String direction) {
+    //     if (gameState.getGameState() != gameState.map_selection || gameStateUI == null || gameStateUI.mapOptions == null) {
+    //         return;
+    //     }
+    //     System.out.println("GameController: Navigating Map Selection Menu - " + direction); // DEBUG
 
-        if ("up".equalsIgnoreCase(direction)) {
-            gameStateUI.mapSelectionCommandNum--;
-            if (gameStateUI.mapSelectionCommandNum < 0) {
-                gameStateUI.mapSelectionCommandNum = gameStateUI.mapOptions.size() - 1;
-            }
-        } else if ("down".equalsIgnoreCase(direction)) {
-            gameStateUI.mapSelectionCommandNum++;
-            if (gameStateUI.mapSelectionCommandNum >= gameStateUI.mapOptions.size()) {
-                gameStateUI.mapSelectionCommandNum = 0;
-            }
-        }
-        System.out.println("  -> mapSelectionCommandNum: " + gameStateUI.mapSelectionCommandNum); // DEBUG
-    }
+    //     if ("up".equalsIgnoreCase(direction)) {
+    //         gameStateUI.mapSelectionCommandNum--;
+    //         if (gameStateUI.mapSelectionCommandNum < 0) {
+    //             gameStateUI.mapSelectionCommandNum = gameStateUI.mapOptions.size() - 1;
+    //         }
+    //     } else if ("down".equalsIgnoreCase(direction)) {
+    //         gameStateUI.mapSelectionCommandNum++;
+    //         if (gameStateUI.mapSelectionCommandNum >= gameStateUI.mapOptions.size()) {
+    //             gameStateUI.mapSelectionCommandNum = 0;
+    //         }
+    //     }
+    //     System.out.println("  -> mapSelectionCommandNum: " + gameStateUI.mapSelectionCommandNum); // DEBUG
+    // }
 
-    public void confirmMapSelection() {
-        if (gameState.getGameState() != gameState.map_selection || gameStateUI == null ||
-            gameStateUI.mapOptions == null || gameStateUI.mapOptionTargetMapIndices == null || gameStateUI.mapOptionTargetCoords == null) {
-            System.err.println("GameController: confirmMapSelection - Invalid state or UI data null.");
-            return;
-        }
+    // public void confirmMapSelection() {
+    //     if (gameState.getGameState() != gameState.map_selection || gameStateUI == null ||
+    //         gameStateUI.mapOptions == null || gameStateUI.mapOptionTargetMapIndices == null || gameStateUI.mapOptionTargetCoords == null) {
+    //         System.err.println("GameController: confirmMapSelection - Invalid state or UI data null.");
+    //         return;
+    //     }
 
-        int selection = gameStateUI.mapSelectionCommandNum;
-        String selectedOptionText = gameStateUI.mapOptions.get(selection);
+    //     int selection = gameStateUI.mapSelectionCommandNum;
+    //     String selectedOptionText = gameStateUI.mapOptions.get(selection);
 
-        System.out.println("GameController: Confirming Map Selection - Option: " + selectedOptionText); // DEBUG
+    //     System.out.println("GameController: Confirming Map Selection - Option: " + selectedOptionText); // DEBUG
 
-        if ("Cancel".equalsIgnoreCase(selectedOptionText)) {
-            exitMapSelectionMenu();
-            return;
-        }
+    //     if ("Cancel".equalsIgnoreCase(selectedOptionText)) {
+    //         exitMapSelectionMenu();
+    //         return;
+    //     }
 
-        // Karena "Cancel" adalah opsi terakhir, jika bukan cancel,
-        // maka selection index harus valid untuk mapOptionTargetMapIndices dan mapOptionTargetCoords
-        if (selection < gameStateUI.mapOptionTargetMapIndices.size()) {
-            int targetMapIndex = gameStateUI.mapOptionTargetMapIndices.get(selection);
-            int[] targetCoords = gameStateUI.mapOptionTargetCoords.get(selection);
-            int targetTileX = targetCoords[0];
-            int targetTileY = targetCoords[1];
-            int tileSize = getTileSize();
+    //     // Karena "Cancel" adalah opsi terakhir, jika bukan cancel,
+    //     // maka selection index harus valid untuk mapOptionTargetMapIndices dan mapOptionTargetCoords
+    //     if (selection < gameStateUI.mapOptionTargetMapIndices.size()) {
+    //         int targetMapIndex = gameStateUI.mapOptionTargetMapIndices.get(selection);
+    //         int[] targetCoords = gameStateUI.mapOptionTargetCoords.get(selection);
+    //         int targetTileX = targetCoords[0];
+    //         int targetTileY = targetCoords[1];
+    //         int tileSize = getTileSize();
 
-            System.out.println("  -> Teleporting to Map: " + targetMapIndex + " at Tile (" + targetTileX + ", " + targetTileY + ")");
-            teleportPlayer(targetMapIndex, targetTileX * tileSize, targetTileY * tileSize);
-            gameState.setGameState(gameState.play); // Kembali ke play state setelah teleport
-            resetMovementState();
-            if (gamePanel != null) gamePanel.requestFocusInWindow();
-        } else {
-            System.err.println("GameController: confirmMapSelection - Selection index out of bounds for target map data.");
-            exitMapSelectionMenu(); // Keluar jika ada error
-        }
-    }
+    //         System.out.println("  -> Teleporting to Map: " + targetMapIndex + " at Tile (" + targetTileX + ", " + targetTileY + ")");
+    //         teleportPlayer(targetMapIndex, targetTileX * tileSize, targetTileY * tileSize);
+    //         gameState.setGameState(gameState.play); // Kembali ke play state setelah teleport
+    //         resetMovementState();
+    //         if (gamePanel != null) gamePanel.requestFocusInWindow();
+    //     } else {
+    //         System.err.println("GameController: confirmMapSelection - Selection index out of bounds for target map data.");
+    //         exitMapSelectionMenu(); // Keluar jika ada error
+    //     }
+    // }
 
-    public void exitMapSelectionMenu() {
-        if (gameState.getGameState() == gameState.map_selection) {
-            gameState.setGameState(gameState.play);
-            if (gameStateUI != null) {
-                gameStateUI.resetMapSelectionMenuState(); // Reset menu UI
-            }
-            resetMovementState();
-            if (gamePanel != null) gamePanel.requestFocusInWindow();
-            System.out.println("GameController: Exited Map Selection Menu. Game state set to PLAY.");
-        }
-    }
+    // public void exitMapSelectionMenu() {
+    //     if (gameState.getGameState() == gameState.map_selection) {
+    //         gameState.setGameState(gameState.play);
+    //         if (gameStateUI != null) {
+    //             gameStateUI.resetMapSelectionMenuState(); // Reset menu UI
+    //         }
+    //         resetMovementState();
+    //         if (gamePanel != null) gamePanel.requestFocusInWindow();
+    //         System.out.println("GameController: Exited Map Selection Menu. Game state set to PLAY.");
+    //     }
+    // }
   
     // === METODE BARU / DISESUAIKAN UNTUK END GAME STATISTICS ===
 

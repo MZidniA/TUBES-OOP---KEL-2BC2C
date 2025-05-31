@@ -17,7 +17,6 @@ import org.example.view.InteractableObject.RiverObject;
 import org.example.view.InteractableObject.ShippingBinObject;
 import org.example.view.InteractableObject.StoveObject;
 import org.example.view.InteractableObject.TVObject;
-import org.example.view.InteractableObject.TeleportPointObject;
 
 public class AssetSetter {
     private final GameController controller;
@@ -41,149 +40,104 @@ public class AssetSetter {
             return;
         }
 
-        // Membersihkan objek lama sebelum menempatkan yang baru untuk map saat ini
-        // Ini penting jika pemain berpindah map dan method ini dipanggil lagi.
-        // Atau, pastikan method ini hanya dipanggil sekali per load map.
-        // Jika hanya dipanggil sekali saat inisialisasi game untuk semua map,
-        // maka loop di bawah yang berdasarkan currentMapIndex sudah cukup.
-        // Jika dipanggil setiap kali ganti map, maka perlu membersihkan array map spesifik:
-        // if (allObjects[farmModel.getCurrentMap()] != null) {
-        //    Arrays.fill(allObjects[farmModel.getCurrentMap()], null);
-        // }
+        int currentMapIndex = farmModel.getCurrentMap(); 
 
+        System.out.println("AssetSetter: Setting objects for map index " + currentMapIndex);
 
-        // Iterasi melalui SEMUA map untuk menempatkan objeknya.
-        // Ini lebih baik daripada hanya mengandalkan currentMapIndex,
-        // karena objek harus diset untuk semua map saat game dimulai atau dimuat.
-        for (int mapIdx = 0; mapIdx < allObjects.length; mapIdx++) {
-            // Kosongkan dulu array objek untuk map ini sebelum menempatkan yang baru
-            if (allObjects[mapIdx] != null) {
-                for(int i = 0; i < allObjects[mapIdx].length; i++) {
-                    allObjects[mapIdx][i] = null;
+        if (currentMapIndex == 0) { 
+            InteractableObject[] farmObjects = {
+                new DoorObject(), 
+                new PondObject(), 
+                new ShippingBinObject(), new MountainLakeObject() 
+            };
+            int[][] farmPositions = {
+                {5, 7}, 
+                {3, 22}, 
+                {11, 8}, {29, 10} 
+            };
+
+            for (int i = 0; i < farmObjects.length; i++) {
+                if (farmObjects[i] == null) continue; 
+                if (farmObjects[i].image != null) {
+                    farmObjects[i].image = uTool.scaleImage(farmObjects[i].image, tileSize, tileSize);
                 }
+                farmObjects[i].worldX = farmPositions[i][0] * tileSize;
+                farmObjects[i].worldY = farmPositions[i][1] * tileSize;
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = farmObjects[i];
+                } else {
+                    System.err.println("AssetSetter Error: Index " + i + " out of bounds for mapIndex " + currentMapIndex);
+                }
+            }
+        } else if (currentMapIndex == 3) { 
+            InteractableObject[] townInteractables = {
+                new CarolineHouse(), new PerryHouse(), new MayorHouse(),
+                new EmilyStore(), new DascoHouse(), new AbigailHouse()
+            };
+            int[][] townPositions = {
+                {5, 17}, {5, 28}, {7, 7}, {23, 7}, {26, 17}, {25, 28}
+            };
+
+            for (int i = 0; i < townInteractables.length; i++) {
+                if (townInteractables[i] == null) continue;
+                if (townInteractables[i].image != null) {
+                    townInteractables[i].image = uTool.scaleImage(townInteractables[i].image, tileSize, tileSize);
+                }
+                townInteractables[i].worldX = townPositions[i][0] * tileSize;
+                townInteractables[i].worldY = townPositions[i][1] * tileSize;
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = townInteractables[i];
+                } else {
+                    System.err.println("AssetSetter Error: Index " + i + " out of bounds for mapIndex " + currentMapIndex + " (Town)");
+                }
+            }
+        } else if (currentMapIndex == 2) { 
+            RiverObject river = new RiverObject();
+            if (river.image != null) river.image = uTool.scaleImage(river.image, tileSize, tileSize);
+            river.worldX = 22 * tileSize;
+            river.worldY = 7 * tileSize;
+            if (0 < allObjects[currentMapIndex].length) { 
+                allObjects[currentMapIndex][0] = river; 
             } else {
-                // Jika array untuk map ini belum diinisialisasi di Farm.java, ini masalah.
-                // Asumsikan sudah diinisialisasi dengan ukuran tertentu.
-                System.err.println("AssetSetter Warning: allObjects[" + mapIdx + "] is null. Objects for this map cannot be set.");
-                continue;
+                System.err.println("AssetSetter Error: No available slot for RiverObject in mapIndex " + currentMapIndex);
             }
-
-            System.out.println("AssetSetter: Setting objects for map index " + mapIdx);
-
-            if (mapIdx == 0) { // FARM (Map Index 0)
-                InteractableObject[] objects = {
-                    new DoorObject(),   // 0: Ke Rumah (map 4)
-                    new PondObject(),               // 1:
-                    new ShippingBinObject(),        // 2:
-                    new TeleportPointObject()       // 3: Teleporter Utama ke World Map
-                };
-                int[][] positions = {
-                    {5, 7},     // Pintu Rumah (TILE X, TILE Y)
-                    {3, 22},    // Pond
-                    {11, 8},    // Shipping Bin
-                    {29, 10}    // GANTI DENGAN POSISI TELEPORTER UTAMA DI FARM
-                };
-                placeObjectsOnMap(mapIdx, objects, positions, tileSize, allObjects);
-
-            } else if (mapIdx == 1) { // OCEAN (Map Index 1)
-                InteractableObject[] objects = {
-                    new TeleportPointObject()       // 0: Teleporter
-                    // Tambahkan objek lain spesifik Ocean di sini jika ada
-                };
-                int[][] positions = {
-                    {30, 2}      // GANTI DENGAN POSISI TELEPORTER DI OCEAN
-                };
-                placeObjectsOnMap(mapIdx, objects, positions, tileSize, allObjects);
-
-            } else if (mapIdx == 2) { // FOREST RIVER (Map Index 2)
-                InteractableObject[] objects = {
-                    new TeleportPointObject()       // 0: Teleporter
-                    // Tambahkan objek lain spesifik Forest River di sini jika ada
-                };
-                int[][] positions = {
-                    {28, 0}     // GANTI DENGAN POSISI TELEPORTER DI FOREST RIVER
-                };
-                placeObjectsOnMap(mapIdx, objects, positions, tileSize, allObjects);
-
-            } else if (mapIdx == 3) { // TOWN (Map Index 3)
-                InteractableObject[] objects = {
-                    new CarolineHouse(),            // 0
-                    new PerryHouse(),               // 1
-                    new MayorHouse(),               // 2
-                    new EmilyStore(),               // 3
-                    new DascoHouse(),               // 4
-                    new AbigailHouse(),             // 5
-                    new TeleportPointObject()       // 6: Teleporter
-                };
-                int[][] positions = {
-                    {5, 17}, {5, 28}, {7, 7}, {23, 7}, {26, 17}, {25, 28},
-                    {16, 30}      // GANTI DENGAN POSISI TELEPORTER DI TOWN
-                };
-                placeObjectsOnMap(mapIdx, objects, positions, tileSize, allObjects);
-
-            } else if (mapIdx == 4) { // HOUSE (Map Index 4)
-                InteractableObject[] objects = {
-                    new StoveObject(),              // 0
-                    new BedObject(),                // 1
-                    new TVObject(),                 // 2
-                    new DoorObject()     // 3: Pintu kembali ke Farm (map 0)
-                };
-                int[][] positions = {
-                    {6, 3},     // Stove
-                    {9, 10},    // Bed
-                    {4, 3},     // TV
-                    {3, 11}     // GANTI DENGAN POSISI PINTU DI DALAM RUMAH MENUJU FARM
-                };
-                placeObjectsOnMap(mapIdx, objects, positions, tileSize, allObjects);
-            }
-            // Tambahkan else if untuk map lain jika ada
-        }
-    }
-
-    /**
-     * Helper method untuk menempatkan sekumpulan objek pada map tertentu.
-     * @param mapIndex Indeks map tujuan
-     * @param objectsToPlace Array objek yang akan ditempatkan
-     * @param positions Array 2D berisi koordinat [tileX, tileY] untuk setiap objek
-     * @param tileSize Ukuran tile
-     * @param allObjects Referensi ke array utama semua objek game
-     */
-    private void placeObjectsOnMap(int mapIndex, InteractableObject[] objectsToPlace, int[][] positions, int tileSize, InteractableObject[][] allObjects) {
-        if (objectsToPlace.length != positions.length) {
-            System.err.println("AssetSetter Error for map " + mapIndex + ": Jumlah objek tidak sama dengan jumlah posisi.");
-            return;
-        }
-        if (allObjects[mapIndex] == null) {
-             System.err.println("AssetSetter Error for map " + mapIndex + ": Array objek untuk map ini null.");
-            return;
-        }
-
-        for (int i = 0; i < objectsToPlace.length; i++) {
-            InteractableObject obj = objectsToPlace[i];
-            if (obj == null) {
-                System.err.println("AssetSetter Warning for map " + mapIndex + ": Objek pada indeks " + i + " adalah null.");
-                continue;
-            }
-
-            // Scale gambar jika ada
-            if (obj.image != null) {
-                obj.image = uTool.scaleImage(obj.image, tileSize, tileSize);
+        } else if (currentMapIndex == 1) { 
+            OceanObject ocean = new OceanObject();
+            if (ocean.image != null) ocean.image = uTool.scaleImage(ocean.image, tileSize, tileSize);
+            ocean.worldX = 10 * tileSize;
+            ocean.worldY = 21 * tileSize;
+            if (0 < allObjects[currentMapIndex].length) {
+                allObjects[currentMapIndex][0] = ocean;
             } else {
-                 // Ini bisa terjadi jika loadImage() di dalam objek gagal atau tidak ada gambar
-                // System.out.println("AssetSetter Info for map " + mapIndex + ": Objek '" + obj.name + "' tidak memiliki gambar.");
+                System.err.println("AssetSetter Error: No available slot for OceanObject in mapIndex " + currentMapIndex);
             }
+        } else if (currentMapIndex == 4) { 
+            InteractableObject[] houseObjects = {
+                new StoveObject(),
+                new BedObject(),
+                new TVObject()
+            };
+        
+            int[][] housePositions = {
+                {6, 3},  
+                {9, 10},
+                {4, 3}
+            };
 
-            // Set posisi dunia
-            obj.worldX = positions[i][0] * tileSize;
-            obj.worldY = positions[i][1] * tileSize;
-
-            // Tempatkan objek ke dalam array utama, pastikan tidak out of bounds
-            if (i < allObjects[mapIndex].length) {
-                allObjects[mapIndex][i] = obj;
-            } else {
-                System.err.println("AssetSetter Error for map " + mapIndex + ": Slot tidak cukup untuk objek '" + obj.name + "' pada indeks " + i + ". Ukuran array: " + allObjects[mapIndex].length);
-                // Berhenti menempatkan objek untuk map ini jika array sudah penuh untuk mencegah error lebih lanjut
-                break; 
+            for (int i = 0; i < houseObjects.length; i++) {
+                if (houseObjects[i] == null) continue; 
+            
+                if (houseObjects[i].image != null) {
+                    houseObjects[i].image = uTool.scaleImage(houseObjects[i].image, tileSize, tileSize);
+                }
+                houseObjects[i].worldX = housePositions[i][0] * tileSize;
+                houseObjects[i].worldY = housePositions[i][1] * tileSize;
+        
+                if (i < allObjects[currentMapIndex].length) {
+                    allObjects[currentMapIndex][i] = houseObjects[i];
+                } else {
+                    System.err.println("AssetSetter Error: Slot tidak cukup untuk objek di peta rumah.");
+                }
             }
         }
     }
