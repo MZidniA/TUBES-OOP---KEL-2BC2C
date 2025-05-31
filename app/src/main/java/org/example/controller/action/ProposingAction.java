@@ -42,14 +42,10 @@ public class ProposingAction implements Action {
             npc.setRelationshipsStatus(RelationshipStats.FIANCE);
             player.setPartner(npc);
 
-            // ✅ Ini baris yang kamu tambahkan
             npc.setFianceSinceDay(farm.getGameClock().getDay());
-
-            System.out.println("LAMARAN BERHASIL 💍");
 
         } else {
             player.decreaseEnergy(ENERGY_FAIL);
-            System.out.println("LAMARAN DITOLAK");
         }
 
         farm.getGameClock().advanceTimeByMinutes(farm, TIME_COST);

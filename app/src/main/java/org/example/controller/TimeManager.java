@@ -69,7 +69,6 @@ public class TimeManager {
                             (!currentGameTime.isBefore(twoAM) && currentGameTime.isBefore(sixAM)) &&
                             !playerModel.isForceSleepByTime() && !playerModel.isPassedOut() ) {
                             
-                            System.out.println("TimeManager: Waktu sudah jam 02:00 atau lebih, memaksa pemain tidur.");
                             playerModel.setForceSleepByTime(true);
                         }
                     }
@@ -92,6 +91,5 @@ public class TimeManager {
         if (timeThread != null) {
             timeThread.interrupt();
         }
-        System.out.println("TimeManager: Time system stopped.");
     }
 }

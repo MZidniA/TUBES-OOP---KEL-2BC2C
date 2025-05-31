@@ -21,7 +21,6 @@ public class MarryingAction implements Action {
 
     @Override
     public boolean canExecute(Farm farm) {
-        Player player = farm.getPlayerModel();
         GameClock clock = farm.getGameClock();
 
         return npc.getRelationshipsStatus() == RelationshipStats.FIANCE &&
@@ -33,16 +32,11 @@ public class MarryingAction implements Action {
     public void execute(Farm farm) {
         Player player = farm.getPlayerModel();
 
-        // Set status jadi SPOUSE
         npc.setRelationshipsStatus(RelationshipStats.SPOUSE);
         player.setPartner(npc);
-
-        // ⏰ Skip waktu ke jam 22:00
         farm.getGameClock().setCurrentTime(java.time.LocalTime.of(22, 0));
-
-        // 🏠 Teleport player ke rumah (misalnya Map 4 dan posisi tempat tidur)
-        player.setCurrentLocationType(org.example.model.enums.LocationType.HOUSE);
-        player.setTilePosition(7, 10); // posisi di rumah (sesuaikan)
-        farm.setCurrentMap(4); // Map index 4 misalnya untuk rumah
+        player.setCurrentLocationType(LocationType.HOUSE);
+        player.setTilePosition(7, 10);
+        farm.setCurrentMap(4); 
     }
 }

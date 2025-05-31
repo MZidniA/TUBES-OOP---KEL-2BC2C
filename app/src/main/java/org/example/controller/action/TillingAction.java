@@ -9,7 +9,6 @@ import org.example.model.Items.Items;
 import org.example.model.Player;
 import org.example.view.InteractableObject.InteractableObject;
 import org.example.view.InteractableObject.UnplantedTileObject; 
-import org.example.model.Map.Tile;
 import org.example.model.Map.Tillableland;
 import org.example.model.Map.Tilledland;
 import org.example.model.Map.FarmMap;
@@ -42,21 +41,21 @@ public class TillingAction implements Action {
         if (player == null) return false;
 
         if (player.getEnergy() <= player.getMinEnergyOperational()) {
-            System.out.println("TillingAction: Energi terlalu rendah.");
+            //System.out.println("TillingAction: Energi terlalu rendah.");
             return false;
         }
         Items heldItem = player.getCurrentHeldItem();
         if (heldItem == null || !heldItem.getName().equalsIgnoreCase("Hoe")) {
-            System.out.println("TillingAction: Bukan Hoe yang dipegang.");
+            // System.out.println("TillingAction: Bukan Hoe yang dipegang.");
             return false;
         }
         if (!player.getInventory().hasItem(ItemDatabase.getItem("Hoe"), 1)) {
-            System.out.println("TillingAction: Hoe tidak ada di inventory.");
+            // System.out.println("TillingAction: Hoe tidak ada di inventory.");
             return false;
         }
         if (targetCol < 0 || targetCol >= controller.getMaxWorldCol() || 
             targetRow < 0 || targetRow >= controller.getMaxWorldRow()) {
-            System.out.println("LOG: Target cangkul di luar peta.");
+            // System.out.println("LOG: Target cangkul di luar peta.");
             return false; 
         }
         
@@ -134,9 +133,8 @@ public class TillingAction implements Action {
             tilled.worldY = targetRow * tileSize;
             
             allObjects[currentMap][emptySlotIndex] = tilled;
-            System.out.println(player.getName() + " mencangkul tanah di (" + targetCol + ", " + targetRow + "). Objek visual UnplantedTileObject dibuat.");
+            System.out.println(player.getName() + " mencangkul tanah di (" + targetCol + ", " + targetRow + ").");
         } else {
-            System.err.println("TillingAction: Tidak ada slot objek kosong di map " + currentMap + " untuk UnplantedTileObject.");
             player.increaseEnergy(ENERGY_COST); 
             farmMap.setTile(targetCol, targetRow, new Tillableland(targetCol, targetRow)); 
             return;

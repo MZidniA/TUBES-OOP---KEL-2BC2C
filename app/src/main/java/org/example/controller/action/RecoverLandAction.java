@@ -43,7 +43,7 @@ public class RecoverLandAction implements Action {
         }
 
  
-        if (player.getEnergy() < ENERGY_COST_PER_TILE) {
+        if (player.getEnergy() <= player.getMinEnergyOperational()) {
             
             return false;
         }

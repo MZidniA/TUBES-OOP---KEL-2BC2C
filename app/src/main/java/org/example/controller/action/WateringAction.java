@@ -53,7 +53,7 @@ public class WateringAction implements Action {
         }
 
         if (REQUIRED_ITEM == null) {
-            System.err.println("WateringAction ERROR: Definisi Watering Can tidak ditemukan.");
+            // System.err.println("WateringAction ERROR: Definisi Watering Can tidak ditemukan.");
             return false;
         }
         Items currentHeldItem = player.getCurrentHeldItem();

@@ -53,7 +53,6 @@ public class PlayerStats {
         unlockRecipe("recipe_5"); // Wine ("Default/Bawaan")
         unlockRecipe("recipe_6"); // Pumpkin Pie ("Default/Bawaan")
         unlockRecipe("recipe_9"); // Spakbor Salad ("Default/Bawaan")
-        // Tambahkan resep default lainnya jika ada
     }
 
     public void unlockRecipe(String recipeId) {
@@ -61,7 +60,7 @@ public class PlayerStats {
             if (this.unlockedRecipeIds.add(recipeId)) { 
                 System.out.println("PlayerStats LOG: Recipe '" + recipeId + "' unlocked!");
             } else {
-                // System.out.println("PlayerStats LOG: Recipe '" + recipeId + "' already unlocked.");
+                return;
             }
         }
     }
@@ -159,6 +158,12 @@ public class PlayerStats {
         if (minutes > 0) {
             this.totalMinutesPlayed += minutes;
             System.out.println("PlayerStats LOG: Waktu bertambah " + minutes + " menit (Total: " + totalMinutesPlayed + ")");
+        }
+    }
+
+    public void setnpcfriendshipPoints(String npcName, int points) {
+        if (npcName != null && !npcName.isEmpty()) {
+            this.npcFriendshipPoints.put(npcName, points);
         }
     }
 

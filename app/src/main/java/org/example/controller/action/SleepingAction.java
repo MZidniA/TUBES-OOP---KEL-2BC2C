@@ -8,7 +8,7 @@ import org.example.model.Farm;
 import org.example.model.GameClock;
 import org.example.model.Player;
 import org.example.model.enums.SleepReason;
-import org.example.view.entitas.PlayerView;
+
 
 public class SleepingAction implements Action {
     private final GameController controller;
@@ -19,7 +19,7 @@ public class SleepingAction implements Action {
     
     @Override
     public String getActionName() {
-        return "Tidur (Sleep)";
+        return "Tidur";
     }
 
     @Override
@@ -31,42 +31,29 @@ public class SleepingAction implements Action {
     public void execute(Farm farm) {
         if (!canExecute(farm)) return;
 
-        System.out.println("SleepingAction: Player initiated sleep. Preparing end-of-day report.");
+
         Player player = farm.getPlayerModel();
         player.setSleepReason(SleepReason.NORMAL); // Tandai tidur normal
 
-        // Atur energi untuk HARI BERIKUTNYA (akan diterapkan setelah report)
-        // Ini bisa disimpan sementara atau langsung di-set jika PlayerStats menghandle energi antar hari.
-        // Untuk saat ini, biarkan GameController.proceedToNextDayFromReport mengatur energi akhir.
-        // SleepingAction hanya menentukan ALASAN tidur.
-        // Contoh:
+    
         GameClock gameClock = farm.getGameClock(); //
         LocalTime currentTime = gameClock.getCurrentTime(); //
         int maxEnergy = player.getMaxEnergy(); //
         int energyForNextDay;
-        String endOfDayMessage = "You slept soundly.";
+        String endOfDayMessage = "Kamu Tertidur Dengan Nyenyak.";
 
         if (currentTime.isAfter(LocalTime.MIDNIGHT) && currentTime.isBefore(LocalTime.of(2,0))) {
             energyForNextDay = (int)(maxEnergy * 0.75);
-            endOfDayMessage = "You went to bed late, feeling a bit tired.";
-            System.out.println("SleepingAction: Late sleep detected. Next day energy target: 75%");
-        } else if (currentTime.isBefore(LocalTime.MIDNIGHT) && currentTime.getHour() >= 22) { // Tidur jam 10-12 malam
-             energyForNextDay = maxEnergy; // Pulih penuh
-             System.out.println("SleepingAction: Normal sleep time. Next day energy target: 100%");
+            endOfDayMessage = "Kamu Kelelahan Karena Telat Tidur.";
+        } else if (currentTime.isBefore(LocalTime.MIDNIGHT) && currentTime.getHour() >= 22) { 
+             energyForNextDay = maxEnergy; 
         }
-        else { // Tidur terlalu awal atau kondisi lain
-            energyForNextDay = maxEnergy; // Asumsi pulih penuh
-            System.out.println("SleepingAction: Regular sleep. Next day energy target: 100%");
+        else { 
+            energyForNextDay = maxEnergy; 
         }
-        // Sebenarnya, energi akan di-set di GameController.proceedToNextDayFromReport()
-        // Di sini kita hanya menentukan pesan.
-        // Player.energy akan di-set di GameController setelah player bangun
-
-
-        // Proses event akhir hari (tanaman, kalkulasi shipping)
+        player.setEnergy(energyForNextDay); 
         controller.processEndOfDayEvents();
 
-        // Pindah ke state layar laporan
         if (controller.getGameStateUI() != null) {
             controller.getGameStateUI().setEndOfDayInfo(endOfDayMessage, controller.getFarmModel().getGoldFromLastShipment());
         }

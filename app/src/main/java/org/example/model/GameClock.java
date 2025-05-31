@@ -46,6 +46,18 @@ public class GameClock {
         this.currentTime = LocalTime.of(6, 0); 
     }
 
+    public void setDay(int newDay) {
+        if (newDay > 0) {
+            this.day = newDay;
+            this.daysIntoSeason = (newDay - 1) % 10 + 1; 
+            if (this.daysIntoSeason == 1) {
+                nextSeason(); 
+            } else {
+                randomizeWeatherForDay();
+            }
+        }
+    }
+
     private void nextSeason() {
         int nextSeasonOrdinal = (this.currentSeason.ordinal() + 1) % Season.values().length;
         this.currentSeason = Season.values()[nextSeasonOrdinal];
@@ -95,8 +107,26 @@ public class GameClock {
         return currentSeason; 
     }
 
+    public void setCurrentSeason(Season newSeason) {
+        if (newSeason != null) {
+            this.currentSeason = newSeason;
+            this.daysIntoSeason = 1; 
+            this.rainyDaysThisSeason = 0; 
+            randomizeWeatherForDay(); 
+        }
+    }
+
     public Weather getTodayWeather() {
         return todayWeather; 
+    }
+
+    public void setTodayWeather(Weather newWeather) {
+        if (newWeather != null) {
+            this.todayWeather = newWeather;
+            if (newWeather == Weather.RAINY) {
+                this.rainyDaysThisSeason++;
+            }
+        }
     }
     
     public int getDaysIntoSeason() { 
