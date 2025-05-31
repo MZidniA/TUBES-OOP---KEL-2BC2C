@@ -51,28 +51,24 @@ public class UpdateAndShowLocationAction implements Action {
             int perryMinCol = 0; int perryMaxCol = 10;
             int perryMinRow = 22; int perryMaxRow = 30; 
 
-            // Zona Caroline
             int carolineMinCol = 0; int carolineMaxCol = 10;
             int carolineMinRow = 10; int carolineMaxRow = 20;
 
-            // Zona Mayor
+
             int mayorMinCol = 1; int mayorMaxCol = 11;
             int mayorMinRow = 0; int mayorMaxRow = 10;
 
-            // Zona Store (Emily)
             int storeMinCol = 18; int storeMaxCol = 27;
             int storeMinRow = 0; int storeMaxRow = 9;
 
-            // Zona Dasco
             int dascoMinCol = 21; int dascoMaxCol = 30;
             int dascoMinRow = 10; int dascoMaxRow = 20;
 
-            // Zona Abigail
             int abigailMinCol = 22; int abigailMaxCol = 30;
             int abigailMinRow = 21; int abigailMaxRow = 29; 
 
             
-            // Lakukan pengecekan zona
+
             if (playerTileX >= perryMinCol && playerTileX <= perryMaxCol &&
                 playerTileY >= perryMinRow && playerTileY <= perryMaxRow) {
                 newDeterminedLocation = LocationType.RUMAH_PERRY;

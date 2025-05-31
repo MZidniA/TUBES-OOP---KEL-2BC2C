@@ -27,6 +27,6 @@ public class DoorObject extends InteractableObject {
     @Override
     public void interact(GameController controller) {
         int targetTileSize = controller.getTileSize();
-        controller.teleportPlayer(4, 6 * targetTileSize, 6 * targetTileSize);
+        controller.visitingAction(4, 6 * targetTileSize, 6 * targetTileSize);
     }
 }

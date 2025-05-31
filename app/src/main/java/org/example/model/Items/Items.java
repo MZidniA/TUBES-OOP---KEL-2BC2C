@@ -61,7 +61,10 @@ public abstract class Items {
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + sellprice;
+        result = 31 * result + buyprice;
+        return result;
     }
 
    

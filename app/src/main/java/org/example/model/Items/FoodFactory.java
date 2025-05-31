@@ -20,6 +20,7 @@ public class FoodFactory {
         food.put("The Legends of Spakbor", new Food("The Legends of Spakbor", 2000, 0, 100)); 
         food.put("Cooked Pig’s Head", new Food("Cooked Pig’s Head", 0, 1000, 100)); 
         food.put("Egg", new Food("Egg", 5, 10, 50));
+        food.put("Eggplant", new Food("Eggplant", 10, 20, 50));
 
         return food;
     }
