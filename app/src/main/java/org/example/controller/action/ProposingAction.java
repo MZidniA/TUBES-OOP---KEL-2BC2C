@@ -62,6 +62,8 @@ public class ProposingAction implements Action {
             player.setPartner(npc);
             npc.setFianceSinceDay(farm.getGameClock().getDay());
             farm.getGameClock().advanceTimeByMinutes(farm, TIME_COST);
+            player.getPlayerStats().incrementNpcVisitInteraction(npc.getName());
+            
             success = true;
         } else {
             player.decreaseEnergy(ENERGY_FAIL);

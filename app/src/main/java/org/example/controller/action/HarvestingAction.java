@@ -75,6 +75,7 @@ public class HarvestingAction implements Action {
 
         player.decreaseEnergy(ENERGY_COST);
 
+
         Seeds harvestedSeedType = targetPlantModel.getPlantedSeed();
         Crops yield = null;
         int quantityYielded = 1; 
@@ -109,10 +110,12 @@ public class HarvestingAction implements Action {
         }
 
         if (yield != null) {
-            quantityYielded = yield.getJumlahcropperpanen(); 
+            quantityYielded = yield.getJumlahcropperpanen();
             player.getInventory().addInventory(yield, quantityYielded);
+            player.getPlayerStats().recordCropsHarvested(quantityYielded); // << TAMBAHKAN INI
+            System.out.println("Berhasil memanen " + quantityYielded + " " + yield.getName());
         } else {
-            
+            System.err.println("Gagal mendapatkan hasil panen untuk " + seedName);
         }
 
         farm.removeObjectAtTile(farm.getCurrentMap(), targetCol, targetRow, controller.getTileSize());

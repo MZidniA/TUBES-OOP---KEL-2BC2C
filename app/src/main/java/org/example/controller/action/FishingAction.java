@@ -124,6 +124,8 @@ public class FishingAction implements Action {
                 System.out.println("Berhasil! Kamu menangkap " + selectedFish.getName() + "!");
                 player.getInventory().addInventory(selectedFish,1);
                 success = true;
+                FishType typeToRecord = selectedFish.getFishType().iterator().next();
+                player.getPlayerStats().recordFishCaught(typeToRecord, selectedFish.getName());
                 break;
             } else if (guess < targetNumber) {
                 System.out.println("Terlalu kecil!");

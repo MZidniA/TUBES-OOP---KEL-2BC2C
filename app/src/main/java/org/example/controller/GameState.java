@@ -8,6 +8,7 @@ public class GameState {
     public final int cooking_menu = 4;
     public final int shipping_bin = 5;
     public final int day_report = 6;
+    public final int end_game_stats = 7;
 
     public GameState() {
         this.gamestate = play;

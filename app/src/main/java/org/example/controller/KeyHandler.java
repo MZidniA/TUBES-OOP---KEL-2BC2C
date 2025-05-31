@@ -57,7 +57,10 @@ public class KeyHandler implements KeyListener {
                 gameController.confirmShipItem();
             }
         } else if (currentGameState.getGameState() == currentGameState.day_report) {
-                gameController.proceedToNextDayFromReport();
+            if (code == KeyEvent.VK_ENTER) {
+                System.out.println("KeyHandler: ENTER pressed in DAY_REPORT state."); // DEBUG
+                gameController.handleEndOfDayReportDismissal();
+            }
         } else if (currentGameState.getGameState() == currentGameState.cooking_menu) { 
             switch (code) {
                 case KeyEvent.VK_W: case KeyEvent.VK_UP:
@@ -81,6 +84,12 @@ public class KeyHandler implements KeyListener {
                     gameController.exitCookingMenu();
                     break;
             }
+        } else if (currentGameState.getGameState() == currentGameState.end_game_stats) { // Menggunakan konstanta dari instance
+            if (code == KeyEvent.VK_ENTER) {
+                System.out.println("KeyHandler: ENTER pressed in END_GAME_STATS state."); // DEBUG
+                gameController.dismissEndGameStatisticsScreen();
+            }
+            // Tidak ada input lain yang dihandle di state ini selain Enter untuk melanjutkan
         }
     }
 

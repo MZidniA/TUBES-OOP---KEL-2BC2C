@@ -61,6 +61,10 @@ public class ChattingAction implements Action {
 
         player.decreaseEnergy(ENERGY_COST);
         farm.getGameClock().advanceTimeMinutes(TIME_COST_MINUTES);
+        System.out.println("DEBUG: ChattingAction - Attempting to increment chat for: " + npc.getName());
+        player.getPlayerStats().incrementNpcChatInteraction(npc.getName());
+        System.out.println("DEBUG: ChattingAction - Attempting to increment visit for: " + npc.getName());
+        player.getPlayerStats().incrementNpcVisitInteraction(npc.getName());
 
         System.out.println("Kamu ngobrol hangat dengan " + npc.getName() + ".");
         System.out.println("HeartPoint +" + (updated - current) + " (sekarang: " + updated + ")");

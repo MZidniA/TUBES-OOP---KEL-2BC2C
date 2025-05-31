@@ -61,6 +61,7 @@ public class MarryingAction implements Action {
         player.setCurrentLocationType(LocationType.HOUSE);
         player.setTilePosition(7, 10);
         farm.setCurrentMap(4);
+        player.getPlayerStats().incrementNpcVisitInteraction(npc.getName());
         success = true;
     }
 

@@ -1,20 +1,20 @@
-package org.example.view;
+// package org.example.view;
 
-public class FontMetrics {
+// public class FontMetrics {
 
-    public int stringWidth(String timeText) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stringWidth'");
-    }
+//     public int stringWidth(String timeText) {
+//         // TODO Auto-generated method stub
+//         throw new UnsupportedOperationException("Unimplemented method 'stringWidth'");
+//     }
 
-    public int getDescent() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDescent'");
-    }
+//     public int getDescent() {
+//         // TODO Auto-generated method stub
+//         throw new UnsupportedOperationException("Unimplemented method 'getDescent'");
+//     }
 
-    public int getHeight() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getHeight'");
-    }
+//     public int getHeight() {
+//         // TODO Auto-generated method stub
+//         throw new UnsupportedOperationException("Unimplemented method 'getHeight'");
+//     }
 
-}
+// }

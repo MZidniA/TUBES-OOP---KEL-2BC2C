@@ -23,6 +23,7 @@ public class Inventory {
         inventory.put(ItemDatabase.getItem("Fish Sandwich"), 10);
         inventory.put(ItemDatabase.getItem("Wine"), 10);
         inventory.put(ItemDatabase.getItem("Salmon"), 10);
+        inventory.put(ItemDatabase.getItem("Proposal Ring"), 1);
     }
 
     public Map<Items, Integer> getInventory() {

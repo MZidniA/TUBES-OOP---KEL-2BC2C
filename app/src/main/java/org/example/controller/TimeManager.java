@@ -30,6 +30,8 @@ public class TimeManager {
         observers.add(observer);
     }
 
+    public boolean isRunning() { return running; }
+    
     public void notifyObservers() {
 
         LocalTime currentTime = gameClockModel.getCurrentTime();

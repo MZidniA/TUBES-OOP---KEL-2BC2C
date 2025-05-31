@@ -17,13 +17,18 @@ public class PlayerStats {
     private Map<FishType, Integer> totalFishCaught; // Konsistenkan ke lowercase: totalFishCaught
     private int totalDaysPlayed;
 
-    private Map<String, Integer> npcFriendshipPoints;
+    // NPC Interaction Tracking
     private Map<String, Integer> npcTotalChat;
     private Map<String, Integer> npcTotalGift;
+    private Map<String, Integer> npcTotalVisit; 
+
+    private Map<String, Integer> npcFriendshipPoints;
 
     private Set<String> unlockedRecipeIds;
     private Set<String> obtainedItemsLog; // Untuk melacak item yang pernah diperoleh
     private int totalMinutesPlayed = 0;
+
+    private boolean hasShownEndGameStats = false;
 
     public PlayerStats() {
         this.totalIncome = 0;
@@ -38,6 +43,7 @@ public class PlayerStats {
         this.npcFriendshipPoints = new HashMap<>();
         this.npcTotalChat = new HashMap<>();
         this.npcTotalGift = new HashMap<>();
+        this.npcTotalVisit = new HashMap<>();
 
         this.unlockedRecipeIds = new HashSet<>();
         this.obtainedItemsLog = new HashSet<>(); 
@@ -132,8 +138,20 @@ public class PlayerStats {
     }
 
     // Getters & Setters untuk Statistik (sudah ada, pastikan konsisten)
-    public void recordIncome(int amount) { /* ... */ }
-    public void recordGoldSpent(int amount) { /* ... */ }
+    public void recordIncome(int amount) {
+        if (amount > 0) {
+            this.totalIncome += amount;
+            System.out.println("PlayerStats LOG: Income increased by " + amount + " (Total: " + totalIncome + ")");
+        }
+    }
+
+    public void recordGoldSpent(int amount) {
+        if (amount > 0) {
+            this.totalGoldSpent += amount;
+            System.out.println("PlayerStats LOG: Gold spent increased by " + amount + " (Total: " + totalGoldSpent + ")");
+        }
+    }
+
     public void recordCropsHarvested(int count) {
         if (count > 0) {
             this.totalCropsHarvested += count;
@@ -147,7 +165,10 @@ public class PlayerStats {
             checkAndUnlockRecipesOnStatChange(); // Cek resep setelah menangkap ikan
         }
     }
-    public void incrementDaysPlayed() { /* ... */ }
+    public void incrementDaysPlayed() {
+        this.totalDaysPlayed += 1;
+        System.out.println("PlayerStats LOG: Days played incremented. Total days: " + totalDaysPlayed);
+    }
     // ... (metode recordNpcInteraction, updateAllNpcFriendshipPoints, dan getter lainnya) ...
     public int getTotalIncome() { return totalIncome; }
     public int getTotalGoldSpent() { return totalGoldSpent; } 
@@ -167,4 +188,36 @@ public class PlayerStats {
         }
     }
 
+    // === Metode untuk Statistik End Game ===
+
+    public void incrementNpcChatInteraction(String npcName) {
+        if (npcName != null && !npcName.isEmpty()) {
+            this.npcTotalChat.put(npcName, this.npcTotalChat.getOrDefault(npcName, 0) + 1);
+            System.out.println("PlayerStats LOG: Chat with " + npcName + " recorded. Total chats: " + this.npcTotalChat.get(npcName) + ".");
+        }
+    }
+
+    public void incrementNpcGiftInteraction(String npcName) {
+        if (npcName != null && !npcName.isEmpty()) {
+            this.npcTotalGift.put(npcName, this.npcTotalGift.getOrDefault(npcName, 0) + 1);
+            System.out.println("PlayerStats LOG: Gift to " + npcName + " recorded. Total gifts: " + this.npcTotalGift.get(npcName) + ".");
+        }
+    }
+
+    public void incrementNpcVisitInteraction(String npcName) { // BARU
+        if (npcName != null && !npcName.isEmpty()) {
+            this.npcTotalVisit.put(npcName, this.npcTotalVisit.getOrDefault(npcName, 0) + 1);
+            System.out.println("PlayerStats LOG: Visit to " + npcName + " recorded. Total visits: " + this.npcTotalVisit.get(npcName) + ".");
+        }
+    }
+
+    // Getters untuk semua statistik yang dibutuhkan oleh End Game GUI
+    public Map<String, Integer> getNpcTotalChat() { return new HashMap<>(npcTotalChat); }
+    public Map<String, Integer> getNpcTotalGift() { return new HashMap<>(npcTotalGift); }
+    public Map<String, Integer> getNpcTotalVisit() { return new HashMap<>(npcTotalVisit); } // BARU
+
+    public boolean hasShownEndGameStats() { return hasShownEndGameStats; }
+    public void setHasShownEndGameStats(boolean status) { this.hasShownEndGameStats = status; }
+
+    public int getTotalMinutesPlayed(){ return totalMinutesPlayed;} // Getter jika dibutuhkan
 }

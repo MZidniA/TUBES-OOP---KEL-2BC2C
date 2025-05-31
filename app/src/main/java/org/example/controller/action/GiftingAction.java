@@ -56,6 +56,8 @@ public class GiftingAction implements Action {
         player.decreaseEnergy(ENERGY_COST);
         farm.getGameClock().advanceTimeByMinutes(farm, TIME_COST_MINUTES);
         player.getInventory().removeInventory(giftItem, 1);
+        player.getPlayerStats().incrementNpcGiftInteraction(targetNpc.getName()); // targetNpc adalah NPC yang menerima hadiah
+        player.getPlayerStats().incrementNpcVisitInteraction(targetNpc.getName()); // Sesuai permintaan Anda
 
         System.out.println("Kamu memberikan " + giftItem.getName() + " ke " + targetNpc.getName());
         System.out.println("Efek: " + effect + " heartPoints, sekarang: " + updatedHeart);

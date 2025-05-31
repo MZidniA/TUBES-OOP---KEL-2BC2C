@@ -199,4 +199,7 @@ public class Farm {
         return gold;
     }
     
+    public Map<String, NPC> getNPCMap() {
+        return npcMap;
+    }
 }

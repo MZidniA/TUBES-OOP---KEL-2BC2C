@@ -32,10 +32,10 @@ public class Player {
     public Player(String name, String gender, String farmname) {
         this.name = name;
         this.gender = gender;
-        this.energy = MAX_ENERGY;
+        this.energy = 100;
         this.farmname = farmname;
         this.partner = null;
-        this.gold = 500;
+        this.gold = 0;
         this.inventory = new Inventory(); 
         this.currentLocationType = LocationType.FARM; 
         this.currentHeldItem = null;
