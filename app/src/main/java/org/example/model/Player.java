@@ -1,7 +1,6 @@
 package org.example.model;
 
 import java.util.EnumSet;
- 
 import org.example.model.Items.Items;
 import org.example.model.NPC.NPC;
 import org.example.model.enums.LocationType;
@@ -14,7 +13,7 @@ public class Player {
     private final int MAX_ENERGY = 100;
     private final int MIN_ENERGY_OPERATIONAL = -20;
     private boolean passedOut = false;
-    private boolean forceSleepByTime = false; 
+    private boolean forceSleepByTime = false;
     private String farmname;
     private NPC partner;
     private int gold;
@@ -31,32 +30,15 @@ public class Player {
     public Player(String name, String gender, String farmname) {
         this.name = name;
         this.gender = gender;
-        this.energy = 100;
+        this.energy = MAX_ENERGY;
         this.farmname = farmname;
         this.partner = null;
         this.gold = 0;
-        this.inventory = new Inventory(); 
-        this.currentLocationType = LocationType.FARM; 
+        this.inventory = new Inventory();
+        this.currentLocationType = LocationType.FARM;
         this.currentHeldItem = null;
-        this.playerStats = new PlayerStats(); 
+        this.playerStats = new PlayerStats();
         this.sleepReason = SleepReason.NOT_SLEEPING;
-
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
     }
 
     public int getEnergy() {
@@ -66,11 +48,11 @@ public class Player {
     public void setEnergy(int energy) {
         if (energy > MAX_ENERGY) {
             this.energy = MAX_ENERGY;
-        } else if (energy <= MIN_ENERGY_OPERATIONAL) { 
+        } else if (energy <= MIN_ENERGY_OPERATIONAL) {
             this.energy = MIN_ENERGY_OPERATIONAL;
-
-            this.passedOut = true; 
-            System.out.println("LOG: " + this.name + " pingsan karena kelelahan!");
+            if (this.sleepReason == SleepReason.NOT_SLEEPING && !this.passedOut) {
+                this.passedOut = true;
+            }
         } else {
             this.energy = energy;
         }
@@ -92,6 +74,30 @@ public class Player {
         this.forceSleepByTime = status;
     }
 
+    public SleepReason getSleepReason() {
+        return sleepReason;
+    }
+
+    public void setSleepReason(SleepReason sleepReason) {
+        this.sleepReason = sleepReason;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
     public int getMaxEnergy() {
         return MAX_ENERGY;
     }
@@ -100,58 +106,62 @@ public class Player {
         return MIN_ENERGY_OPERATIONAL;
     }
 
-    public String getFarmname() { 
-        return farmname; 
+    public String getFarmname() {
+        return farmname;
     }
-    public void setFarmname(String farmname) { 
-        this.farmname = farmname; 
+
+    public void setFarmname(String farmname) {
+        this.farmname = farmname;
     }
-    public NPC getPartner() { 
-        return partner; 
+
+    public NPC getPartner() {
+        return partner;
     }
-    public void setPartner(NPC partner) { 
-        this.partner = partner; 
+
+    public void setPartner(NPC partner) {
+        this.partner = partner;
     }
-    public int getGold() { 
-        return gold; 
+
+    public int getGold() {
+        return gold;
     }
-    public void setGold(int gold) { 
-        this.gold = gold; 
+
+    public void setGold(int gold) {
+        this.gold = gold;
     }
     public void addGold(int amount) {
-        if (amount > 0) { 
+        if (amount > 0) {
             this.gold += amount;
         }
     }
-    public Inventory getInventory() { 
-        return inventory; 
+
+    public Inventory getInventory() {
+        return inventory;
     }
 
-    public void setInventory(Inventory inventory) { 
-        this.inventory = inventory; 
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
     }
 
-    public LocationType getCurrentLocationType() { 
+    public LocationType getCurrentLocationType() {
         return currentLocationType;
     }
 
-    public void setCurrentLocationType(LocationType locationType) { 
+    public void setCurrentLocationType(LocationType locationType) {
         if (locationType == null || !EnumSet.allOf(LocationType.class).contains(locationType)) {
+
             throw new IllegalArgumentException("Invalid LocationType: " + locationType);
         }
         this.currentLocationType = locationType;
     }
 
     public void setLocation(LocationType locationType) {
-        if (locationType == null || !EnumSet.allOf(LocationType.class).contains(locationType)) {
-            throw new IllegalArgumentException("Invalid LocationType: " + locationType);
-        }
-        this.currentLocationType = locationType;
+         setCurrentLocationType(locationType); 
     }
 
     public void decreaseEnergy(int amount) {
-        if (amount < 0) return; 
-        setEnergy(this.energy - amount); 
+        if (amount < 0) return;
+        setEnergy(this.energy - amount);
     }
 
     public void increaseEnergy(int amount) {
@@ -186,11 +196,7 @@ public class Player {
 
     public void setCurrentHeldItem(Items currentHeldItem) {
         this.currentHeldItem = currentHeldItem;
-        if (currentHeldItem != null) {
-            System.out.println("Now holding: " + currentHeldItem.getName());
-        } else {
-            System.out.println("Hands are empty.");
-        }
+    
     }
 
     public PlayerStats getPlayerStats() {
@@ -199,13 +205,5 @@ public class Player {
 
     public void setPlayerStats(PlayerStats playerStats) {
         this.playerStats = playerStats;
-    }
-
-    public SleepReason getSleepReason() {
-        return sleepReason;
-    }
-    
-    public void setSleepReason(SleepReason sleepReason) {
-        this.sleepReason = sleepReason;
     }
 }

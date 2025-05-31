@@ -1,22 +1,17 @@
-// Lokasi: src/main/java/org/example/controller/action/SleepingAction.java
 package org.example.controller.action;
-
-import java.time.LocalTime;
 
 import org.example.controller.GameController;
 import org.example.model.Farm;
-import org.example.model.GameClock;
 import org.example.model.Player;
 import org.example.model.enums.SleepReason;
 
-
 public class SleepingAction implements Action {
     private final GameController controller;
+
     public SleepingAction(GameController controller) {
         this.controller = controller;
     }
 
-    
     @Override
     public String getActionName() {
         return "Tidur";
@@ -27,36 +22,32 @@ public class SleepingAction implements Action {
         return true;
     }
 
-     @Override
+    @Override
     public void execute(Farm farm) {
         if (!canExecute(farm)) return;
 
-
         Player player = farm.getPlayerModel();
-        player.setSleepReason(SleepReason.NORMAL); // Tandai tidur normal
+        int energySaatTidurDimulai = player.getEnergy();
 
-    
-        GameClock gameClock = farm.getGameClock(); //
-        LocalTime currentTime = gameClock.getCurrentTime(); //
-        int maxEnergy = player.getMaxEnergy(); //
+        player.setSleepReason(SleepReason.NORMAL);
+
+        int maxEnergy = player.getMaxEnergy();
         int energyForNextDay;
-        String endOfDayMessage = "Kamu Tertidur Dengan Nyenyak.";
 
-        if (player.getEnergy() < 10 && player.getEnergy() > 0) { // Jika energi kurang dari 20
+        if (energySaatTidurDimulai < (0.1 * maxEnergy) && energySaatTidurDimulai > 0) {
             energyForNextDay = (int)(maxEnergy * 0.5);
-        } else if (player.getEnergy() <= 0) { 
-             energyForNextDay = 10; 
+        } else if (energySaatTidurDimulai <= 0) {
+            energyForNextDay = 10;
+        } else {
+            energyForNextDay = maxEnergy;
         }
-        else { 
-            energyForNextDay = maxEnergy; 
-        }
-        player.setEnergy(energyForNextDay); 
-        controller.processEndOfDayEvents();
+        
+        player.setEnergy(energyForNextDay);
 
-        if (controller.getGameStateUI() != null) {
-            controller.getGameStateUI().setEndOfDayInfo(endOfDayMessage, controller.getFarmModel().getGoldFromLastShipment());
+        if (controller != null) {
+            controller.initiateSleepSequence();
+        } else {
+            System.err.println("SleepingAction ERROR: GameController adalah null!");
         }
-        controller.getGameState().setGameState(controller.getGameState().day_report);
-        if (controller.getTimeManager() != null) controller.getTimeManager().stopTimeSystem();
     }
 }

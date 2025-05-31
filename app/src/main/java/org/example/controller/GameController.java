@@ -307,13 +307,19 @@ public class GameController implements Runnable {
             if (playerViewInstance.solidArea == null) return;
             int playerCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width / 2) / tileSize;
             int playerRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y + playerViewInstance.solidArea.height / 2) / tileSize;
-            if (currentMap == 0 && playerCol == 31 && playerRow == 15) { visitingAction(1, 1 * tileSize, 1 * tileSize); } 
+            
+            boolean isExitingHouse = currentMap == 4 && playerCol == 3 && playerRow == 11; 
+
+            if (isExitingHouse) { // Kelu
+                visitingAction(0, 4 * tileSize, 9 * tileSize, false); 
+            }
+
+            else if (currentMap == 0 && playerCol == 31 && playerRow == 15) { visitingAction(1, 1 * tileSize, 1 * tileSize); } 
             else if (currentMap == 1 && playerCol == 1 && playerRow == 1) { visitingAction(0, 31 * tileSize, 15 * tileSize); } 
-            else if (currentMap == 1 && playerCol == 30 && playerRow == 1) { visitingAction(2, 29 * tileSize, 0 * tileSize); } 
-            else if (currentMap == 2 && playerCol == 29 && playerRow == 0) { visitingAction(1, 30 * tileSize, 1 * tileSize); } 
-            else if (currentMap == 2 && playerCol == 0 && playerRow == 31) { visitingAction(3, 15 * tileSize, 31* tileSize); } 
-            else if (currentMap == 3 && playerCol == 15 && playerRow == 31) { visitingAction(2, 0 * tileSize, 31 * tileSize); } 
-            else if (currentMap == 4 && playerCol == 3 && playerRow == 11) { visitingAction(0, 4 * tileSize, 9 * tileSize); }
+            else if (currentMap == 0 && playerCol == 20 && playerRow == 31) { visitingAction(2, 29 * tileSize, 0 * tileSize); } 
+            else if (currentMap == 2 && playerCol == 29 && playerRow == 0) { visitingAction(0, 20 * tileSize, 31 * tileSize); } 
+            else if (currentMap == 0 && playerCol == 31 && playerRow == 31) { visitingAction(3, 15 * tileSize, 31* tileSize); } 
+            else if (currentMap == 3 && playerCol == 15 && playerRow == 31) { visitingAction(0, 30 * tileSize, 31 * tileSize); } 
         }
     }
 
@@ -444,71 +450,69 @@ public class GameController implements Runnable {
         movementState.put("left", false); movementState.put("right", false);
     }
     public void visitingAction(int mapIndex, int worldX, int worldY) {
-        int musicIdx = 0; 
+        visitingAction(mapIndex, worldX, worldY, true); 
+    }
+
+
+    public void visitingAction(int mapIndex, int worldX, int worldY, boolean reduceEnergy) {
         if (farm != null && playerViewInstance != null && gamePanel != null && tileManager != null && aSetter != null) {
-            stopMusic();
+            stopMusic(); 
             farm.setCurrentMap(mapIndex);
-            Player player = farm.getPlayerModel();
-            playerViewInstance.worldX = worldX; playerViewInstance.worldY = worldY; playerViewInstance.direction = "down";
-            if (player != null) {
+            Player currentPlayer = farm.getPlayerModel(); 
+            GameClock gameClock = farm.getGameClock();
+
+            if (reduceEnergy) { 
+                currentPlayer.decreaseEnergy(10); 
+                gameClock.advanceTimeByMinutes(farm, 15); 
+            }
+            
+            playerViewInstance.worldX = worldX; 
+            playerViewInstance.worldY = worldY; 
+            playerViewInstance.direction = "down"; 
+
+            if (currentPlayer != null) {
                 switch (mapIndex) {
-                    case 0: player.setCurrentLocationType(LocationType.FARM); break;
-                    case 1: player.setCurrentLocationType(LocationType.OCEAN); break;
-                    case 2: player.setCurrentLocationType(LocationType.FOREST_RIVER); break;
-                    case 3: player.setCurrentLocationType(LocationType.TOWN); break;
-                    case 4: player.setCurrentLocationType(LocationType.HOUSE); break;
-                    case 5: player.setCurrentLocationType(LocationType.STORE); break;
-                    case 6: player.setCurrentLocationType(LocationType.POND); break;  
-                    default: player.setCurrentLocationType(LocationType.FARM); break; 
+                    case 0: currentPlayer.setCurrentLocationType(LocationType.FARM); break;
+                    case 1: currentPlayer.setCurrentLocationType(LocationType.OCEAN); break;
+                    case 2: currentPlayer.setCurrentLocationType(LocationType.FOREST_RIVER); break;
+                    case 3: currentPlayer.setCurrentLocationType(LocationType.TOWN); break;
+                    case 4: currentPlayer.setCurrentLocationType(LocationType.HOUSE); break;
+                    case 5: currentPlayer.setCurrentLocationType(LocationType.STORE); break;
+                    case 6: currentPlayer.setCurrentLocationType(LocationType.POND); break;  
+                    default: currentPlayer.setCurrentLocationType(LocationType.FARM); break; 
                 }
             }
             tileManager.loadMap(farm.getMapPathFor(mapIndex), mapIndex);
-            aSetter.setInteractableObject();
-            playMusic();
+            aSetter.setInteractableObject(); 
+            playMusic(); 
         }
     }
-
-    public void passedOutSleep() { 
-        if (gameState.getGameState() == gameState.day_report) {
-            return;
-        }
-
-        if (timeManager != null) {
-            timeManager.stopTimeSystem();
-        }
-        gameState.setGameState(gameState.day_report);
-    
-        Player playerModel = farm.getPlayerModel();
-        String reasonMessage;
-    
-        if (playerModel.isForceSleepByTime()) { 
-            playerModel.setEnergy(playerModel.getMaxEnergy() / 2);
-            reasonMessage = "Kamu Tidur Paksa Karena Waktu Sudah Larut.";
-        } else if (playerModel.isPassedOut()) { 
-            playerModel.setSleepReason(SleepReason.PASSED_OUT_ENERGY);
-            reasonMessage = "Kamu Pingsan Karena Energi Terlalu Rendah.";
-            playerModel.setEnergy(10);
-        } else {
-            playerModel.setSleepReason(SleepReason.NORMAL);
-            reasonMessage = "Kamu Tertidur Dengan Nyenyak.";
-        }
-
-        processEndOfDayEvents();
-        if (getGameStateUI() != null) {
-            getGameStateUI().setEndOfDayInfo(reasonMessage, farm.getGoldFromLastShipment());
-        }
-    }
-
-    public void activateSetTimeTo2AMCheat() {
-        if (farm == null || farm.getGameClock() == null || timeManager == null) {
-            return;
-        }
-    
-        GameClock gameClock = farm.getGameClock();
-        gameClock.setCurrentTime(java.time.LocalTime.of(1, 50));
         
-        this.timeManager.notifyObservers(); 
+
+    public void passedOutSleep() {
+
+        if (gameState.getGameState() == gameState.day_report) { 
+            return;
+        }
+
+        if (timeManager != null) { 
+            timeManager.stopTimeSystem(); 
+        }
+        gameState.setGameState(gameState.day_report); 
+
+        Player playerModel = farm.getPlayerModel(); 
+        String reasonMessage;
+
+
+        if (playerModel.isForceSleepByTime()) {  
+            reasonMessage = "Kamu Tidur Paksa Karena Waktu Sudah Larut."; 
+        } else if (playerModel.isPassedOut()) { 
+            reasonMessage = "Kamu Pingsan Karena Energi Terlalu Rendah."; 
+        } else {
+            reasonMessage = "Kamu Tertidur Dengan Nyenyak."; 
+        }
     }
+
     
     public Farm getFarmModel() { return this.farm; }
     public GameState getGameState() { return this.gameState; }
@@ -735,7 +739,7 @@ public class GameController implements Runnable {
         }
 
         if (farm.getCurrentMap() != 4) {
-             visitingAction(4, 6 * tileSize, 10 * tileSize); 
+            visitingAction(4, 6 * tileSize, 10 * tileSize); 
         } else {
             if (playerView != null) {
                 playerView.worldX = 6 * tileSize;
@@ -971,83 +975,121 @@ public class GameController implements Runnable {
         System.out.println("GameController LOG: End of day and stats check procedures complete.");
     }
 
-    /**
-     * Dipanggil oleh SleepAction atau ketika TimeManager memaksa tidur.
-     * Metode ini akan mengatur transisi ke layar laporan harian.
-     */
+   
     public void initiateSleepSequence() {
-        System.out.println("GameController: Player is initiating sleep sequence.");
+        Player playerModel = farm.getPlayerModel(); 
+       
 
-        // 1. Majukan hari (GameClock.nextDay akan mengupdate PlayerStats.totalDaysPlayed)
-        if (this.farm.getGameClock() != null && this.playerModel.getPlayerStats() != null) {
-            this.farm.getGameClock().nextDay(this.playerModel.getPlayerStats());
-        } else {
-             System.err.println("GameController ERROR: GameClock or PlayerStats is null during sleep sequence.");
+        if (this.timeManager != null) {
+            this.timeManager.stopTimeSystem();
         }
+
+        if (this.farm.getGameClock() != null && playerModel.getPlayerStats() != null) { 
+            this.farm.getGameClock().nextDay(playerModel.getPlayerStats()); 
+            this.farm.setCurrentSeason(this.farm.getGameClock().getCurrentSeason());
+            this.farm.setCurrentWeather(this.farm.getGameClock().getTodayWeather());
+
+        } 
+
+        int revenue = farm.processShippedItemsAndGetRevenue();
+        farm.setGoldFromLastShipment(revenue);
         
-        int goldEarnedForReport = this.farm.getGoldFromLastShipment(); // Ambil nilai sebelum di-clear
-                                                                       // Jika ingin menampilkan apa yg akan diterima besok, maka ini adalah
-                                                                       // `farm.calculatePotentialRevenueFromBin()` -- tapi ini belum dijual.
-                                                                       // Untuk yang *sudah* dijual dan diterima,
-                                                                       // `setEndOfDayInfo` perlu dipanggil *sebelum* `getAndClearGoldFromLastShipment`
-                                                                       // di `processEndOfDayAndCheckStats`.
 
-        // Atau, cara lebih mudah: `setEndOfDayInfo` dipanggil DARI `processEndOfDayAndCheckStats`
-        // Tepatnya, sebelum `getAndClearGoldFromLastShipment`.
-        // Untuk alur Anda:
-        // Sleep -> nextDay() -> set DAY_REPORT state -> (UI shows report)
-        // -> Player dismisses report -> processEndOfDayAndCheckStats() (yg ini akan `recordIncome` dan `checkForEndGameStatsTrigger`)
-        // -> set PLAY state
-        // Jadi, `setEndOfDayInfo` di `GameStateUI` perlu data pendapatan yang baru diterima.
 
-        String sleepMessage = "Kamu tidur nyenyak.";
-        if(playerModel.isPassedOut()){
-            sleepMessage = "Kamu pingsan dan terbangun di rumah.";
-            playerModel.setPassedOut(false);
-        } else if (playerModel.isForceSleepByTime()){
-            sleepMessage = "Kamu kelelahan dan tertidur pulas hingga pagi.";
-            playerModel.setForceSleepByTime(false);
+        String sleepMessage = "Kamu tidur nyenyak."; 
+        SleepReason currentSleepReason = playerModel.getSleepReason();
+
+        if (currentSleepReason == SleepReason.PASSED_OUT_ENERGY) {
+            sleepMessage = "Kamu pingsan karena kehabisan energi, Tuhan menggotongmu";
+        } else if (currentSleepReason == SleepReason.PASSED_OUT_TIME) {
+            sleepMessage = "Sudah terlalu larut, kamu tertidur karena kelelahan.";
+        } else if (currentSleepReason == SleepReason.NORMAL) { 
+            sleepMessage = "Kamu tidur dengan nyenyak setelah memilih tidur di kasur.";
         }
+
 
         if (this.gameStateUI != null) {
-            // goldFromShipment akan diproses dan DITAMBAHKAN ke player di processEndOfDayAndCheckStats
-            // jadi untuk laporan, kita tampilkan apa yang BARU SAJA akan diterima.
-            this.gameStateUI.setEndOfDayInfo(sleepMessage, this.farm.getGoldFromLastShipment()); // Menampilkan gold yang akan diterima (dari bin hari ini)
+            this.gameStateUI.setEndOfDayInfo(sleepMessage, this.farm.getGoldFromLastShipment());
         }
 
-
-        // 3. Ubah game state ke laporan harian
-        if (this.timeManager != null) {
-            this.timeManager.stopTimeSystem(); // Hentikan waktu selama laporan
-        }
-        this.gameState.setGameState(this.gameState.day_report); // Gunakan konstanta dari instance gameState
-        System.out.println("GameController LOG: GameState changed to DAY_REPORT.");
+        this.gameState.setGameState(this.gameState.day_report);
+        
 
         if (this.gamePanel != null) this.gamePanel.repaint();
+        
     }
 
-    /**
-     * Dipanggil saat pemain menutup (dismiss) layar laporan akhir hari (misalnya, oleh KeyHandler).
-     */
+
+    
     public void handleEndOfDayReportDismissal() {
-        System.out.println("GameController: End of day report dismissed by player.");
+        Player playerModel = farm.getPlayerModel(); 
         
-        // Proses pendapatan hari ini dan cek statistik end game
-        processEndOfDayAndCheckStats(); // Ini akan memanggil recordIncome dan checkForEndGameStatsTrigger
+        processEndOfDayAndCheckStats();
 
-        // Setelah semua proses selesai, kembalikan ke state bermain normal,
-        // KECUALI jika checkForEndGameStatsTrigger mengubah state ke END_GAME_STATS.
-        if (this.gameState.getGameState() != this.gameState.end_game_stats) {
-            this.gameState.setGameState(this.gameState.play);
-            if (this.timeManager != null) {
-                this.timeManager.startTimeSystem(); // Mulai lagi waktu permainan
-            }
-            System.out.println("GameController LOG: Returned to PLAY state. Time system (if available) resumed.");
+        if (this.gameState.getGameState() == this.gameState.end_game_stats) {
+
+            if (this.gamePanel != null) this.gamePanel.repaint();
+            return;
         }
-        
-        if (this.gamePanel != null) this.gamePanel.repaint();
-    }
 
+        PlayerView playerView = getPlayerViewInstance();
+        int tileSize = getTileSize();
+
+        SleepReason sleepReason = playerModel.getSleepReason();
+        int maxEnergy = playerModel.getMaxEnergy();
+
+        if (sleepReason == SleepReason.PASSED_OUT_ENERGY) {
+            playerModel.setEnergy(10);
+        } else if (sleepReason == SleepReason.PASSED_OUT_TIME) {
+            int energySaatJamDuaPagi = playerModel.getEnergy(); 
+            int energyForNextDay;
+            if (energySaatJamDuaPagi < (0.1 * maxEnergy) && energySaatJamDuaPagi > 0) {
+                energyForNextDay = (int) (maxEnergy * 0.5);
+            } else if (energySaatJamDuaPagi <= 0) {
+                energyForNextDay = 10;
+            } else {
+                energyForNextDay = maxEnergy;
+            }
+            playerModel.setEnergy(energyForNextDay);
+        } else if (sleepReason == SleepReason.NORMAL) {
+            //System.out.println("GameController LOG: Normal sleep, energy restored to max.");
+        } else {
+            playerModel.setEnergy(maxEnergy);
+            
+        }
+   
+
+
+        if (farm.getCurrentMap() != 4) {
+            visitingAction(4, 6 * tileSize, 10 * tileSize);
+        } else {
+            if (playerView != null) {
+                playerView.worldX = 6 * tileSize;
+                playerView.worldY = 10 * tileSize;
+                playerView.direction = "down";
+                if (tileSize != 0) {
+                    playerModel.setTilePosition(playerView.worldX / tileSize, playerView.worldY / tileSize);
+                }
+                playerModel.setCurrentLocationType(LocationType.HOUSE);
+            }
+        }
+       
+        playerModel.setCurrentHeldItem(null);
+        playerModel.setPassedOut(false);
+        playerModel.setForceSleepByTime(false);
+        playerModel.setSleepReason(SleepReason.NOT_SLEEPING); 
+
+
+        gameState.setGameState(gameState.play);
+
+
+        if (timeManager != null) {
+            timeManager.startTimeSystem();
+        }
+
+        if (this.gamePanel != null) this.gamePanel.repaint();
+
+    }
 
     /**
      * Dipanggil oleh MarryingAction setelah pernikahan berhasil.
