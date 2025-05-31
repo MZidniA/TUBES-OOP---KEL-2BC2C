@@ -1252,4 +1252,31 @@ public class GameController implements Runnable {
     //     }
     // }
   
+public void handleEatAction() {
+        Player player = farm.getPlayerModel();
+        if (player == null) return;
+
+        Items itemToEat = player.getCurrentHeldItem();
+        if (itemToEat == null) {
+            System.out.println("No item selected to eat.");
+            return;
+        }
+
+        EatingAction eatingAction = new EatingAction(itemToEat);
+        if (eatingAction.canExecute(farm)) {
+            eatingAction.execute(farm);
+            player.setCurrentHeldItem(null); 
+
+            if (gamePanel != null) {
+                gamePanel.repaint();
+            }
+
+            GameStateUI ui = getGameStateUI();
+            if (ui != null) {
+                ui.showTemporaryMessage("You ate " + itemToEat.getName() + " and restored energy!");
+            }
+        } else {
+            System.out.println("Cannot eat " + itemToEat.getName());
+        }
+    }
 }
