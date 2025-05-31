@@ -13,7 +13,6 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -34,12 +33,20 @@ public class NPCInteractionPanel extends JPanel {
     private Farm farm;
     private String playerName;
     private JLabel infoLabel;
+    private boolean drawBackground = true;  // flag kontrol gambar background
 
+    // Constructor default dengan background digambar
     public NPCInteractionPanel(JFrame parentFrame, GameController controller, Farm farm, String npcName, String playerName) {
+        this(parentFrame, controller, farm, npcName, playerName, true);
+    }
+
+    // Constructor utama dengan flag drawBackground
+    public NPCInteractionPanel(JFrame parentFrame, GameController controller, Farm farm, String npcName, String playerName, boolean drawBackground) {
         this.parentFrame = parentFrame;
         this.controller = controller;
         this.farm = farm;
         this.playerName = playerName;
+        this.drawBackground = drawBackground;
 
         setLayout(null);
         setPreferredSize(new Dimension(300, 320));
@@ -79,7 +86,7 @@ public class NPCInteractionPanel extends JPanel {
                     }
 
                     ChattingDialogPanel dialogPanel = new ChattingDialogPanel(parentFrame, dialogLines, npcName, playerName, action, farm);
-                    JDialog dialog = new JDialog(parentFrame, "Chatting with " + npcName, true);
+                    javax.swing.JDialog dialog = new javax.swing.JDialog(parentFrame, "Chatting with " + npcName, true);
                     dialog.setUndecorated(true);
                     dialog.setContentPane(dialogPanel);
                     dialog.pack();
@@ -103,10 +110,14 @@ public class NPCInteractionPanel extends JPanel {
             JButton storeButton = createPixelButton("Store");
             storeButton.setBounds(80, startY + buttonIndex * (buttonHeight + gap), buttonWidth, buttonHeight);
             storeButton.addActionListener(e -> {
+                // Tutup window ancestor (misal dialog) jika ada
                 SwingUtilities.getWindowAncestor(this).dispose();
+
                 Store store = new Store(farm.getCurrentSeason());
                 StorePanel storePanel = new StorePanel(parentFrame, store, farm.getPlayerModel(), controller, farm, npcName);
                 parentFrame.setContentPane(storePanel);
+                parentFrame.setSize(640, 576);
+                parentFrame.setLocationRelativeTo(null);
                 parentFrame.revalidate();
                 parentFrame.repaint();
             });
@@ -181,7 +192,7 @@ public class NPCInteractionPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (backgroundImage != null) {
+        if (drawBackground && backgroundImage != null) {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }

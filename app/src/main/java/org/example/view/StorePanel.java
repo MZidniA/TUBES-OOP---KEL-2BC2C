@@ -5,9 +5,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.io.InputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -17,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
 
 import org.example.controller.GameController;
 import org.example.controller.StoreController;
@@ -34,25 +36,31 @@ import org.example.model.RecipeDatabase;
 public class StorePanel extends JPanel {
     private final JFrame parentFrame;
     private final Font pixelFont;
+    private Image backgroundImage;
 
     public StorePanel(JFrame parentFrame, Store store, Player player, GameController controller, Farm farm, String npcName) {
         this.parentFrame = parentFrame;
         StoreController storeController = new StoreController(store, player);
         this.pixelFont = loadFont();
 
+        try {
+            backgroundImage = ImageIO.read(getClass().getResourceAsStream("/menu/StoreBG.png"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            backgroundImage = null;
+        }
+
         setPreferredSize(new Dimension(640, 576));
         setLayout(new BorderLayout());
+        setOpaque(true);
 
-        JLabel title = new JLabel("Store - Crops, Seeds, Recipes", SwingConstants.CENTER);
-        title.setFont(pixelFont.deriveFont(Font.BOLD, 16f));
-        title.setForeground(Color.BLACK);
-        add(title, BorderLayout.NORTH);
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setOpaque(false); 
 
-        JPanel scrollPanel = new JPanel();
-        scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
-        scrollPanel.setBackground(new Color(255, 248, 220));
+        contentPanel.setBackground(new Color(255, 248, 220, 200)); 
 
-        addSectionLabel(scrollPanel, "Crops");
+        addSectionLabel(contentPanel, "Crops");
         for (Crops crop : store.getAvailableCrops()) {
             int price = crop.getBuyprice();
             JButton btn = createButton(crop.getName() + " - " + (price > 0 ? price + "g" : "Tidak Dijual"));
@@ -64,10 +72,10 @@ public class StorePanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Uang tidak cukup!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             });
-            scrollPanel.add(btn);
+            contentPanel.add(btn);
         }
 
-        addSectionLabel(scrollPanel, "Seeds");
+        addSectionLabel(contentPanel, "Seeds");
         for (Items item : ItemDatabase.getItemsByCategory("Seeds")) {
             if (item instanceof Seeds seed && seed.isPlantableInSeason(store.getSeason())) {
                 JButton btn = createButton(seed.getName() + " - " + seed.getBuyprice() + "g");
@@ -78,11 +86,11 @@ public class StorePanel extends JPanel {
                         JOptionPane.showMessageDialog(this, "Uang tidak cukup!", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 });
-                scrollPanel.add(btn);
+                contentPanel.add(btn);
             }
         }
 
-        addSectionLabel(scrollPanel, "Recipes");
+        addSectionLabel(contentPanel, "Recipes");
         for (Recipe recipe : RecipeDatabase.getAllRecipes()) {
             if ("Beli di store".equalsIgnoreCase(recipe.getUnlockMechanism())) {
                 JButton btn = createButton(recipe.getDisplayName() + " - Resep");
@@ -93,25 +101,43 @@ public class StorePanel extends JPanel {
                         JOptionPane.showMessageDialog(this, "Uang tidak cukup atau sudah dimiliki.");
                     }
                 });
-                scrollPanel.add(btn);
+                contentPanel.add(btn);
             }
         }
 
         JButton backButton = createButton("BACK");
         backButton.addActionListener(e -> {
+            JPanel wrapper = new JPanel(new java.awt.GridBagLayout());
+            wrapper.setOpaque(false);
+
             NPCInteractionPanel npcPanel = new NPCInteractionPanel(parentFrame, controller, farm, npcName, player.getName());
-            parentFrame.setContentPane(npcPanel);
+            npcPanel.setOpaque(false);
+
+            wrapper.add(npcPanel);
+
+            parentFrame.setContentPane(wrapper);
             parentFrame.revalidate();
             parentFrame.repaint();
         });
 
-        scrollPanel.add(Box.createVerticalStrut(16));
-        scrollPanel.add(backButton);
+        contentPanel.add(Box.createVerticalStrut(16));
+        contentPanel.add(backButton);
 
-        JScrollPane scroll = new JScrollPane(scrollPanel);
+        JScrollPane scroll = new JScrollPane(contentPanel);
+        scroll.setOpaque(false);
+        scroll.getViewport().setOpaque(false);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
+
         add(scroll, BorderLayout.CENTER);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
     private Font loadFont() {
