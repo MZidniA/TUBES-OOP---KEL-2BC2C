@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -26,6 +27,8 @@ public class StatisticsPanel extends JPanel implements ActionListener {
     private Font customFont, titleFontStats, headerFontStats, statFontStats, npcStatFontStats, continueFontStats; // Font untuk statistik
     private ImageIcon buttonIcon;
     private MenuPanel menuPanelInstance;
+    private Font pixelFont = new Font("Press Start 2P", Font.PLAIN, 8); 
+
 
     private boolean showStatisticsPlaceholder = false; // Flag untuk menampilkan statistik
 
@@ -64,6 +67,19 @@ public class StatisticsPanel extends JPanel implements ActionListener {
         startButton.addActionListener(this);
         viewStatsButton.addActionListener(this); // Tambahkan listener
         quitButton.addActionListener(this);
+        JButton backButton = new JButton("BACK");
+        backButton.setFont(pixelFont.deriveFont(10f));
+        backButton.setBounds(270, 500, 100, 30);
+        backButton.setBackground(new Color(102, 51, 51));
+        backButton.setForeground(Color.WHITE);
+        backButton.setFocusPainted(false);
+        backButton.setBorder(BorderFactory.createLineBorder(new Color(80, 40, 40), 2));
+        backButton.addActionListener(e -> {
+            frame.setContentPane(new MenuPanel(frame));
+            frame.revalidate();
+            frame.repaint();
+        });
+        add(backButton);
 
         add(startButton);
         add(viewStatsButton); // Tambahkan tombol ke panel
@@ -106,14 +122,12 @@ public class StatisticsPanel extends JPanel implements ActionListener {
             }
             Font baseFont = Font.createFont(Font.TRUETYPE_FONT, is);
             // Ukuran font statistik dikecilkan
-            titleFontStats = baseFont.deriveFont(16f);         // Dari 20f
-            headerFontStats = baseFont.deriveFont(Font.BOLD, 11f); // Dari 14f
-            statFontStats = baseFont.deriveFont(9f);          // Dari 12f
-            npcStatFontStats = baseFont.deriveFont(8f);       // Dari 11f
-            continueFontStats = baseFont.deriveFont(Font.ITALIC, 10f); // Dari 13f
+            titleFontStats = baseFont.deriveFont(16f);         
+            headerFontStats = baseFont.deriveFont(Font.BOLD, 11f); 
+            statFontStats = baseFont.deriveFont(9f);         
+            npcStatFontStats = baseFont.deriveFont(8f);       
+            continueFontStats = baseFont.deriveFont(Font.ITALIC, 10f); 
         } catch (Exception e) {
-            System.err.println("MenuPanel: Gagal memuat font statistik, menggunakan Arial. Error: " + e.getMessage());
-            // Fallback font juga dikecilkan
             titleFontStats = new Font("Arial", Font.BOLD, 16);
             headerFontStats = new Font("Arial", Font.BOLD, 11);
             statFontStats = new Font("Arial", Font.PLAIN, 9);
@@ -292,12 +306,6 @@ public class StatisticsPanel extends JPanel implements ActionListener {
             drawTextWithShadow(g2, "    Visits: 0", secondColumnX + npcDetailIndent, rightColumnY, npcStatFontStats, Color.LIGHT_GRAY, darkTextShadow);
             rightColumnY += lineHeightMedium; // Beri spasi lebih setelah detail NPC terakhir sebelum NPC berikutnya
         }
-
-
-        // 6. Instruksi untuk Kembali (atau menutup)
-        String continueMsg = "Press 'View Stats' again or 'Quit'"; // Atau sesuaikan
-        int continueY = frameY + frameHeight - tileSize + (tileSize / 3) ; // Disesuaikan posisinya
-        drawTextWithShadow(g2, continueMsg, getXforCenteredTextInWindow(g2, continueMsg, frameX, frameWidth, continueFontStats), continueY, continueFontStats, Color.WHITE, darkTextShadow);
     }
 
 
