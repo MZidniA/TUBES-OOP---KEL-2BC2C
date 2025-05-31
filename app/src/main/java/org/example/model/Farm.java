@@ -1,15 +1,14 @@
 package org.example.model;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.example.model.Map.FarmMap; 
-import org.example.model.NPC.NPC; 
-import org.example.model.Items.Items; 
-import org.example.model.enums.Season; 
+import org.example.model.Items.Items;
+import org.example.model.Map.FarmMap;
+import org.example.model.NPC.NPC;
+import org.example.model.enums.Season;
 import org.example.model.enums.Weather; 
 import org.example.view.InteractableObject.InteractableObject; 
 
@@ -53,6 +52,7 @@ public class Farm {
             case 2 -> "/maps/rivermap.txt";
             case 3 -> "/maps/townmap.txt";
             case 4 -> "/maps/housemap.txt";
+            case 5 -> "/maps/store.txt"; 
             default -> "/maps/map.txt";
         };
     }
@@ -73,6 +73,7 @@ public class Farm {
             activeCookings.add(cookingTask);
         }
     }
+    
     public List<CookingInProgress> getActiveCookings() { return activeCookings; } 
     public FarmMap getFarmMap() { return this.farmMap; } 
     public int getCurrentDay() { return currentDay; } 
@@ -198,5 +199,4 @@ public class Farm {
         this.goldFromLastShipment = 0;
         return gold;
     }
-    
 }

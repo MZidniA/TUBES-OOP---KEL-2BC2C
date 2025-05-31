@@ -1,21 +1,34 @@
 package org.example.view;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.example.controller.GameController;
 import org.example.controller.action.ChattingAction;
 import org.example.controller.action.MarryingAction;
 import org.example.controller.action.ProposingAction;
 import org.example.model.Farm;
-import org.example.model.Items.ItemDatabase;
-import org.example.model.Items.Items;
+import org.example.model.Map.Store;
 import org.example.model.NPC.NPC;
-import org.example.model.enums.RelationshipStats;
 
 public class NPCInteractionPanel extends JPanel {
     private Image backgroundImage;
@@ -26,12 +39,18 @@ public class NPCInteractionPanel extends JPanel {
     private String playerName;
 
     private JLabel infoLabel;
+    private boolean drawBackground = true;
 
     public NPCInteractionPanel(JFrame parentFrame, GameController controller, Farm farm, String npcName, String playerName) {
+        this(parentFrame, controller, farm, npcName, playerName, true);
+    }
+
+    public NPCInteractionPanel(JFrame parentFrame, GameController controller, Farm farm, String npcName, String playerName, boolean drawBackground) {
         this.parentFrame = parentFrame;
         this.controller = controller;
         this.farm = farm;
         this.playerName = playerName;
+        this.drawBackground = drawBackground;
 
         setLayout(null);
         setPreferredSize(new Dimension(360, 360));
@@ -49,25 +68,27 @@ public class NPCInteractionPanel extends JPanel {
         NPC npc = controller.getFarm().getNPCByName(npcName);
 
         String[] actions = {"Chatting", "Gifting", "Proposing", "Marrying"};
-        for (int i = 0; i < actions.length; i++) {
-            String actionName = actions[i];
+        int buttonIndex = 0;
+
+        for (String actionName : actions) {
             JButton btn = createPixelButton(actionName);
-            btn.setBounds((panelWidth - buttonWidth) / 2, startY + i * (buttonHeight + gap), buttonWidth, buttonHeight);
+            btn.setBounds((panelWidth - buttonWidth) / 2, startY + buttonIndex * (buttonHeight + gap), buttonWidth, buttonHeight);
             add(btn);
 
             switch (actionName) {
                 case "Chatting":
                     btn.addActionListener(e -> {
                         List<String> dialogLines = Arrays.asList(
-                            "Hai, senang bertemu denganmu!",
-                            "Aku sedang bersantai hari ini.",
-                            "Cuaca sangat bagus, ya?",
-                            "Sampai jumpa lagi!"
+                                "Hai, senang bertemu denganmu!",
+                                "Aku sedang bersantai hari ini.",
+                                "Cuaca sangat bagus, ya?",
+                                "Sampai jumpa lagi!"
                         );
 
                         ChattingAction action = new ChattingAction(npc, npc.getLocation());
                         if (!action.canExecute(farm)) {
-                            showStyledMessage("Tidak Cukup Energi", "Kamu tidak punya\nenergi cukup untuk ngobrol.");
+                            EnergyWarningDialog warning = new EnergyWarningDialog(parentFrame);
+                            warning.setVisible(true);
                             return;
                         }
 
@@ -85,7 +106,6 @@ public class NPCInteractionPanel extends JPanel {
 
                 case "Gifting":
                     btn.addActionListener(e -> {
-
                         GiftingDialogPanel giftPanel = new GiftingDialogPanel(parentFrame, controller, npc, farm);
 
                         JDialog giftDialog = new JDialog(parentFrame, "Pilih Hadiah untuk " + npc.getName(), true);
@@ -114,7 +134,6 @@ public class NPCInteractionPanel extends JPanel {
                         } else if (action.isRejected()) {
                             showStyledMessage("Lamaran Ditolak", "Lamaranmu ditolak. Bangun relasi lebih kuat dulu ya");
                         }
-
                         updateNPCInfo(npc);
                     });
                     break;
@@ -135,19 +154,42 @@ public class NPCInteractionPanel extends JPanel {
                         } else {
                             showStyledMessage("Gagal Menikah", "Syarat pernikahan belum terpenuhi.");
                         }
-
-
                         updateNPCInfo(npc);
                     });
                     break;
             }
+            buttonIndex++;
+        }
+
+        if (npc.getName().equalsIgnoreCase("Emily")) {
+            JButton storeButton = createPixelButton("Store");
+            storeButton.setBounds((panelWidth - buttonWidth) / 2, startY + buttonIndex * (buttonHeight + gap), buttonWidth, buttonHeight);
+            storeButton.addActionListener(e -> {
+                SwingUtilities.getWindowAncestor(this).dispose();
+
+                Store store = new Store(farm.getCurrentSeason());
+                StorePanel storePanel = new StorePanel(parentFrame, store, farm.getPlayerModel(), controller, farm, npc.getName());
+                parentFrame.setContentPane(storePanel);
+                parentFrame.setSize(640, 576);
+                parentFrame.setLocationRelativeTo(null);
+                parentFrame.revalidate();
+                parentFrame.repaint();
+            });
+            add(storeButton);
+            buttonIndex++;
         }
 
         JButton backButton = createPixelButton("BACK");
         backButton.setFont(pixelFont.deriveFont(10f));
-        int backY = startY + actions.length * (buttonHeight + gap) + 10;
+        int backY = startY + buttonIndex * (buttonHeight + gap) + 10;
         backButton.setBounds((panelWidth - (buttonWidth - 20)) / 2, backY, buttonWidth - 20, buttonHeight - 10);
-        backButton.addActionListener(e -> SwingUtilities.getWindowAncestor(this).dispose());
+        backButton.addActionListener(e -> {
+            controller.getMainFrame().setContentPane(controller.getGamePanel());
+            controller.getMainFrame().revalidate();
+            controller.getMainFrame().repaint();
+            controller.getGamePanel().requestFocusInWindow();
+            controller.getGameState().setGameState(controller.getGameState().play);
+        });
         add(backButton);
 
         infoLabel = new JLabel();
@@ -161,10 +203,10 @@ public class NPCInteractionPanel extends JPanel {
     }
 
     private void showStyledMessage(String title, String message) {
-        UIManager.put("OptionPane.background", new Color(255, 228, 196)); // Light brown
+        UIManager.put("OptionPane.background", new Color(255, 228, 196));
         UIManager.put("Panel.background", new Color(255, 228, 196));
         UIManager.put("OptionPane.messageFont", pixelFont.deriveFont(12f));
-        UIManager.put("Button.background", new Color(102, 51, 51)); // Dark brown
+        UIManager.put("Button.background", new Color(102, 51, 51));
         UIManager.put("Button.foreground", Color.WHITE);
         UIManager.put("Button.font", pixelFont.deriveFont(10f));
 
@@ -197,7 +239,6 @@ public class NPCInteractionPanel extends JPanel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    
     }
 
     private JButton createPixelButton(String text) {
@@ -214,7 +255,7 @@ public class NPCInteractionPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (backgroundImage != null) {
+        if (drawBackground && backgroundImage != null) {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
