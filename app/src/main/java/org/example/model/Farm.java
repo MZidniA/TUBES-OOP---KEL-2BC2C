@@ -14,7 +14,7 @@ import org.example.view.InteractableObject.InteractableObject;
 public class Farm {
     private final Player playerModel;
     private int currentDay;
-    private final InteractableObject[][] objects = new InteractableObject[6][300]; 
+    private final InteractableObject[][] objects = new InteractableObject[7][300]; 
     private int currentMap = 0;
     private List<CookingInProgress> activeCookings = new java.util.ArrayList<>();
     private final PlayerStats playerStats;
@@ -40,15 +40,17 @@ public class Farm {
     public void setCurrentMap(int map) { this.currentMap = map; }
 
     public String getMapPathFor(int mapIndex) {
-        return switch (mapIndex) {
-            case 0 -> "/maps/map.txt";
-            case 1 -> "/maps/beachmap.txt";
-            case 2 -> "/maps/rivermap.txt";
-            case 3 -> "/maps/townmap.txt";   
-            case 4 -> "/maps/housemap.txt";
-            default -> "/maps/map.txt"; 
-        };
-    }
+    return switch (mapIndex) {
+        case 0 -> "/maps/map.txt";
+        case 1 -> "/maps/beachmap.txt";
+        case 2 -> "/maps/rivermap.txt";
+        case 3 -> "/maps/townmap.txt";
+        case 4 -> "/maps/housemap.txt";
+        case 5 -> "/maps/store.txt";      
+        default -> "/maps/map.txt";
+    };
+}
+
     
     public void clearObjects(int mapIndex) {
         if (mapIndex >= 0 && mapIndex < objects.length) {

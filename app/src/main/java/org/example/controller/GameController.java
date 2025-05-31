@@ -231,8 +231,10 @@ public class GameController implements Runnable {
                     targetCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width + currentSpeed) / tileSize;
                     targetRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y + playerViewInstance.solidArea.height / 2) / tileSize;
                     break;
-                default: return;
+                default:
+                    return;
             }
+
             if (targetCol < 0 || targetCol >= getMaxWorldCol() || targetRow < 0 || targetRow >= getMaxWorldRow()) return;
 
             System.out.println("DEBUG: Target Tile for Interaction: (" + targetCol + ", " + targetRow + ")");
@@ -251,14 +253,13 @@ public class GameController implements Runnable {
                 } else {
                     System.out.println("Tidak bisa mengembalikan tanah ini lagi");
                 }
-            } else if (heldItem instanceof Seeds) { 
+            } else if (heldItem instanceof Seeds) {
                 Seeds seedBeingHeld = (Seeds) heldItem;
                 InteractableObject objectAtTargetTile = farm.getObjectAtTile(currentMap, targetCol, targetRow, tileSize);
-                if (objectAtTargetTile instanceof UnplantedTileObject) { 
+                if (objectAtTargetTile instanceof UnplantedTileObject) {
                     PlantingAction plantingAction = new PlantingAction(this, seedBeingHeld, targetCol, targetRow);
                     if (plantingAction.canExecute(farm)) {
                         plantingAction.execute(farm);
-                
                     } else {
                         System.out.println("PlantingAction tidak bisa dieksekusi.");
                     }
@@ -268,15 +269,27 @@ public class GameController implements Runnable {
             if (playerViewInstance.solidArea == null) return;
             int playerCol = (playerViewInstance.worldX + playerViewInstance.solidArea.x + playerViewInstance.solidArea.width / 2) / tileSize;
             int playerRow = (playerViewInstance.worldY + playerViewInstance.solidArea.y + playerViewInstance.solidArea.height / 2) / tileSize;
-            if (currentMap == 0 && playerCol == 31 && playerRow == 15) { teleportPlayer(1, 1 * tileSize, 1 * tileSize); } 
-            else if (currentMap == 1 && playerCol == 1 && playerRow == 1) { teleportPlayer(0, 31 * tileSize, 15 * tileSize); } 
-            else if (currentMap == 1 && playerCol == 30 && playerRow == 1) { teleportPlayer(2, 29 * tileSize, 0 * tileSize); } 
-            else if (currentMap == 2 && playerCol == 29 && playerRow == 0) { teleportPlayer(1, 30 * tileSize, 1 * tileSize); } 
-            else if (currentMap == 2 && playerCol == 0 && playerRow == 31) { teleportPlayer(3, 15 * tileSize, 31* tileSize); } 
-            else if (currentMap == 3 && playerCol == 15 && playerRow == 31) { teleportPlayer(2, 0 * tileSize, 31 * tileSize); } 
-            else if (currentMap == 4 && playerCol == 3 && playerRow == 11) { teleportPlayer(0, 4 * tileSize, 9 * tileSize); }
+
+            if (currentMap == 0 && playerCol == 31 && playerRow == 15) {
+                teleportPlayer(1, 1 * tileSize, 1 * tileSize);
+            } else if (currentMap == 1 && playerCol == 1 && playerRow == 1) {
+                teleportPlayer(0, 31 * tileSize, 15 * tileSize);
+            } else if (currentMap == 1 && playerCol == 30 && playerRow == 1) {
+                teleportPlayer(2, 29 * tileSize, 0 * tileSize);
+            } else if (currentMap == 2 && playerCol == 29 && playerRow == 0) {
+                teleportPlayer(1, 30 * tileSize, 1 * tileSize);
+            } else if (currentMap == 2 && playerCol == 0 && playerRow == 31) {
+                teleportPlayer(3, 15 * tileSize, 31 * tileSize);
+            } else if (currentMap == 3 && playerCol == 15 && playerRow == 31) {
+                teleportPlayer(2, 0 * tileSize, 31 * tileSize);
+            } else if (currentMap == 4 && playerCol == 3 && playerRow == 11) {
+                teleportPlayer(0, 4 * tileSize, 9 * tileSize);
+            } else if (currentMap == 5 && playerCol == 5 && playerRow == 9) {
+                teleportPlayer(3, 29 * tileSize, 5 * tileSize);
+            }
         }
     }
+
 
     public void togglePause() {
         if (gameState.getGameState() == gameState.play) gameState.setGameState(gameState.pause);
@@ -366,7 +379,8 @@ public class GameController implements Runnable {
                     case 2: player.setCurrentLocationType(LocationType.FOREST_RIVER); break;
                     case 3: player.setCurrentLocationType(LocationType.TOWN); break;
                     case 4: player.setCurrentLocationType(LocationType.HOUSE); break;
-                    case 5: player.setCurrentLocationType(LocationType.POND); break; 
+                    case 5: player.setCurrentLocationType(LocationType.STORE); break;
+                    case 6: player.setCurrentLocationType(LocationType.POND); break; 
                     default: player.setCurrentLocationType(LocationType.FARM); break; 
                 }
             }
