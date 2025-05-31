@@ -582,18 +582,13 @@ public class GameStateUI implements TimeObserver {
         g2.drawRoundRect(cursorX - 2, cursorY - 2, slotSize + 4, slotSize + 4, 10, 10);
     }
 
-    private void drawShippingBinScreen(Inventory playerInventory, Player player,
-                                   Map<Items, Integer> currentItemsInBin, 
-                                   int currentUniqueItemCountInBin,    
-                                   int currentMaxUniqueSlotsInBin) {   
+    private void drawShippingBinScreen(Inventory playerInventory, Player player, Map<Items, Integer> currentItemsInBin,  int currentUniqueItemCountInBin,     int currentMaxUniqueSlotsInBin) {   
         if (player == null) {
-
             return;
         }
         if (g2 == null || gp == null) {
             return;
         }
-
 
         final int mainFrameX = gp.tileSize / 2;
         final int mainFrameY = gp.tileSize / 2;
@@ -608,34 +603,51 @@ public class GameStateUI implements TimeObserver {
         drawTextWithShadow(titleText, titleXVal, titleYVal, titleFont, Color.WHITE, new Color(40, 20, 10));
 
         Font infoFont = (stardewFont_30 != null ? stardewFont_30.deriveFont(10f) : defaultFont.deriveFont(Font.PLAIN, 10F));
+
+        int currentTopY = titleYVal + gp.tileSize / 2 + 5; 
+        int verticalGap = gp.tileSize / 2 + 8; // Jarak vertikal lebih besar
+
         String goldText = "Gold: " + player.getGold() + "g";
-        drawTextWithShadow(goldText, mainFrameX + gp.tileSize / 2, titleYVal + gp.tileSize / 2 + 5, infoFont, Color.YELLOW, darkTextShadow);
+        drawTextWithShadow(goldText, mainFrameX + gp.tileSize / 2, currentTopY, infoFont, Color.YELLOW, darkTextShadow);
 
-        String binSlotsText = "Slots " + currentUniqueItemCountInBin + "/" + currentMaxUniqueSlotsInBin;
+        int dividerX = mainFrameX + (int)(mainFrameWidth * 0.45);
+        int leftAreaWidth = dividerX - mainFrameX - (gp.tileSize / 2);
+
+        currentTopY += verticalGap; 
+        String playerInventoryTitle = "Player Inventory";
+        Font playerInventoryTitleFont = infoFont.deriveFont(Font.BOLD);
+        int playerInventoryTitleX = mainFrameX + (leftAreaWidth - g2.getFontMetrics(playerInventoryTitleFont).stringWidth(playerInventoryTitle)) / 2;
+        drawTextWithShadow(playerInventoryTitle, playerInventoryTitleX, currentTopY, playerInventoryTitleFont, lightYellow, darkTextShadow);
+
+        int rightColumnXStart = dividerX + gp.tileSize / 2; 
+        int rightAreaWidth = (mainFrameX + mainFrameWidth) - rightColumnXStart - (gp.tileSize / 2);
+
+        int binContentsTitleY = titleYVal + gp.tileSize / 2 + 5; 
+        String binContentsTitle = "Bin Contents";
+        Font binContentsTitleFont = infoFont.deriveFont(Font.BOLD);
+        int binContentsTitleX = rightColumnXStart + (rightAreaWidth - g2.getFontMetrics(binContentsTitleFont).stringWidth(binContentsTitle)) / 2;
+        drawTextWithShadow(binContentsTitle, binContentsTitleX, binContentsTitleY, binContentsTitleFont, lightYellow, darkTextShadow);
+
+        int binSlotsTextY = binContentsTitleY + verticalGap; 
+        String binSlotsText = "Slots: " + currentUniqueItemCountInBin + "/" + currentMaxUniqueSlotsInBin;
         int binSlotsTextWidth = g2.getFontMetrics(infoFont).stringWidth(binSlotsText);
-        drawTextWithShadow(binSlotsText, mainFrameX + mainFrameWidth - binSlotsTextWidth - (gp.tileSize / 2), titleYVal + gp.tileSize/2 + 5, infoFont, Color.WHITE, darkTextShadow);
+        int binSlotsTextX = rightColumnXStart + (rightAreaWidth - binSlotsTextWidth) / 2;
+        drawTextWithShadow(binSlotsText, binSlotsTextX, binSlotsTextY, infoFont, Color.WHITE, darkTextShadow);
 
-
-        int dividerX = mainFrameX + (int)(mainFrameWidth * 0.45); 
-        int contentAreaY = titleYVal + gp.tileSize;
-        int contentAreaHeight = mainFrameHeight - (contentAreaY - mainFrameY) - (gp.tileSize * 2) + 10; 
-
+        int contentGridStartY = Math.max(currentTopY, binSlotsTextY) + verticalGap / 2; 
 
         Font itemPlaceholderFont = (stardewFont_20 != null ? stardewFont_20.deriveFont(9F) : defaultFont.deriveFont(Font.PLAIN, 9F));
-
         Font quantityFont = (stardewFont_20 != null ? stardewFont_20.deriveFont(Font.BOLD, 11F) : defaultFont.deriveFont(Font.BOLD, 11F));
-
-
-        // === Area Inventory Pemain (Sisi Kiri) ===
-        drawTextWithShadow("Player Inventory", getXforCenteredTextInWindow("Player Inventory", mainFrameX + 10, (dividerX - mainFrameX - 20), infoFont.deriveFont(Font.BOLD)), contentAreaY, infoFont.deriveFont(Font.BOLD), lightYellow, darkTextShadow);
 
         final int invSlotSize = gp.tileSize + 4; 
         final int invSlotGap = 3;
-        final int invGridPlayerX = mainFrameX + gp.tileSize / 2;
-        final int invGridPlayerY = contentAreaY + 25;
+        final int playerGridTotalWidth = (INV_SLOTS_PER_ROW_IN_SHIPPING_SCREEN * invSlotSize) + ((INV_SLOTS_PER_ROW_IN_SHIPPING_SCREEN - 1) * invSlotGap);
+        final int invGridPlayerX = mainFrameX + (leftAreaWidth - playerGridTotalWidth) / 2;
+        final int invGridPlayerY = contentGridStartY; 
         ArrayList<Map.Entry<Items, Integer>> inventoryList = new ArrayList<>(playerInventory.getInventory().entrySet());
 
-        int invRowsToDisplay = (contentAreaHeight - 25) / (invSlotSize + invSlotGap); 
+        int invRowsAvailable = ((mainFrameY + mainFrameHeight - (gp.tileSize * 2 + 10)) - invGridPlayerY) / (invSlotSize + invSlotGap) ;
+        int invRowsToDisplay = Math.max(0, invRowsAvailable);
         int invMaxItemsToDisplay = INV_SLOTS_PER_ROW_IN_SHIPPING_SCREEN * invRowsToDisplay;
 
         for (int i = 0; i < Math.min(inventoryList.size(), invMaxItemsToDisplay); i++) {
@@ -645,7 +657,6 @@ public class GameStateUI implements TimeObserver {
             int currentSlotX = invGridPlayerX + c * (invSlotSize + invSlotGap);
             int currentSlotY = invGridPlayerY + r * (invSlotSize + invSlotGap);
 
-  
             g2.setColor(new Color(101, 67, 33, 200)); 
             g2.fillRoundRect(currentSlotX, currentSlotY, invSlotSize, invSlotSize, 8, 8);
             g2.setColor(borderColor);
@@ -665,7 +676,7 @@ public class GameStateUI implements TimeObserver {
                 if (itemName.length() > maxNameLengthInSlot) {
                     itemName = itemName.substring(0, Math.min(itemName.length(), maxNameLengthInSlot - 2)) + "..";
                 }
-                java.awt.FontMetrics fmItemName = g2.getFontMetrics();
+                FontMetrics fmItemName = g2.getFontMetrics(); // Menggunakan java.awt.FontMetrics
                 int textWidth = fmItemName.stringWidth(itemName);
                 int textX = currentSlotX + (invSlotSize - textWidth) / 2;
                 int textY = currentSlotY + (invSlotSize / 2) + (fmItemName.getAscent() / 3);
@@ -675,25 +686,35 @@ public class GameStateUI implements TimeObserver {
             if (quantity > 0) { 
                 g2.setFont(quantityFont);
                 String qtyText = String.valueOf(quantity);
-                java.awt.FontMetrics fmQty = g2.getFontMetrics();
-                int qtyTextWidth = fmQty.stringWidth(qtyText);
-    
+                int qtyTextWidth = g2.getFontMetrics(quantityFont).stringWidth(qtyText); // Pastikan font benar
                 drawTextWithShadow(qtyText, currentSlotX + invSlotSize - qtyTextWidth - 3, currentSlotY + invSlotSize - 3, quantityFont, Color.WHITE, darkTextShadow.darker());
+                }
+        }
+
+        if (!inventoryList.isEmpty()) {
+            int currentSelectedPlayerItemIndex = slotCol + (slotRow * INV_SLOTS_PER_ROW_IN_SHIPPING_SCREEN);
+            if (slotCol < INV_SLOTS_PER_ROW_IN_SHIPPING_SCREEN && slotRow < invRowsToDisplay &&
+                currentSelectedPlayerItemIndex < invMaxItemsToDisplay ) { 
+                int cursorPlayerX = invGridPlayerX + slotCol * (invSlotSize + invSlotGap);
+                int cursorPlayerY = invGridPlayerY + slotRow * (invSlotSize + invSlotGap);
+
+                g2.setColor(Color.YELLOW); 
+                g2.setStroke(new BasicStroke(3));
+                g2.drawRoundRect(cursorPlayerX - 2, cursorPlayerY - 2, invSlotSize + 4, invSlotSize + 4, 10, 10);
             }
         }
 
-
-        int binAreaX = dividerX + 10; 
-        int binAreaWidth = (mainFrameX + mainFrameWidth - binAreaX) - (gp.tileSize / 2); // Lebar area bin
-        drawTextWithShadow("Bin Contents", getXforCenteredTextInWindow("Bin Contents", binAreaX, binAreaWidth, infoFont.deriveFont(Font.BOLD)), contentAreaY, infoFont.deriveFont(Font.BOLD), lightYellow, darkTextShadow);
 
         ArrayList<Map.Entry<Items, Integer>> itemsInBinList = new ArrayList<>(currentItemsInBin.entrySet()); 
         final int binSlotsPerRow = 4; 
         final int binSlotSize = gp.tileSize + 4;
         final int binSlotGap = 3;
-        int binGridX = binAreaX + (binAreaWidth - (binSlotsPerRow * binSlotSize + (binSlotsPerRow -1) * binSlotGap)) / 2; 
-        int binGridY = contentAreaY + 25;
-        int binRowsToDisplay = (contentAreaHeight - 25) / (binSlotSize + binSlotGap);
+        int binGridTotalWidth = (binSlotsPerRow * binSlotSize) + ((binSlotsPerRow - 1) * binSlotGap);
+        int binGridX = rightColumnXStart + (rightAreaWidth - binGridTotalWidth) / 2; 
+        final int binGridY = contentGridStartY;
+
+        int binRowsAvailable = ((mainFrameY + mainFrameHeight - (gp.tileSize * 2 + 10)) - binGridY) / (binSlotSize + binSlotGap) ;
+        int binRowsToDisplay = Math.max(0, binRowsAvailable);
 
 
         for (int i = 0; i < currentMaxUniqueSlotsInBin; i++) { 
@@ -705,7 +726,6 @@ public class GameStateUI implements TimeObserver {
             int currentSlotX = binGridX + c * (binSlotSize + binSlotGap);
             int currentSlotY = binGridY + r * (binSlotSize + binSlotGap);
 
-            // Latar belakang slot bin
             g2.setColor(new Color(40, 25, 15, 210)); 
             g2.fillRoundRect(currentSlotX, currentSlotY, binSlotSize, binSlotSize, 8, 8);
             g2.setColor(borderColor.darker());
@@ -730,22 +750,24 @@ public class GameStateUI implements TimeObserver {
                     drawTextWithShadow(qtyText, currentSlotX + binSlotSize - g2.getFontMetrics(quantityFont).stringWidth(qtyText) - 3, currentSlotY + binSlotSize - 3, quantityFont, Color.WHITE, darkTextShadow);
                 }
 
-                g2.setFont(infoFont.deriveFont(9f)); 
-                g2.setColor(Color.YELLOW);
-                String priceText = item.getSellprice() + "g";
-                g2.drawString(priceText, currentSlotX + 3, currentSlotY + g2.getFontMetrics().getAscent() + 1);
+            g2.setFont(infoFont.deriveFont(9f)); 
+            g2.setColor(Color.YELLOW);
+            String priceText = item.getSellprice() + "g";
+            g2.drawString(priceText, currentSlotX + 3, currentSlotY + g2.getFontMetrics().getAscent() + 1);
 
             } else { 
                 g2.setColor(new Color(80, 40, 0, 150)); 
                 g2.fillRoundRect(currentSlotX + 2, currentSlotY + 2, binSlotSize - 4, binSlotSize - 4, 8, 8);
                 g2.setFont(itemPlaceholderFont);
                 g2.setColor(Color.LIGHT_GRAY);
-                String emptyText = "Kosong";
+                String emptyText = ""; 
                 int emptyTextWidth = g2.getFontMetrics().stringWidth(emptyText);
                 g2.drawString(emptyText, currentSlotX + (binSlotSize - emptyTextWidth) / 2, currentSlotY + (binSlotSize / 2) + (g2.getFontMetrics().getAscent() / 3));
             }
         }
 
+        int infoPanelY = mainFrameY + mainFrameHeight - (gp.tileSize) - 15; 
+        Font itemInfoFont = (stardewFont_30 != null ? stardewFont_30.deriveFont(11f) : defaultFont.deriveFont(Font.PLAIN, 11f));
 
         int selectedSlotIndexInPlayerInv = slotCol + (slotRow * INV_SLOTS_PER_ROW_IN_SHIPPING_SCREEN);
         String itemInfoMessage = "Pilih Item Untuk di Jual.";
@@ -764,21 +786,18 @@ public class GameStateUI implements TimeObserver {
                 }
             } else {
                 itemInfoMessage += " (Tidak Bisa di Jual)";
-                itemInfoColor = nonShippableColor;
+            itemInfoColor = nonShippableColor;
             }
         } else if (!inventoryList.isEmpty()){ 
             itemInfoMessage = "Memilih Slot Kosong";
         } else { 
-            itemInfoMessage = "Inventory Kosonng";
+            itemInfoMessage = "Inventory Kosong";
         }
 
-
-        int infoPanelY = mainFrameY + mainFrameHeight - (gp.tileSize) - 5;
-        Font itemInfoFont = (stardewFont_30 != null ? stardewFont_30.deriveFont(11f) : defaultFont.deriveFont(Font.PLAIN, 11f));
         drawTextWithShadow(itemInfoMessage, getXforCenteredTextInWindow(itemInfoMessage, mainFrameX, mainFrameWidth, itemInfoFont), infoPanelY, itemInfoFont, itemInfoColor, darkTextShadow);
 
         String instruction = "[Enter] Tambahkan Ke Shipping Bin  |  [Esc] Keluar";
-        drawTextWithShadow(instruction, getXforCenteredTextInWindow(instruction, mainFrameX, mainFrameWidth, infoFont.deriveFont(9f)), infoPanelY + 18, infoFont.deriveFont(9f), Color.WHITE, darkTextShadow); // Sesuaikan Y
+        drawTextWithShadow(instruction, getXforCenteredTextInWindow(instruction, mainFrameX, mainFrameWidth, infoFont.deriveFont(9f)), infoPanelY + 18, infoFont.deriveFont(9f), Color.WHITE, darkTextShadow);
 
         g2.setStroke(new BasicStroke(1)); 
     }

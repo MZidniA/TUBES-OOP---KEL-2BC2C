@@ -141,9 +141,7 @@ public class GameClock {
 
     // Add this method to provide weather forecast
     public Weather getWeatherForecast() {
-        // Replace this with your actual logic for forecasting weather
-        // For now, return the current weather or a random one as a placeholder
-        return Weather.SUNNY; // or your actual logic
+        return Weather.SUNNY; 
     }
     public void advanceTimeByMinutes(Farm farm, int minutes) {
         int totalMinutes = this.currentTime.getHour() * 60 + this.currentTime.getMinute();
@@ -154,7 +152,7 @@ public class GameClock {
 
         if (newHour >= 24) {
             nextDay(farm.getPlayerStats());
-            this.currentTime = LocalTime.of(newHour % 24, newMinute); // ✅ tetap set waktu baru meskipun hari baru
+            this.currentTime = LocalTime.of(newHour % 24, newMinute); 
         } else {
             this.currentTime = LocalTime.of(newHour, newMinute);
         }

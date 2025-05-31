@@ -196,7 +196,6 @@ public class GameController implements Runnable {
         // Tambahkan 'else if' agar tidak terjadi dua kali passedOutSleep jika keduanya true di frame yang sama
         else if (playerModel.isForceSleepByTime()) { 
             passedOutSleep();
-            System.out.println("Sudah jam 02:00, kamu kelelahan dan pingsan"); // Pesan ini bisa juga dihandle oleh UI
         }
 
         // Logika update spesifik untuk state PLAY
@@ -259,7 +258,6 @@ public class GameController implements Runnable {
             }
             if (targetCol < 0 || targetCol >= getMaxWorldCol() || targetRow < 0 || targetRow >= getMaxWorldRow()) return;
 
-            System.out.println("DEBUG: Target Tile for Interaction: (" + targetCol + ", " + targetRow + ")");
 
             if (heldItem.getName().equalsIgnoreCase("Hoe")) {
                 TillingAction tilling = new TillingAction(this, targetCol, targetRow);
