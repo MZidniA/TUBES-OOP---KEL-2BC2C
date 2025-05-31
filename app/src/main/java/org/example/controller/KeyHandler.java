@@ -24,9 +24,6 @@ public class KeyHandler implements KeyListener {
         if (gameController == null || gameController.getGameState() == null) return;
         GameState currentGameState = gameController.getGameState();
 
-
-
-
         if (currentGameState.getGameState() == currentGameState.play) { //
             if (cheatManager != null && e.isControlDown()) {
                 boolean cheatActivated = false;
@@ -76,6 +73,7 @@ public class KeyHandler implements KeyListener {
                     case KeyEvent.VK_S: case KeyEvent.VK_DOWN: gameController.handlePlayerMove("down", true); break;
                     case KeyEvent.VK_A: case KeyEvent.VK_LEFT: gameController.handlePlayerMove("left", true); break;
                     case KeyEvent.VK_D: case KeyEvent.VK_RIGHT: gameController.handlePlayerMove("right", true); break;
+                    case KeyEvent.VK_E: gameController.handleEatAction(); break;
                     case KeyEvent.VK_F: gameController.handleInteraction(); break;
                     case KeyEvent.VK_ESCAPE: gameController.togglePause(); break;
                     case KeyEvent.VK_I: gameController.toggleInventory(); break;

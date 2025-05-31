@@ -27,6 +27,6 @@ public class EmilyStore extends InteractableObject {
     public void interact(GameController controller) {
         int tileSize = controller.getTileSize();
         int currentMap = controller.getFarmModel().getCurrentMap();
-        controller.teleportPlayer(5, 9 * tileSize, 25 * tileSize);
+        controller.visitingAction(5, 9 * tileSize, 25 * tileSize);
     }
 }

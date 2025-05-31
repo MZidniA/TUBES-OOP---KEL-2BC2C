@@ -9,12 +9,9 @@ import javax.swing.SwingUtilities;
 
 import org.example.controller.action.Action;
 import org.example.controller.action.CookingAction;
+import org.example.controller.action.EatingAction;
 import org.example.controller.action.MarryingAction;
-import org.example.controller.action.PlantingAction;
-import org.example.controller.action.RecoverLandAction;
 import org.example.controller.action.TillingAction;
-import org.example.controller.CheatManager;
-import org.example.controller.KeyHandler;
 import org.example.model.Farm;
 import org.example.model.GameClock;
 import org.example.model.Inventory;
@@ -903,7 +900,7 @@ public class GameController implements Runnable {
         PlayerStats stats = playerModel.getPlayerStats();
 
         if (stats.hasShownEndGameStats()) {
-            return; // Statistik sudah pernah ditampilkan, jangan tampilkan lagi
+            return;
         }
 
         boolean playerIsMarried = playerModel.getPartner() != null &&
@@ -921,11 +918,11 @@ public class GameController implements Runnable {
             } else {
                 System.out.println("GameController WARNING: TimeManager is null, cannot stop time system for stats.");
             }
-            this.gameState.setGameState(this.gameState.end_game_stats); // Gunakan konstanta dari instance gameState
+            this.gameState.setGameState(this.gameState.end_game_stats);
             System.out.println("GameController LOG: GameState changed to END_GAME_STATS. Time system (if available) stopped.");
             
             if (this.gamePanel != null) {
-                this.gamePanel.repaint(); // Minta repaint untuk update UI
+                this.gamePanel.repaint(); 
             }
         }
     }
