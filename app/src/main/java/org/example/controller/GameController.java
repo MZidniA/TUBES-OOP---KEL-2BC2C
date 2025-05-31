@@ -291,8 +291,12 @@ public class GameController implements Runnable {
     }
 
     public void togglePause() {
-        if (gameState.getGameState() == gameState.play) gameState.setGameState(gameState.pause);
-        else if (gameState.getGameState() == gameState.pause) gameState.setGameState(gameState.play);
+        if (gameState.getGameState() == gameState.play) {
+            gameState.setGameState(gameState.pause);
+        }
+        else if (gameState.getGameState() == gameState.pause) {
+            gameState.setGameState(gameState.play);
+        }
     }
     public void toggleInventory() {
         if (gameState.getGameState() == gameState.play) gameState.setGameState(gameState.inventory);
@@ -334,12 +338,12 @@ public class GameController implements Runnable {
 
         if (gameThread != null) {
             Thread threadToStop = gameThread;
-            gameThread = null; // Ini akan menghentikan loop 'run()'
+            gameThread = null; 
             try {
                 if (threadToStop.isAlive()) {
                     System.out.println("GameController: Waiting for game thread to stop...");
                     // threadToStop.interrupt(); // Gunakan jika loop run menangani InterruptedException
-                    threadToStop.join(100); // Tunggu maks 100ms
+                    threadToStop.join(100); 
                     if (threadToStop.isAlive()) {
                         System.err.println("GameController: Game thread did not stop in time.");
                     } else {
@@ -360,7 +364,7 @@ public class GameController implements Runnable {
     }
 
     public void exitToMainMenu() {
-        cleanUpForExit(); // Hentikan semua proses game saat ini
+        cleanUpForExit(); 
 
         if (mainFrame != null) {
             System.out.println("GameController: Returning to MenuPanel.");
@@ -451,22 +455,18 @@ public class GameController implements Runnable {
         }
     }
 
-    public void passedOutSleep() { // Atau bisa Anda rename menjadi initiateSleepSequence jika mau lebih jelas
-        // 1. Mencegah pemanggilan ganda jika sudah dalam proses
+    public void passedOutSleep() { 
         if (gameState.getGameState() == gameState.day_report) {
-            System.out.println("GameController: Sleep/PassOut sequence already in progress. Aborting."); // DEBUG
             return;
         }
     
-        System.out.println("GameController: Player sleep/pass out sequence initiated.");
     
         // 2. Hentikan TimeManager SEKALI di awal
         if (timeManager != null) {
             timeManager.stopTimeSystem();
-            System.out.println("TimeManager: Time system stopped by sleep/pass out sequence."); // DEBUG
         }
     
-        // 3. Segera ubah gameState untuk mencegah logika 'play' berjalan lagi di update()
+
         gameState.setGameState(gameState.day_report);
         System.out.println("GameController: GameState set to day_report."); // DEBUG
     
@@ -503,7 +503,7 @@ public class GameController implements Runnable {
             System.out.println("GameController: End of day info set for UI."); // DEBUG
         }
         // Musik bisa dihentikan di sini jika perlu
-        // stopMusic();
+
     }
     
 
@@ -628,7 +628,6 @@ public class GameController implements Runnable {
         }
 
         int revenue = farm.processShippedItemsAndGetRevenue();
-        System.out.println("GameController (processEndOfDayEvents): Revenue calculated: " + revenue); // DEBUG
         farm.setGoldFromLastShipment(revenue);
     }
 
@@ -662,7 +661,6 @@ public class GameController implements Runnable {
             int maxSlotIndex = itemCount - 1;
             int currentRow = ui.slotRow;
             int currentCol = ui.slotCol;
-            int currentLinearIndex = currentRow * slotsPerRow + currentCol;
 
             switch (direction) {
                 case "up":
@@ -722,8 +720,7 @@ public class GameController implements Runnable {
                 // dan pengurangan dari inventory pemain.
                 if (farm.addItemToShippingBin(selectedItem, 1)) { // Coba tambahkan 1 item
                     String message = "Added " + selectedItem.getName() + " to bin.";
-                    // Pesan ini bisa menggunakan showTemporaryMessage agar hilang otomatis
-                    // atau tetap di setDialogue jika ingin konfirmasi lebih lama
+    
                  
                     System.out.println(message);
     
@@ -781,7 +778,6 @@ public class GameController implements Runnable {
 
         int shippedGold = farm.getAndClearGoldFromLastShipment();
         System.out.println("GameController (proceedToNextDayFromReport): Gold from shipment to award: " + shippedGold); // DEBUG
-        String morningMessage = "Good morning!";
         if (shippedGold > 0) {
             playerModel.addGold(shippedGold);
             System.out.println("GameController (proceedToNextDayFromReport): Player gold AFTER award: " + playerModel.getGold()); // DEBUG
@@ -816,7 +812,6 @@ public class GameController implements Runnable {
         playerModel.setSleepReason(SleepReason.NOT_SLEEPING); // Reset alasan tidur
 
 
-        // 5. Set state game ke play dan mulai waktu
         gameState.setGameState(gameState.play);
         if (timeManager != null) {
             timeManager.startTimeSystem();
