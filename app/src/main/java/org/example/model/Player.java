@@ -20,6 +20,7 @@ public class Player {
     private Inventory inventory;
     private LocationType currentLocationType;
     private Items currentHeldItem;
+    private PlayerStats playerStats = new PlayerStats();
 
     private int tileX = 0;
     private int tileY = 0;
@@ -157,5 +158,13 @@ public class Player {
         } else {
             System.out.println("Hands are empty.");
         }
+    }
+
+    public PlayerStats getPlayerStats() {
+        return playerStats;
+    }
+
+    public void setPlayerStats(PlayerStats stats) {
+        this.playerStats = stats;
     }
 }

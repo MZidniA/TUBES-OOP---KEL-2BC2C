@@ -1,16 +1,29 @@
 package org.example.view;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.example.controller.GameController;
 import org.example.controller.action.ChattingAction;
 import org.example.model.Farm;
-import org.example.model.NPC.*;
+import org.example.model.Map.Store;
+import org.example.model.NPC.NPC;
 
 public class NPCInteractionPanel extends JPanel {
     private Image backgroundImage;
@@ -19,8 +32,7 @@ public class NPCInteractionPanel extends JPanel {
     private GameController controller;
     private Farm farm;
     private String playerName;
-
-    private JLabel infoLabel; // 👉 digabung jadi satu label
+    private JLabel infoLabel;
 
     public NPCInteractionPanel(JFrame parentFrame, GameController controller, Farm farm, String npcName, String playerName) {
         this.parentFrame = parentFrame;
@@ -41,13 +53,12 @@ public class NPCInteractionPanel extends JPanel {
         int gap = 10;
 
         NPC npc = controller.getFarm().getNPCByName(npcName);
-
-        // Tombol aksi
         String[] actions = {"Chatting", "Gifting", "Proposing", "Marrying"};
-        for (int i = 0; i < actions.length; i++) {
-            String actionName = actions[i];
+        int buttonIndex = 0;
+
+        for (String actionName : actions) {
             JButton btn = createPixelButton(actionName);
-            btn.setBounds(80, startY + i * (buttonHeight + gap), buttonWidth, buttonHeight);
+            btn.setBounds(80, startY + buttonIndex * (buttonHeight + gap), buttonWidth, buttonHeight);
             add(btn);
 
             if (actionName.equals("Chatting")) {
@@ -67,7 +78,6 @@ public class NPCInteractionPanel extends JPanel {
                     }
 
                     ChattingDialogPanel dialogPanel = new ChattingDialogPanel(parentFrame, dialogLines, npcName, playerName, action, farm);
-
                     JDialog dialog = new JDialog(parentFrame, "Chatting with " + npcName, true);
                     dialog.setUndecorated(true);
                     dialog.setContentPane(dialogPanel);
@@ -75,7 +85,7 @@ public class NPCInteractionPanel extends JPanel {
                     dialog.setLocationRelativeTo(parentFrame);
                     dialog.setVisible(true);
 
-                    updateNPCInfo(npc); // realtime update
+                    updateNPCInfo(npc);
                 });
             } else {
                 btn.addActionListener(e -> {
@@ -85,9 +95,23 @@ public class NPCInteractionPanel extends JPanel {
                         JOptionPane.INFORMATION_MESSAGE);
                 });
             }
+            buttonIndex++;
         }
 
-        // Tombol BACK
+        if (npc.getName().equalsIgnoreCase("Emily")) {
+            JButton storeButton = createPixelButton("Store");
+            storeButton.setBounds(80, startY + buttonIndex * (buttonHeight + gap), buttonWidth, buttonHeight);
+            storeButton.addActionListener(e -> {
+                Store store = new Store(farm.getCurrentSeason());
+                StorePanel storePanel = new StorePanel(parentFrame, store, farm.getPlayerModel(), controller, farm, npcName);
+                parentFrame.setContentPane(storePanel);
+                parentFrame.revalidate();
+                parentFrame.repaint();
+            });
+            add(storeButton);
+            buttonIndex++;
+        }
+
         JButton backButton = new JButton("BACK");
         backButton.setFont(pixelFont.deriveFont(10f));
         backButton.setForeground(Color.WHITE);
@@ -95,16 +119,19 @@ public class NPCInteractionPanel extends JPanel {
         backButton.setBorder(BorderFactory.createLineBorder(new Color(60, 30, 30), 2));
         backButton.setFocusPainted(false);
         backButton.setOpaque(true);
-        int backY = startY + actions.length * (buttonHeight + gap) + 10;
+        int backY = startY + buttonIndex * (buttonHeight + gap) + 10;
         backButton.setBounds(90, backY, buttonWidth - 20, buttonHeight - 10);
-        backButton.addActionListener(e -> SwingUtilities.getWindowAncestor(this).dispose());
+        backButton.addActionListener(e -> {
+            parentFrame.setContentPane(controller.getGamePanel());
+            parentFrame.revalidate();
+            parentFrame.repaint();
+        });
         add(backButton);
 
-        // 🆕 Label info digabung jadi satu
         infoLabel = new JLabel();
         infoLabel.setFont(pixelFont.deriveFont(9f));
         infoLabel.setForeground(Color.WHITE);
-        infoLabel.setBounds(40, backY + 50, 300, 15); // bawah BACK
+        infoLabel.setBounds(40, backY + 50, 300, 15);
         add(infoLabel);
 
         updateNPCInfo(npc);

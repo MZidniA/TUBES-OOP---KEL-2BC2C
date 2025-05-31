@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set; 
+import java.util.Set;
 
+import org.example.model.Items.Items;
 import org.example.model.NPC.NPC;
 import org.example.model.enums.FishType;
 
@@ -40,7 +41,6 @@ public class PlayerStats {
         this.unlockedRecipeIds = new HashSet<>();
         
     }
-
 
     public void unlockRecipe(String recipeId) {
         if (recipeId != null && !recipeId.isEmpty()) {
@@ -118,4 +118,10 @@ public class PlayerStats {
     public Map<String, Integer> getNpcFriendshipPoints() { return npcFriendshipPoints; }
     public Map<String, Integer> getNpcTotalChat() { return npcTotalChat; } 
     public Map<String, Integer> getNpcTotalGift() { return npcTotalGift; }
+
+    public void recordObtainedItem(Items item) {
+        if (item == null || item.getName() == null || item.getName().isEmpty()) return;
+
+        System.out.println("PlayerStats: Item diperoleh - " + item.getName());
+    }
 }
